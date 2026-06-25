@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blossom Planner</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h1 class="logo">🌸 Blossom</h1>
+
+      <button class="nav-btn active">🏠 Dashboard</button>
+      <button class="nav-btn">📅 Calendar</button>
+      <button class="nav-btn">✅ Tasks</button>
+      <button class="nav-btn">📝 Notes</button>
+      <button class="nav-btn">💖 Habits</button>
+      <button class="nav-btn">🎯 Goals</button>
+
+      <div class="bottom">
+        <button class="nav-btn">⚙ Settings</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+      <header class="topbar">
+        <h2 id="greeting">Good Morning 🌷</h2>
+        <p id="date"></p>
+      </header>
+
+      <section class="grid">
+
+        <div class="card">
+          <h3>🌷 Today's Tasks</h3>
+          <ul>
+            <li>□ Finish Biology</li>
+            <li>□ Practice Violin</li>
+            <li>□ English Essay</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>📈 Progress</h3>
+          <div class="bar">
+            <div class="fill"></div>
+          </div>
+          <p>65% completed</p>
+        </div>
+
+        <div class="card">
+          <h3>💖 Quote</h3>
+          <p>"Small progress every day adds up."</p>
+        </div>
+
+        <div class="card">
+          <h3>📝 Notes</h3>
+          <textarea placeholder="Write something..."></textarea>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
