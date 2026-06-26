@@ -12,96 +12,108 @@
 
 <body>
 
-  <div class="app">
+<div class="app">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <h1 class="logo">☁️ Cloud Notes</h1>
+  <!-- 🌸 SIDEBAR -->
+  <aside class="sidebar">
+    <h1 class="logo">☁️ Cloud Notes</h1>
 
-      <div class="sidebar">
+    <button class="nav-btn active" onclick="showPage('dashboard')">🏠 Dashboard</button>
+    <button class="nav-btn" onclick="showPage('calendar')">📅 Calendar</button>
+    <button class="nav-btn" onclick="showPage('tasks')">✅ Tasks</button>
+    <button class="nav-btn" onclick="showPage('notes')">📝 Notes</button>
+    <button class="nav-btn" onclick="showPage('habits')">💖 Habits</button>
+    <button class="nav-btn" onclick="showPage('goals')">🎯 Goals</button>
 
-  <button class="nav-btn active" onclick="showPage('dashboard')">🏠 Dashboard</button>
-  <button class="nav-btn" onclick="showPage('calendar')">📅 Calendar</button>
-  <button class="nav-btn" onclick="showPage('tasks')">✅ Tasks</button>
-  <button class="nav-btn" onclick="showPage('notes')">📝 Notes</button>
-  <button class="nav-btn" onclick="showPage('habits')">💖 Habits</button>
-  <button class="nav-btn" onclick="showPage('goals')">🎯 Goals</button>
+    <button onclick="toggleTheme()" class="nav-btn">🎨 Theme</button>
 
-</div>
-      <button onclick="toggleTheme()" class="nav-btn">🎨 Theme</button>
-      <div class="bottom">
-        <button class="nav-btn">⚙ Settings</button>
-      </div>
-    </aside>
+    <div class="bottom">
+      <button class="nav-btn">⚙ Settings</button>
+    </div>
+  </aside>
 
-    <!-- Main -->
-    <main class="main">
-<div id="dashboard" class="page">🏠 Dashboard content here</div>
+  <!-- 🌸 MAIN CONTENT -->
+  <main class="main">
 
-<div id="calendar" class="page">📅 Calendar coming soon</div>
+    <!-- 🏠 DASHBOARD -->
+    <div id="dashboard" class="page">
 
-<div id="tasks" class="page">
-  <h2>Tasks</h2>
-
-  <div class="task-input">
-    <input id="taskInput" placeholder="Add a task..." />
-    <button onclick="addTask()">Add</button>
-  </div>
-
-  <ul id="taskList"></ul>
-</div>
-
-<div id="notes" class="page">📝 Notes area</div>
-
-<div id="habits" class="page">💖 Habits tracker</div>
-
-<div id="goals" class="page">🎯 Goals section</div>
       <header class="topbar">
-        <h2 id="greeting">Good Morning 🌷</h2>
+        <h2>Good Morning 🌷</h2>
         <p id="date"></p>
       </header>
 
-      <section class="grid">
+      <div class="grid">
 
-       <div class="card">
-  <h3>🌷 Today's Tasks</h3>
-
-  <div class="task-input">
-    <input id="taskInput" placeholder="Add a new task..." />
-    <button onclick="addTask()">Add</button>
-  </div>
-<div class="bar">
-    <div class="fill"></div>
-</div>
-
-<p id="progressText">🌸 Add your first task!</p>
-  <ul id="taskList"></ul>
-</div>
-
+        <!-- 🌷 TASK + PROGRESS CARD -->
         <div class="card">
-          <h3>📈 Progress</h3>
+
+          <h3>🌷 Today's Tasks</h3>
+
+          <div class="task-input">
+            <input id="taskInput" placeholder="Add a new task..." />
+            <button onclick="addTask()">Add</button>
+          </div>
+
           <div class="bar">
             <div class="fill"></div>
           </div>
-          <p id="progressText">0%</p>
+
+          <p id="progressText">🌸 Add your first task!</p>
+
+          <ul id="taskList"></ul>
+
         </div>
 
+        <!-- 💖 QUOTE -->
         <div class="card">
           <h3>💖 Quote</h3>
           <p>"Small progress every day adds up."</p>
         </div>
 
+        <!-- 📝 NOTES -->
         <div class="card">
           <h3>📝 Notes</h3>
           <textarea placeholder="Write something..."></textarea>
         </div>
 
-      </section>
+      </div>
+    </div>
 
-    </main>
+    <!-- 📅 CALENDAR -->
+    <div id="calendar" class="page">
+      <h2>📅 Calendar</h2>
+      <p>Coming soon...</p>
+    </div>
 
-  </div>
+    <!-- ✅ TASKS PAGE -->
+    <div id="tasks" class="page">
+      <h2>✅ Tasks</h2>
+      <p>Your tasks are managed from the dashboard 🌸</p>
+    </div>
 
-  <script src="app.js"></script>
+    <!-- 📝 NOTES PAGE -->
+    <div id="notes" class="page">
+      <h2>📝 Notes</h2>
+      <textarea placeholder="Write your notes..."></textarea>
+    </div>
+
+    <!-- 💖 HABITS -->
+    <div id="habits" class="page">
+      <h2>💖 Habits</h2>
+      <p>Habit tracker coming soon...</p>
+    </div>
+
+    <!-- 🎯 GOALS -->
+    <div id="goals" class="page">
+      <h2>🎯 Goals</h2>
+      <p>Goal tracker coming soon...</p>
+    </div>
+
+  </main>
+
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
