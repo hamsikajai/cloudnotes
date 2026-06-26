@@ -174,3 +174,37 @@ function showPage(pageId) {
 document.addEventListener("DOMContentLoaded", () => {
     showPage("dashboard");
 });
+let reminders = [];
+
+function addReminder() {
+  const input = document.getElementById("reminderInput");
+  const value = input.value.trim();
+
+  if (!value) return;
+
+  reminders.push(value);
+  input.value = "";
+
+  renderReminders();
+}
+
+function deleteReminder(index) {
+  reminders.splice(index, 1);
+  renderReminders();
+}
+
+function renderReminders() {
+  const list = document.getElementById("reminderList");
+  list.innerHTML = "";
+
+  reminders.forEach((reminder, index) => {
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <span>${reminder}</span>
+      <button onclick="deleteReminder(${index})">❌</button>
+    `;
+
+    list.appendChild(li);
+  });
+}
