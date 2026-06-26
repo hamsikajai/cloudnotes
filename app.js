@@ -5,17 +5,30 @@ function addTask() {
   const value = input.value.trim();
   if (!value) return;
 
+  // Create list item
   const item = document.createElement("li");
 
-  item.innerHTML = `
-    <span>${value}</span>
-    <button class="delete-btn">❌</button>
-  `;
+  // Create text
+  const text = document.createElement("span");
+  text.textContent = value;
 
-  item.querySelector(".delete-btn").onclick = function() {
+  // Create delete button
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "❌";
+  deleteBtn.className = "delete-btn";
+
+  // Delete when clicked
+  deleteBtn.onclick = function() {
     item.remove();
   };
 
+  // Put them together
+  item.appendChild(text);
+  item.appendChild(deleteBtn);
+
+  // Add to list
   list.appendChild(item);
+
+  // Clear input
   input.value = "";
 }
