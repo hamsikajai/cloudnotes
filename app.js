@@ -223,3 +223,22 @@ function renderReminders() {
     list.appendChild(li);
   });
 }
+function updateGreeting() {
+    const greeting = document.getElementById("greeting");
+    if (!greeting) return;
+
+    const hour = new Date().getHours();
+
+    if (hour < 12) {
+        greeting.textContent = "Good Morning 🌷";
+    } else if (hour < 18) {
+        greeting.textContent = "Good Afternoon ☀️";
+    } else {
+        greeting.textContent = "Good Evening 🌙";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    showPage("dashboard");
+    updateGreeting();
+});
