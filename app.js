@@ -9,7 +9,22 @@ document.body.setAttribute("data-theme", savedTheme);
 
 // ---------- INITIAL RENDER ----------
 renderTasks();
+function updateGreeting() {
+  const hour = new Date().getHours();
+  const greeting = document.getElementById("greeting");
 
+  if (!greeting) return;
+
+  if (hour < 12) {
+    greeting.textContent = "Good Morning 🌷";
+  } else if (hour < 18) {
+    greeting.textContent = "Good Afternoon ☀️";
+  } else {
+    greeting.textContent = "Good Evening 🌙";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", updateGreeting);
 // ---------- ADD TASK ----------
 function addTask() {
     const value = input.value.trim();
