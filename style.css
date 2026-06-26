@@ -20,6 +20,17 @@ body {
     display: flex;
     height: 100vh;
 }
+:root {
+  --sidebar: #EAF2FF;
+}
+
+[data-theme="lavender"] {
+  --sidebar: #E6D8FF;
+}
+
+[data-theme="dark"] {
+  --sidebar: #252536;
+}
 
 /* ---------- SIDEBAR ---------- */
 
