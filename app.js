@@ -231,7 +231,7 @@ function updateGreeting() {
 
     if (hour < 12) {
         greeting.textContent = "Good Morning 🌷";
-    } else if (hour < 18) {
+    } else if (hour < 17) {
         greeting.textContent = "Good Afternoon ☀️";
     } else {
         greeting.textContent = "Good Evening 🌙";
