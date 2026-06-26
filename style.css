@@ -148,3 +148,14 @@ textarea {
   text-decoration: line-through;
   opacity: 0.6;
 }
+#taskList {
+  list-style: none;
+  padding: 0;
+}
+
+#taskList li button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+}
