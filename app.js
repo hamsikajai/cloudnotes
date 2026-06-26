@@ -76,3 +76,21 @@ function renderTasks() {
 function saveTasks() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 }
+function toggleTheme() {
+  const current = document.body.getAttribute("data-theme");
+
+  if (current === "dark") {
+    document.body.setAttribute("data-theme", "pastel");
+    localStorage.setItem("theme", "pastel");
+  } else if (current === "pastel") {
+    document.body.setAttribute("data-theme", "lavender");
+    localStorage.setItem("theme", "lavender");
+  } else {
+    document.body.setAttribute("data-theme", "dark");
+    localStorage.setItem("theme", "dark");
+  }
+}
+
+// load saved theme
+const savedTheme = localStorage.getItem("theme") || "pastel";
+document.body.setAttribute("data-theme", savedTheme);
