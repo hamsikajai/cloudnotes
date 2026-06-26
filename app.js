@@ -12,9 +12,15 @@ function addTask() {
 
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "❌";
+  deleteBtn.className = "delete-btn";
 
   deleteBtn.onclick = function () {
-    item.remove();
+    // fade out animation
+    item.classList.add("fade-out");
+
+    setTimeout(() => {
+      item.remove();
+    }, 200);
   };
 
   item.appendChild(text);
