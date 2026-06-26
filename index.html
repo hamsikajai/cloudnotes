@@ -40,14 +40,16 @@
 
       <section class="grid">
 
-        <div class="card">
-          <h3>🌷 Today's Tasks</h3>
-          <ul>
-            <li>□ Finish Biology</li>
-            <li>□ Practice Violin</li>
-            <li>□ English Essay</li>
-          </ul>
-        </div>
+       <div class="card">
+  <h3>🌷 Today's Tasks</h3>
+
+  <div class="task-input">
+    <input id="taskInput" placeholder="Add a new task..." />
+    <button onclick="addTask()">Add</button>
+  </div>
+
+  <ul id="taskList"></ul>
+</div>
 
         <div class="card">
           <h3>📈 Progress</h3>
