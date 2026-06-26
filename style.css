@@ -236,3 +236,19 @@ textarea {
 .delete-btn:hover {
   transform: scale(1.2);
 }
+#taskList li .delete-btn {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+#taskList li:hover .delete-btn {
+  opacity: 1;
+}
+#taskList li {
+  transition: all 0.2s ease;
+}
+
+.fade-out {
+  opacity: 0;
+  transform: translateX(20px);
+}
