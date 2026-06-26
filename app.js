@@ -3,23 +3,30 @@ let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 const input = document.getElementById("taskInput");
 const list = document.getElementById("taskList");
 
-// render tasks on load
 renderTasks();
 
 function addTask() {
   const value = input.value.trim();
   if (!value) return;
 
-  tasks.push(value);
-  input.value = "";
+  tasks.push({
+    text: value,
+    done: false
+  });
 
+  input.value = "";
+  saveTasks();
+  renderTasks();
+}
+
+function toggleTask(index) {
+  tasks[index].done = !tasks[index].done;
   saveTasks();
   renderTasks();
 }
 
 function deleteTask(index) {
   const item = document.getElementById(`task-${index}`);
-
   item.classList.add("fade-out");
 
   setTimeout(() => {
@@ -36,14 +43,28 @@ function renderTasks() {
     const li = document.createElement("li");
     li.id = `task-${index}`;
 
+    if (task.done) {
+      li.classList.add("done");
+    }
+
+    // click to toggle complete
+    li.onclick = function (e) {
+      // prevent clicking delete button triggering toggle
+      if (e.target.classList.contains("delete-btn")) return;
+      toggleTask(index);
+    };
+
     const text = document.createElement("span");
-    text.textContent = task;
+    text.textContent = task.text;
 
     const btn = document.createElement("button");
     btn.textContent = "❌";
     btn.className = "delete-btn";
 
-    btn.onclick = () => deleteTask(index);
+    btn.onclick = function (e) {
+      e.stopPropagation();
+      deleteTask(index);
+    };
 
     li.appendChild(text);
     li.appendChild(btn);
