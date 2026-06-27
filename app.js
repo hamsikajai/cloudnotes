@@ -307,3 +307,12 @@ function toggleTimer() {
 }
 
 updateTimerDisplay();
+const notesBox = document.getElementById("notesBox");
+
+// load
+notesBox.value = localStorage.getItem("notes") || "";
+
+// save on typing
+notesBox.addEventListener("input", () => {
+  localStorage.setItem("notes", notesBox.value);
+});
