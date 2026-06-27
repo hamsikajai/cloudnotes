@@ -312,21 +312,20 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 #timer {
-  font-size: 42px;
+  font-size: 28px;
   text-align: center;
-  margin: 15px 0;
+  margin: 10px 0;
   font-family: "Poppins", sans-serif;
 }
 
 .focus-btn {
   width: 100%;
-  padding: 12px;
+  padding: 8px;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   background: #E4D7FF;
   cursor: pointer;
-  font-size: 15px;
-  transition: 0.2s;
+  font-size: 14px;
 }
 
 .focus-btn:hover {
