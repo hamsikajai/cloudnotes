@@ -190,24 +190,11 @@ document.addEventListener("DOMContentLoaded", () => {
     showPage("dashboard");
 });
 let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+
 function saveReminders() {
   localStorage.setItem("reminders", JSON.stringify(reminders));
 }
-function renderReminders() {
-  const list = document.getElementById("reminderList");
-  list.innerHTML = "";
 
-  reminders.forEach((reminder, index) => {
-    const li = document.createElement("li");
-
-    li.innerHTML = `
-      <span>${reminder}</span>
-      <button onclick="deleteReminder(${index})">❌</button>
-    `;
-
-    list.appendChild(li);
-  });
-}
 function addReminder() {
   const input = document.getElementById("reminderInput");
   const value = input.value.trim();
@@ -217,24 +204,43 @@ function addReminder() {
   reminders.push(value);
   input.value = "";
 
-  saveReminders();  
-  renderReminders();
-}
-
-  if (!value) return;
-
-  reminders.push(value);
-  input.value = "";
-
+  saveReminders();
   renderReminders();
 }
 
 function deleteReminder(index) {
   reminders.splice(index, 1);
-
-  saveReminders(); 
+  saveReminders();
   renderReminders();
 }
+
+function renderReminders() {
+  const list = document.getElementById("reminderList");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  reminders.forEach((reminder, index) => {
+    const li = document.createElement("li");
+
+    const text = document.createElement("span");
+    text.textContent = reminder;
+
+    const btn = document.createElement("button");
+    btn.textContent = "×";
+    btn.className = "rem-delete";
+
+    btn.onclick = () => deleteReminder(index);
+
+    li.appendChild(text);
+    li.appendChild(btn);
+
+    list.appendChild(li);
+  });
+}
+
+// load on start
+renderReminders();
 
 
 function updateGreeting() {
