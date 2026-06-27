@@ -340,3 +340,16 @@ body {
   flex-direction: column;
   gap: 15px;
 }
+.rem-delete {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #aaa;
+  transition: 0.2s;
+}
+
+.rem-delete:hover {
+  color: #ff6b6b;
+  transform: scale(1.2);
+}
