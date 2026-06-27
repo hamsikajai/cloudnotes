@@ -189,25 +189,10 @@ function showPage(pageId) {
 document.addEventListener("DOMContentLoaded", () => {
     showPage("dashboard");
 });
-let reminders = [];
-
-function addReminder() {
-  const input = document.getElementById("reminderInput");
-  const value = input.value.trim();
-
-  if (!value) return;
-
-  reminders.push(value);
-  input.value = "";
-
-  renderReminders();
+let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+function saveReminders() {
+  localStorage.setItem("reminders", JSON.stringify(reminders));
 }
-
-function deleteReminder(index) {
-  reminders.splice(index, 1);
-  renderReminders();
-}
-
 function renderReminders() {
   const list = document.getElementById("reminderList");
   list.innerHTML = "";
@@ -223,6 +208,35 @@ function renderReminders() {
     list.appendChild(li);
   });
 }
+function addReminder() {
+  const input = document.getElementById("reminderInput");
+  const value = input.value.trim();
+
+  if (!value) return;
+
+  reminders.push(value);
+  input.value = "";
+
+  saveReminders();  
+  renderReminders();
+}
+
+  if (!value) return;
+
+  reminders.push(value);
+  input.value = "";
+
+  renderReminders();
+}
+
+function deleteReminder(index) {
+  reminders.splice(index, 1);
+
+  saveReminders(); 
+  renderReminders();
+}
+
+
 function updateGreeting() {
     const greeting = document.getElementById("greeting");
     if (!greeting) return;
