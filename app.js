@@ -242,3 +242,24 @@ document.addEventListener("DOMContentLoaded", () => {
     showPage("dashboard");
     updateGreeting();
 });
+const quotes = [
+  "Small progress every day adds up.",
+  "You are capable of amazing things.",
+  "Progress, not perfection.",
+  "Every day is a fresh start.",
+  "Believe in yourself and keep going.",
+  "Little by little, a little becomes a lot.",
+  "Dream big. Start small.",
+  "Your future self will thank you."
+];
+
+function updateQuote() {
+  const quote = document.getElementById("quoteText");
+
+  if (!quote) return;
+
+  const random =
+    Math.floor(Math.random() * quotes.length);
+
+  quote.textContent = `"${quotes[random]}"`;
+}
