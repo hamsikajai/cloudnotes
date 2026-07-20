@@ -362,3 +362,199 @@ body {
   background: #FFF8FC;
   margin-top: 6px;
 }
+/* ================= LOGIN PAGE ================= */
+
+.login-page{
+    margin:0;
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#dbefff,#f8e9ff,#fff7ef);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    overflow:hidden;
+}
+
+/* floating clouds */
+.login-page::before,
+.login-page::after{
+    content:"☁️";
+    position:absolute;
+    font-size:80px;
+    opacity:.18;
+    animation:floatCloud 18s linear infinite;
+}
+
+.login-page::before{
+    top:15%;
+    left:-100px;
+}
+
+.login-page::after{
+    top:70%;
+    left:-150px;
+    animation-delay:8s;
+}
+
+@keyframes floatCloud{
+    from{
+        transform:translateX(0);
+    }
+    to{
+        transform:translateX(calc(100vw + 250px));
+    }
+}
+
+.login-container{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:30px;
+}
+
+.login-card{
+
+    width:420px;
+    max-width:100%;
+
+    background:white;
+
+    border-radius:28px;
+
+    padding:45px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.12);
+
+    text-align:center;
+
+    animation:fadeUp .8s ease;
+}
+
+@keyframes fadeUp{
+
+    from{
+        opacity:0;
+        transform:translateY(30px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.login-card h1{
+
+    margin-top:0;
+    margin-bottom:10px;
+
+    font-size:38px;
+}
+
+.subtitle{
+
+    color:#777;
+
+    margin-bottom:30px;
+}
+
+.login-card input{
+
+    width:100%;
+
+    padding:14px;
+
+    margin:10px 0;
+
+    border-radius:14px;
+
+    border:1px solid #ddd;
+
+    font-size:16px;
+
+    box-sizing:border-box;
+}
+
+.google-btn,
+.login-btn,
+.signup-btn{
+
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:14px;
+
+    margin-top:15px;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.google-btn{
+
+    background:white;
+
+    border:2px solid #ddd;
+}
+
+.google-btn:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 5px 12px rgba(0,0,0,.12);
+}
+
+.login-btn{
+
+    background:#9fd8ff;
+
+    color:white;
+}
+
+.login-btn:hover{
+
+    background:#86cdfd;
+}
+
+.signup-btn{
+
+    background:#f6e4ff;
+
+}
+
+.signup-btn:hover{
+
+    background:#edd3ff;
+}
+
+.divider{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin:25px 0;
+
+    color:#888;
+}
+
+.divider::before,
+.divider::after{
+
+    content:"";
+
+    flex:1;
+
+    height:1px;
+
+    background:#ddd;
+}
