@@ -212,36 +212,40 @@ nav{
 
     background:white;
 
-    padding:40px 30px;
+    border-radius:22px;
 
-    border-radius:24px;
+    padding:28px;
 
     text-align:center;
 
-    box-shadow:0 10px 30px rgba(0,0,0,.06);
+    box-shadow:0 8px 18px rgba(0,0,0,.06);
 
-    transition:.3s;
+    transition:.25s;
+
+    border:2px solid transparent;
 }
 
 .feature:hover{
 
-    transform:translateY(-10px);
+    transform:translateY(-6px);
 
-    box-shadow:0 25px 45px rgba(0,0,0,.10);
+    border-color:#cfefff;
+
+    box-shadow:0 14px 30px rgba(0,0,0,.08);
 }
 
 .feature h3{
 
-    margin:18px 0 10px;
+    font-family:'Poppins',sans-serif;
 
-    font-family:'Poppins';
+    margin:15px 0 8px;
 
-    color:#4b6178;
+    color:#5a6475;
 }
 
 .feature p{
 
-    color:#777;
+    color:#7b7b7b;
 
     line-height:1.6;
 }
