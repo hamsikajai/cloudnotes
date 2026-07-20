@@ -181,32 +181,29 @@ nav{
 .mockup{
 
     width:100%;
-
-    max-width:640px;
-
-    margin:auto;
-
-    border-radius:30px;
+    max-width:650px;
 
     background:white;
 
+    border-radius:28px;
+
     overflow:hidden;
 
-    box-shadow:0 25px 50px rgba(0,0,0,.12);
+    box-shadow:0 30px 70px rgba(0,0,0,.12);
+
+    transition:.35s;
 }
 
-.mockup-top{
+.mockup:hover{
 
-    height:36px;
-
-    background:#f3f6fa;
+    transform:translateY(-10px);
 }
 
 .mockup img{
 
-    width:100%;
-
     display:block;
+
+    width:100%;
 }
 
 /* FEATURES */
