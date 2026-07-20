@@ -13,23 +13,20 @@
 
 <body>
 
-<div class="background">
-    <div class="cloud cloud1">☁️</div>
-    <div class="cloud cloud2">☁️</div>
-    <div class="cloud cloud3">☁️</div>
-</div>
-
 <nav>
 
     <div class="logo">
         ☁️ Cloud Notes
     </div>
 
-    <div class="nav-links">
+    <div class="right-nav">
+
         <a href="#features">Features</a>
-        <button class="signin-btn" onclick="openLogin()">
+
+        <button onclick="openLogin()" class="nav-login">
             Sign In
         </button>
+
     </div>
 
 </nav>
@@ -41,30 +38,25 @@
         <h1>Your cozy digital planner.</h1>
 
         <p>
-            Stay organized with tasks, notes,
-            reminders, goals and more —
-            all synced across your devices.
+            Organize your notes, tasks, reminders,
+            goals and focus sessions—all in one beautiful place.
         </p>
 
-        <div class="hero-buttons">
-
-            <button class="primary" onclick="openLogin()">
-                🌸 Get Started
-            </button>
-
-            <button class="secondary" onclick="openLogin()">
-                Sign In
-            </button>
-
-        </div>
+        <button class="start-btn" onclick="openLogin()">
+            🌸 Get Started
+        </button>
 
     </div>
 
     <div class="hero-right">
 
-        <img
-            src="dashboard-preview.png"
-            alt="Cloud Notes Preview">
+        <div class="mockup">
+
+            <div class="mockup-top"></div>
+
+            <img src="dashboard-preview.png" alt="Dashboard Preview">
+
+        </div>
 
     </div>
 
@@ -72,24 +64,28 @@
 
 <section id="features" class="features">
 
-    <div class="feature-card">
-        <h3>📝 Notes</h3>
-        <p>Keep all your ideas in one place.</p>
+    <div class="feature">
+        📝
+        <h3>Beautiful Notes</h3>
+        <p>Capture every idea.</p>
     </div>
 
-    <div class="feature-card">
-        <h3>☁️ Cloud Sync</h3>
-        <p>Access everything on any device.</p>
+    <div class="feature">
+        ☁️
+        <h3>Cloud Sync</h3>
+        <p>Access your planner anywhere.</p>
     </div>
 
-    <div class="feature-card">
-        <h3>⏰ Focus Timer</h3>
-        <p>Stay productive with Pomodoro sessions.</p>
+    <div class="feature">
+        ⏰
+        <h3>Focus Timer</h3>
+        <p>Stay productive every day.</p>
     </div>
 
-    <div class="feature-card">
-        <h3>🎯 Goals</h3>
-        <p>Track progress and stay motivated.</p>
+    <div class="feature">
+        🎯
+        <h3>Goals</h3>
+        <p>Track your progress.</p>
     </div>
 
 </section>
@@ -104,43 +100,41 @@
 
 <div class="overlay" id="overlay">
 
-    <div class="login-popup">
+<div class="login-box">
 
-        <button class="close" onclick="closeLogin()">
-            ✕
-        </button>
+<button class="close" onclick="closeLogin()">✕</button>
 
-        <h2>☁️ Cloud Notes</h2>
+<h2>☁️ Cloud Notes</h2>
 
-        <p>Welcome back 🌷</p>
+<p>Welcome back 🌷</p>
 
-        <button id="googleSignIn" class="google">
-            Continue with Google
-        </button>
+<button id="googleSignIn" class="google-btn">
+Continue with Google
+</button>
 
-        <div class="divider">
-            <span>or</span>
-        </div>
+<div class="divider">
+<span>or</span>
+</div>
 
-        <input
-            id="email"
-            type="email"
-            placeholder="Email">
+<input
+type="email"
+id="email"
+placeholder="Email">
 
-        <input
-            id="password"
-            type="password"
-            placeholder="Password">
+<input
+type="password"
+id="password"
+placeholder="Password">
 
-        <button id="loginBtn" class="login">
-            Log In
-        </button>
+<button id="loginBtn" class="login-btn">
+Log In
+</button>
 
-        <button id="signupBtn" class="create">
-            Create Account
-        </button>
+<button id="signupBtn" class="signup-btn">
+Create Account
+</button>
 
-    </div>
+</div>
 
 </div>
 
