@@ -208,42 +208,42 @@ nav{
 
 /* FEATURES */
 
-.features{
-
-    padding:80px 8%;
-
-    display:grid;
-
-    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-
-    gap:28px;
-}
-
 .feature{
 
     background:white;
 
-    padding:35px;
+    padding:40px 30px;
 
-    border-radius:25px;
+    border-radius:24px;
 
     text-align:center;
 
-    box-shadow:0 10px 25px rgba(0,0,0,.06);
+    box-shadow:0 10px 30px rgba(0,0,0,.06);
 
-    transition:.25s;
+    transition:.3s;
 }
 
 .feature:hover{
 
-    transform:translateY(-8px);
+    transform:translateY(-10px);
+
+    box-shadow:0 25px 45px rgba(0,0,0,.10);
 }
 
 .feature h3{
 
-    margin:15px 0;
+    margin:18px 0 10px;
 
-    font-family:'Poppins',sans-serif;
+    font-family:'Poppins';
+
+    color:#4b6178;
+}
+
+.feature p{
+
+    color:#777;
+
+    line-height:1.6;
 }
 
 /* FOOTER */
