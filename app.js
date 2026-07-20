@@ -1,4 +1,4 @@
-import { auth, database } from "./firebase.js";
+
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 const input = document.getElementById("taskInput");
