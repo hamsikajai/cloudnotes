@@ -1,58 +1,151 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cloud Notes</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☁️ Cloud Notes</title>
 
-  <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="landing.css">
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
-<body class="login-page">
+<body>
 
-<div class="login-container">
+<div class="background">
+    <div class="cloud cloud1">☁️</div>
+    <div class="cloud cloud2">☁️</div>
+    <div class="cloud cloud3">☁️</div>
+</div>
 
-  <div class="login-card">
+<nav>
 
-    <h1>☁️ Cloud Notes</h1>
-
-    <p class="subtitle">
-      Welcome back! Sign in to access your notes anywhere.
-    </p>
-
-    <button id="googleSignIn" class="google-btn">
-      🌸 Continue with Google
-    </button>
-
-    <div class="divider">
-      <span>or</span>
+    <div class="logo">
+        ☁️ Cloud Notes
     </div>
 
-    <input
-      type="email"
-      id="email"
-      placeholder="Email">
+    <div class="nav-links">
+        <a href="#features">Features</a>
+        <button class="signin-btn" onclick="openLogin()">
+            Sign In
+        </button>
+    </div>
 
-    <input
-      type="password"
-      id="password"
-      placeholder="Password">
+</nav>
 
-    <button id="loginBtn" class="login-btn">
-      Log In
-    </button>
+<section class="hero">
 
-    <button id="signupBtn" class="signup-btn">
-      Create Account
-    </button>
+    <div class="hero-left">
 
-  </div>
+        <h1>Your cozy digital planner.</h1>
+
+        <p>
+            Stay organized with tasks, notes,
+            reminders, goals and more —
+            all synced across your devices.
+        </p>
+
+        <div class="hero-buttons">
+
+            <button class="primary" onclick="openLogin()">
+                🌸 Get Started
+            </button>
+
+            <button class="secondary" onclick="openLogin()">
+                Sign In
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="hero-right">
+
+        <img
+            src="dashboard-preview.png"
+            alt="Cloud Notes Preview">
+
+    </div>
+
+</section>
+
+<section id="features" class="features">
+
+    <div class="feature-card">
+        <h3>📝 Notes</h3>
+        <p>Keep all your ideas in one place.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>☁️ Cloud Sync</h3>
+        <p>Access everything on any device.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>⏰ Focus Timer</h3>
+        <p>Stay productive with Pomodoro sessions.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>🎯 Goals</h3>
+        <p>Track progress and stay motivated.</p>
+    </div>
+
+</section>
+
+<footer>
+
+    Made with ☁️ & 🌸
+
+</footer>
+
+<!-- LOGIN POPUP -->
+
+<div class="overlay" id="overlay">
+
+    <div class="login-popup">
+
+        <button class="close" onclick="closeLogin()">
+            ✕
+        </button>
+
+        <h2>☁️ Cloud Notes</h2>
+
+        <p>Welcome back 🌷</p>
+
+        <button id="googleSignIn" class="google">
+            Continue with Google
+        </button>
+
+        <div class="divider">
+            <span>or</span>
+        </div>
+
+        <input
+            id="email"
+            type="email"
+            placeholder="Email">
+
+        <input
+            id="password"
+            type="password"
+            placeholder="Password">
+
+        <button id="loginBtn" class="login">
+            Log In
+        </button>
+
+        <button id="signupBtn" class="create">
+            Create Account
+        </button>
+
+    </div>
 
 </div>
 
-<script type="module" src="login.js"></script>
+<script src="landing.js"></script>
 
 </body>
 </html>
+```
