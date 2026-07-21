@@ -132,30 +132,66 @@
     </div>
 <section id="settingsPage" class="page">
 
-    <h1>⚙️ Settings</h1>
+    <h2 class="settings-title">⚙️ Settings</h2>
 
-    <div class="settings-card">
-        <h2>👤 Account</h2>
-        <p id="userEmail">Loading...</p>
+    <div class="settings-container">
+
+        <!-- Account -->
+
+        <div class="settings-card">
+
+            <h3>👤 Account</h3>
+
+            <div class="setting-item">
+                <span>Email</span>
+                <span id="userEmail">Loading...</span>
+            </div>
+
+        </div>
+
+        <!-- Security -->
+
+        <div class="settings-card">
+
+            <h3>🔒 Security</h3>
+
+            <button class="settings-btn" id="changePasswordBtn">
+                🔑 Change Password
+                <span>›</span>
+            </button>
+
+            <button class="settings-btn" id="resetPasswordBtn">
+                📧 Send Password Reset Email
+                <span>›</span>
+            </button>
+
+            <button class="settings-btn logout-btn" id="logoutBtn">
+                🚪 Log Out
+                <span>›</span>
+            </button>
+
+        </div>
+
+        <!-- Danger -->
+
+        <div class="settings-card danger-card">
+
+            <h3>🗑️ Danger Zone</h3>
+
+            <p>
+                Permanently delete your Cloud Notes account.
+                This action cannot be undone.
+            </p>
+
+            <button class="delete-btn" id="deleteAccountBtn">
+                Delete Account
+            </button>
+
+        </div>
+
     </div>
 
-    <div class="settings-card">
-        <h2>🔒 Security</h2>
-
-        <button id="changePasswordBtn">Change Password</button>
-
-        <button id="resetPasswordBtn">Send Password Reset Email</button>
-
-        <button id="logoutBtn">Log Out</button>
-    </div>
-
-    <div class="settings-card danger">
-        <h2>🗑️ Delete Account</h2>
-
-        <button id="deleteAccountBtn">
-            Delete Account
-        </button>
-    </div>
+</section>
 
 </section>
   </main>
