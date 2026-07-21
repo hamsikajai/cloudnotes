@@ -8,65 +8,71 @@ import {
   signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
-// ---------------- GOOGLE SIGN IN ----------------
+window.addEventListener("DOMContentLoaded", () => {
 
-const provider = new GoogleAuthProvider();
+    const googleBtn = document.getElementById("googleSignIn");
+    const loginBtn = document.getElementById("loginBtn");
+    const signupBtn = document.getElementById("signupBtn");
 
-document.getElementById("googleSignIn").addEventListener("click", async () => {
+    if (googleBtn) {
 
-    try {
+        const provider = new GoogleAuthProvider();
 
-        await signInWithPopup(auth, provider);
+        googleBtn.addEventListener("click", async () => {
 
-        window.location.href = "dashboard.html";
+            try {
 
-    } catch (error) {
+                await signInWithPopup(auth, provider);
 
-        alert(error.message);
+                window.location.href = "dashboard.html";
 
-    }
+            } catch (error) {
 
-});
+                alert(error.message);
 
-// ---------------- CREATE ACCOUNT ----------------
+            }
 
-document.getElementById("signupBtn").addEventListener("click", async () => {
-
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    try {
-
-        await createUserWithEmailAndPassword(auth, email, password);
-
-        window.location.href = "dashboard.html";
-
-    } catch (error) {
-
-        alert(error.message);
+        });
 
     }
 
-});
+    loginBtn.addEventListener("click", async () => {
 
-// ---------------- LOGIN ----------------
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
-document.getElementById("loginBtn").addEventListener("click", async () => {
+        try {
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+            await signInWithEmailAndPassword(auth, email, password);
 
-    try {
+            window.location.href = "dashboard.html";
 
-        await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
 
-        window.location.href = "dashboard.html";
+            alert(error.message);
 
-    } catch (error) {
+        }
 
-        alert(error.message);
+    });
 
-    }
+    signupBtn.addEventListener("click", async () => {
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        try {
+
+            await createUserWithEmailAndPassword(auth, email, password);
+
+            window.location.href = "dashboard.html";
+
+        } catch (error) {
+
+            alert(error.message);
+
+        }
+
+    });
 
 });
 
