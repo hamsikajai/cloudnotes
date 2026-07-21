@@ -39,15 +39,15 @@ window.addEventListener("DOMContentLoaded", () => {
 
         try {
 
-            await signInWithEmailAndPassword(auth, email, password);
+    await signInWithEmailAndPassword(auth, email, password);
 
-            window.location.href = "dashboard.html";
+    window.location.href = "dashboard.html";
 
-        } catch (error) {
+} catch (error) {
 
-            alert(error.message);
+    alert(error.code + "\n\n" + error.message);
 
-        }
+}
 
     });
 
@@ -60,15 +60,15 @@ window.addEventListener("DOMContentLoaded", () => {
 
     try {
 
-        await createUserWithEmailAndPassword(auth, email, password);
+    await createUserWithEmailAndPassword(auth, email, password);
 
-        window.location.href = "dashboard.html";
+    window.location.href = "dashboard.html";
 
-        } catch (error) {
+} catch (error) {
 
-        alert(error.code + "\n" + error.message);
+    alert(error.code + "\n\n" + error.message);
 
-    }
+}
 
 });
 
