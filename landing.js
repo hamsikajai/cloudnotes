@@ -1,3 +1,11 @@
+import { auth } from "./firebase.js";
+
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 // Open login popup
 function openLogin() {
     document.getElementById("overlay").style.display = "flex";
