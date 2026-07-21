@@ -333,3 +333,72 @@ window.addTask = addTask;
 window.addReminder = addReminder;
 window.toggleTheme = toggleTheme;
 window.toggleTimer = toggleTimer;
+// ===========================
+// SETTINGS
+// ===========================
+
+onAuthStateChanged(auth, (user) => {
+
+    const email = document.getElementById("userEmail");
+
+    if (user) {
+
+        if (email) {
+            email.textContent = user.email;
+        }
+
+    } else {
+
+        window.location.href = "index.html";
+
+    }
+
+});
+
+// ---------- LOG OUT ----------
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener("click", async () => {
+
+        try {
+
+            await signOut(auth);
+
+            window.location.href = "index.html";
+
+        } catch (error) {
+
+            alert("Couldn't log out.");
+
+        }
+
+    });
+
+}
+
+// ---------- PASSWORD RESET ----------
+
+const resetBtn = document.getElementById("resetPasswordBtn");
+
+if (resetBtn) {
+
+    resetBtn.addEventListener("click", async () => {
+
+        try {
+
+            await sendPasswordResetEmail(auth, auth.currentUser.email);
+
+            alert("Password reset email sent!");
+
+        } catch (error) {
+
+            alert("Couldn't send reset email.");
+
+        }
+
+    });
+
+}
