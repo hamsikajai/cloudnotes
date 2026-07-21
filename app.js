@@ -2,7 +2,10 @@ import { auth } from "./firebase.js";
 import {
     onAuthStateChanged,
     signOut,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    updatePassword,
+    EmailAuthProvider,
+    reauthenticateWithCredential
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -19,7 +22,7 @@ renderTasks();
 
 // ---------- ADD TASK ----------
 function addTask() {
-    const value = input.value.trim();
+    const value = input ? input.value.trim() : "";
     if (!value) return;
 
     tasks.push({
@@ -27,7 +30,7 @@ function addTask() {
         done: false
     });
 
-    input.value = "";
+    if (input) input.value = "";
     saveTasks();
     renderTasks();
 }
@@ -348,7 +351,54 @@ if (logoutBtn) {
     });
 }
 
-// Reset Password
+// OPTION 1: Direct Password Change inside App
+const changePasswordBtn = document.getElementById("changePasswordBtn");
+if (changePasswordBtn) {
+    changePasswordBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+        const newPasswordInput = document.getElementById("newPasswordInput");
+        const newPassword = newPasswordInput ? newPasswordInput.value : "";
+
+        if (!user) {
+            alert("Please sign in first.");
+            return;
+        }
+
+        if (!newPassword || newPassword.length < 6) {
+            alert("Please enter a new password with at least 6 characters.");
+            return;
+        }
+
+        try {
+            await updatePassword(user, newPassword);
+            alert("🎉 Password updated successfully!");
+            newPasswordInput.value = "";
+        } catch (error) {
+            console.error(error);
+
+            if (error.code === "auth/requires-recent-login") {
+                const currentPassword = prompt("For security reasons, please enter your CURRENT password to confirm:");
+
+                if (!currentPassword) return;
+
+                try {
+                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                    await reauthenticateWithCredential(user, credential);
+                    await updatePassword(user, newPassword);
+                    alert("🎉 Password updated successfully!");
+                    newPasswordInput.value = "";
+                } catch (reauthError) {
+                    alert("Incorrect current password or re-authentication failed.");
+                    console.error(reauthError);
+                }
+            } else {
+                alert("Failed to update password: " + error.message);
+            }
+        }
+    });
+}
+
+// OPTION 2: Password Reset Email
 const resetPasswordBtn = document.getElementById("resetPasswordBtn");
 if (resetPasswordBtn) {
     resetPasswordBtn.addEventListener("click", async () => {
