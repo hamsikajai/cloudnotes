@@ -558,3 +558,153 @@ body {
 
     background:#ddd;
 }
+/* ===========================
+   SETTINGS
+=========================== */
+
+.settings-title{
+
+    font-family:'Poppins',sans-serif;
+    color:#56677a;
+    margin-bottom:25px;
+
+}
+
+.settings-container{
+
+    max-width:720px;
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+
+}
+
+.settings-card{
+
+    background:white;
+
+    border-radius:22px;
+
+    padding:25px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.06);
+
+}
+
+.settings-card h3{
+
+    margin-bottom:18px;
+
+    color:#5d7085;
+
+    font-family:'Poppins';
+
+}
+
+.setting-item{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:14px 0;
+
+    border-top:1px solid #edf2f7;
+
+}
+
+.settings-btn{
+
+    width:100%;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-top:12px;
+
+    padding:16px 18px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#f7fbff;
+
+    cursor:pointer;
+
+    font-family:'Nunito';
+
+    font-size:16px;
+
+    transition:.25s;
+
+}
+
+.settings-btn:hover{
+
+    background:#eaf7ff;
+
+    transform:translateX(4px);
+
+}
+
+.settings-btn span{
+
+    font-size:22px;
+
+    color:#9aa8b5;
+
+}
+
+.logout-btn{
+
+    color:#d67a00;
+
+}
+
+.danger-card{
+
+    border:2px solid #ffe1e1;
+
+}
+
+.danger-card p{
+
+    color:#777;
+
+    line-height:1.6;
+
+    margin-bottom:20px;
+
+}
+
+.delete-btn{
+
+    background:#ffdddd;
+
+    color:#b33;
+
+    border:none;
+
+    border-radius:14px;
+
+    padding:14px 24px;
+
+    cursor:pointer;
+
+    font-family:'Poppins';
+
+    transition:.25s;
+
+}
+
+.delete-btn:hover{
+
+    background:#ffcfcf;
+
+}
