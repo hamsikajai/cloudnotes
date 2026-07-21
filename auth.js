@@ -51,24 +51,24 @@ window.addEventListener("DOMContentLoaded", () => {
 
     });
 
-    signupBtn.addEventListener("click", async () => {
+  signupBtn.addEventListener("click", async () => {
 
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-        try {
+    alert("Email = [" + email + "]");
 
-            await createUserWithEmailAndPassword(auth, email, password);
+    try {
 
-            window.location.href = "dashboard.html";
+        await createUserWithEmailAndPassword(auth, email, password);
 
-        } catch (error) {
+        window.location.href = "dashboard.html";
 
-            alert(error.message);
+    } catch (error) {
 
-        }
+        alert(error.code + "\n" + error.message);
 
-    });
+    }
 
 });
 
