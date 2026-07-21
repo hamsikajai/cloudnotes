@@ -376,6 +376,20 @@ if (logoutBtn) {
 }
 
 // ---------- OPTION 1: DIRECT PASSWORD CHANGE ----------
+// ---------- TOGGLE PASSWORD INPUT FIELDS ----------
+const togglePasswordFormBtn = document.getElementById("togglePasswordFormBtn");
+const passwordFormContainer = document.getElementById("passwordFormContainer");
+const toggleArrow = document.getElementById("toggleArrow");
+
+if (togglePasswordFormBtn && passwordFormContainer) {
+    togglePasswordFormBtn.addEventListener("click", () => {
+        const isHidden = passwordFormContainer.style.display === "none";
+        passwordFormContainer.style.display = isHidden ? "block" : "none";
+        if (toggleArrow) {
+            toggleArrow.textContent = isHidden ? "⌄" : "›";
+        }
+    });
+}
 const changePasswordBtn = document.getElementById("changePasswordBtn");
 if (changePasswordBtn) {
     changePasswordBtn.addEventListener("click", async () => {
