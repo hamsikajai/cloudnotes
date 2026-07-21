@@ -125,16 +125,38 @@ function updateProgress() {
     let message = "";
 
     if (percent === 100) {
-        message = "🏆 All tasks completed!";
-    } else if (percent >= 75) {
-        message = "🌟 Almost there!";
-    } else if (percent >= 50) {
-        message = "✨ Great progress!";
-    } else if (percent >= 25) {
-        message = "🌸 Keep going!";
-    } else {
-        message = "☁️ You've got this!";
+
+    message = "🏆 All tasks completed!";
+
+    if (speech) {
+        speech.textContent = "YOU DID IT!! 🎉🌸";
     }
+
+    if (cloud) {
+        cloud.textContent = "🥳";
+
+        setTimeout(() => {
+            cloud.textContent = "☁️";
+        }, 3000);
+    }
+
+} else if (percent >= 75) {
+
+    message = "🌟 Almost there!";
+
+} else if (percent >= 50) {
+
+    message = "✨ Great progress!";
+
+} else if (percent >= 25) {
+
+    message = "🌸 Keep going!";
+
+} else {
+
+    message = "☁️ You've got this!";
+
+}
 
     progressText.textContent =
         `${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
@@ -528,55 +550,60 @@ if (deleteAccountBtn) {
     });
 }
 
-// ---------- INITIALIZATION ----------
-document.addEventListener("DOMContentLoaded", () => {
-    showPage("dashboard");
-    renderTasks();
-    renderReminders();
-    updateGreeting();
-    updateQuote();
-    updateTimerDisplay();
-});
+// =========================
+// ☁️ NIMBUS CLOUD BUDDY
+// =========================
+
 const cloudMessages = [
-
-"You're doing amazing! 🌸",
-
-"One task at a time! ☁️",
-
-"Don't forget to drink water 💙",
-
-"You've got this! ✨",
-
-"I'm cheering for you! 🎉",
-
-"Let's finish today's goals! 🌷",
-
-"Take a deep breath 🌿",
-
-"Progress > Perfection 💖"
-
+    "You're doing amazing! 🌸",
+    "One task at a time! ☁️",
+    "Keep going, you've got this! 💖",
+    "Don't forget to drink water! 💙",
+    "I'm cheering for you! 🎉",
+    "Take a deep breath 🌿",
+    "Progress > Perfection ✨",
+    "Let's finish today's goals! 🌷"
 ];
 
+const cloud = document.getElementById("cloudFace");
 const speech = document.getElementById("cloudSpeech");
 
-const cloud = document.getElementById("cloudFace");
+function randomCloudMessage() {
 
-function randomCloudMessage(){
+    if (!speech) return;
 
-if(!speech) return;
+    const random = Math.floor(Math.random() * cloudMessages.length);
 
-const random=Math.floor(Math.random()*cloudMessages.length);
-
-speech.textContent=cloudMessages[random];
+    speech.textContent = cloudMessages[random];
 
 }
 
-if(cloud){
+if (cloud) {
 
-cloud.addEventListener("click",()=>{
+    cloud.addEventListener("click", randomCloudMessage);
 
-randomCloudMessage();
+}
 
-});
+// Call this when ALL tasks are completed
+function celebrateWithNimbus() {
+
+    if (!cloud || !speech) return;
+
+    cloud.textContent = "🥳";
+
+    speech.textContent = "YOU DID IT!! 🎉🌸";
+
+    speech.style.opacity = "1";
+    speech.style.transform = "translateY(0)";
+
+    setTimeout(() => {
+
+        cloud.textContent = "☁️";
+
+        speech.textContent = "You're amazing! 💖";
+
+        speech.style.opacity = "0";
+
+    }, 3000);
 
 }
