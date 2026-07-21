@@ -607,3 +607,15 @@ function celebrateWithNimbus() {
     }, 3000);
 
 }
+// Ensure the Dashboard page loads as soon as the page is ready
+window.addEventListener("DOMContentLoaded", () => {
+    // Show dashboard on load
+    showPage("dashboard");
+
+    // Initial renders
+    if (typeof renderTasks === "function") renderTasks();
+    if (typeof renderReminders === "function") renderReminders();
+    if (typeof updateGreeting === "function") updateGreeting();
+    if (typeof updateQuote === "function") updateQuote();
+    if (typeof updateTimerDisplay === "function") updateTimerDisplay();
+});
