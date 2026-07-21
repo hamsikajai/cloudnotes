@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,186 +11,186 @@
 
 <body>
 
-<div id="cloudBuddy">
+  <div id="cloudBuddy">
     <div id="cloudSpeech">Welcome back! 🌸</div>
     <div id="cloudFace">
-        <div class="eye left"></div>
-        <div class="eye right"></div>
-        <div class="blush left"></div>
-        <div class="blush right"></div>
-        <div class="mouth"></div>
+      <div class="eye left"></div>
+      <div class="eye right"></div>
+      <div class="blush left"></div>
+      <div class="blush right"></div>
+      <div class="mouth"></div>
     </div>
-</div>
+  </div>
 
-<div class="app">
+  <div class="app">
 
-  <aside class="sidebar">
-    <h1 class="logo">☁️ Cloud Notes</h1>
+    <aside class="sidebar">
+      <h1 class="logo">☁️ Cloud Notes</h1>
 
-    <button class="nav-btn active" onclick="showPage('dashboard')">🏠 Dashboard</button>
-    <button class="nav-btn" onclick="showPage('calendar')">📅 Calendar</button>
-    <button class="nav-btn" onclick="showPage('notes')">📝 Notes</button>
-    <button class="nav-btn" onclick="showPage('habits')">💖 Habits</button>
-    <button class="nav-btn" onclick="showPage('goals')">🎯 Goals</button>
+      <button class="nav-btn active" onclick="showPage('dashboard')">🏠 Dashboard</button>
+      <button class="nav-btn" onclick="showPage('calendar')">📅 Calendar</button>
+      <button class="nav-btn" onclick="showPage('notes')">📝 Notes</button>
+      <button class="nav-btn" onclick="showPage('habits')">💖 Habits</button>
+      <button class="nav-btn" onclick="showPage('goals')">🎯 Goals</button>
 
-    <button class="nav-btn" onclick="toggleTheme()">🎨 Theme</button>
+      <button class="nav-btn" onclick="toggleTheme()">🎨 Theme</button>
 
-    <div class="bottom">
-      <button class="nav-btn" onclick="showPage('settingsPage')">⚙️ Settings</button>
-    </div>
-  </aside>
+      <div class="bottom">
+        <button class="nav-btn" onclick="showPage('settingsPage')">⚙️ Settings</button>
+      </div>
+    </aside>
 
-  <main class="main">
+    <main class="main">
 
-    <div id="dashboard" class="page">
-      <header class="topbar">
-        <h2 id="greeting">Good Morning 🌷</h2>
-        <p id="date"></p>
-      </header>
+      <div id="dashboard" class="page">
+        <header class="topbar">
+          <h2 id="greeting">Good Morning 🌷</h2>
+          <p id="date"></p>
+        </header>
 
-      <h2>🏠 Dashboard</h2>
+        <h2>🏠 Dashboard</h2>
 
-      <div class="grid">
-        <div class="card">
-          <h3>🌷 Tasks</h3>
-          <div class="task-input">
-            <input id="taskInput" placeholder="Add a new task..." />
-            <button onclick="addTask()">Add</button>
+        <div class="grid">
+          <div class="card">
+            <h3>🌷 Tasks</h3>
+            <div class="task-input">
+              <input id="taskInput" placeholder="Add a new task..." />
+              <button onclick="addTask()">Add</button>
+            </div>
+            <ul id="taskList"></ul>
           </div>
-          <ul id="taskList"></ul>
-        </div>
 
-        <div class="card">
-          <h3>📊 Progress</h3>
-          <div class="bar">
-            <div class="fill"></div>
+          <div class="card">
+            <h3>📊 Progress</h3>
+            <div class="bar">
+              <div class="fill"></div>
+            </div>
+            <p id="progressText">🌸 Add your first task!</p>
           </div>
-          <p id="progressText">🌸 Add your first task!</p>
-        </div>
 
-        <div class="card">
-          <h3>⏰ Reminders</h3>
-          <div class="task-input">
-            <input id="reminderInput" placeholder="Add a reminder..." />
-            <button onclick="addReminder()">Add</button>
+          <div class="card">
+            <h3>⏰ Reminders</h3>
+            <div class="task-input">
+              <input id="reminderInput" placeholder="Add a reminder..." />
+              <button onclick="addReminder()">Add</button>
+            </div>
+            <ul id="reminderList"></ul>
           </div>
-          <ul id="reminderList"></ul>
-        </div>
 
-        <div class="card">
-          <h3>💖 Quote</h3>
-          <p id="quoteText"></p>
+          <div class="card">
+            <h3>💖 Quote</h3>
+            <p id="quoteText"></p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div id="notes" class="page">
-      <h2>📝 Notes</h2>
-      <textarea id="notesBox" placeholder="Write your notes..."></textarea>
-      <div class="card focus-card">
-        <h3>🌸 Focus Timer</h3>
-        <h1 id="timer">25:00</h1>
-        <button class="focus-btn" onclick="toggleTimer()">✨ Start Focus ✨</button>
-      </div>
-    </div>
+      <div id="notes" class="page" style="display: none;">
+        <h2>📝 Notes</h2>
+        <textarea id="notesBox" placeholder="Write your notes..."></textarea>
 
-    <div id="calendar" class="page">
-      <h2>📅 Calendar</h2>
-      <p>Coming soon 🌸</p>
-    </div>
-
-    <div id="habits" class="page">
-      <h2>💖 Habits</h2>
-      <p>Habit tracker coming soon ✨</p>
-    </div>
-
-    <div id="goals" class="page">
-      <h2>🎯 Goals</h2>
-      <p>Goal tracker coming soon 🌷</p>
-    </div>
-
-    <div id="settingsPage" class="page">
-      <h2 class="settings-title">⚙️ Settings</h2>
-
-      <div class="settings-container">
-        <div class="settings-card">
-          <h3>👤 Account Information</h3>
-          <div class="setting-item">
-            <span>Name</span>
-            <span id="userName" style="font-weight: 600; color: #4b6a88;">Loading...</span>
-          </div>
-          <div class="setting-item">
-            <span>Email</span>
-            <span id="userEmail" style="font-weight: 600; color: #4b6a88;">Loading...</span>
-          </div>
+        <div class="card focus-card">
+          <h3>🌸 Focus Timer</h3>
+          <h1 id="timer">25:00</h1>
+          <button class="focus-btn" onclick="toggleTimer()">✨ Start Focus ✨</button>
         </div>
+      </div>
 
-        <div class="settings-card">
-          <h3>🔒 Security</h3>
+      <div id="calendar" class="page" style="display: none;">
+        <h2>📅 Calendar</h2>
+        <p>Coming soon 🌸</p>
+      </div>
 
-          <button class="settings-btn" id="togglePasswordFormBtn">
-            🔑 Change Password Directly
-            <span id="toggleArrow">›</span>
-          </button>
+      <div id="habits" class="page" style="display: none;">
+        <h2>💖 Habits</h2>
+        <p>Habit tracker coming soon ✨</p>
+      </div>
 
-          <div id="passwordFormContainer" style="display: none; margin-top: 14px; padding: 14px; background: #f8fbff; border-radius: 14px; border: 1px solid #e1effe;">
-            <div style="margin-bottom: 12px;">
-              <label for="newPasswordInput" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px;">New Password</label>
-              <input 
-                type="password" 
-                id="newPasswordInput" 
-                placeholder="Enter new password (min. 8 chars)" 
-                style="width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d0e2ff; background: #ffffff; font-family: 'Nunito', sans-serif; font-size: 14px;"
-              >
+      <div id="goals" class="page" style="display: none;">
+        <h2>🎯 Goals</h2>
+        <p>Goal tracker coming soon 🌷</p>
+      </div>
+
+      <div id="settingsPage" class="page" style="display: none;">
+        <h2 class="settings-title">⚙️ Settings</h2>
+
+        <div class="settings-container">
+          <div class="settings-card">
+            <h3>👤 Account Information</h3>
+            <div class="setting-item">
+              <span>Name</span>
+              <span id="userName" style="font-weight: 600; color: #4b6a88;">Loading...</span>
+            </div>
+            <div class="setting-item">
+              <span>Email</span>
+              <span id="userEmail" style="font-weight: 600; color: #4b6a88;">Loading...</span>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h3>🔒 Security</h3>
+
+            <button class="settings-btn" id="togglePasswordFormBtn">
+              🔑 Change Password Directly
+              <span id="toggleArrow">›</span>
+            </button>
+
+            <div id="passwordFormContainer" style="display: none; margin-top: 14px; padding: 14px; background: #f8fbff; border-radius: 14px; border: 1px solid #e1effe;">
+              <div style="margin-bottom: 12px;">
+                <label for="newPasswordInput" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px;">New Password</label>
+                <input 
+                  type="password" 
+                  id="newPasswordInput" 
+                  placeholder="Enter new password (min. 8 chars)" 
+                  style="width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d0e2ff; background: #ffffff; font-family: 'Nunito', sans-serif; font-size: 14px;"
+                >
+              </div>
+
+              <div style="margin-bottom: 12px;">
+                <label for="confirmPasswordInput" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px;">Confirm New Password</label>
+                <input 
+                  type="password" 
+                  id="confirmPasswordInput" 
+                  placeholder="Re-enter new password" 
+                  style="width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d0e2ff; background: #ffffff; font-family: 'Nunito', sans-serif; font-size: 14px;"
+                >
+                <p style="font-size: 12px; color: #667; margin-top: 6px;">
+                  Must be 8+ chars with uppercase, lowercase, number, and special character.
+                </p>
+              </div>
+
+              <button class="settings-btn" id="changePasswordBtn" style="background: #e2f1ff; font-weight: 600; justify-content: center;">
+                Save New Password
+              </button>
             </div>
 
-            <div style="margin-bottom: 12px;">
-              <label for="confirmPasswordInput" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px;">Confirm New Password</label>
-              <input 
-                type="password" 
-                id="confirmPasswordInput" 
-                placeholder="Re-enter new password" 
-                style="width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d0e2ff; background: #ffffff; font-family: 'Nunito', sans-serif; font-size: 14px;"
-              >
-              <p style="font-size: 12px; color: #667; margin-top: 6px;">
-                Must be 8+ chars with uppercase, lowercase, number, and special character.
-              </p>
-            </div>
+            <button class="settings-btn" id="resetPasswordBtn" style="margin-top: 12px;">
+              📧 Send Password Reset Email
+              <span>›</span>
+            </button>
 
-            <button class="settings-btn" id="changePasswordBtn" style="background: #e2f1ff; font-weight: 600; justify-content: center;">
-              Save New Password
+            <button class="settings-btn logout-btn" id="logoutBtn" style="margin-top: 12px;">
+              🚪 Log Out
+              <span>›</span>
             </button>
           </div>
 
-          <button class="settings-btn" id="resetPasswordBtn" style="margin-top: 12px;">
-            📧 Send Password Reset Email
-            <span>›</span>
-          </button>
+          <div class="settings-card danger-card" style="margin-top: 28px;">
+            <h3>🗑️ Danger Zone</h3>
+            <p style="margin-bottom: 14px; color: #777; font-size: 14px;">
+              Permanently delete your Cloud Notes account and sign out.
+              This action cannot be undone.
+            </p>
 
-          <button class="settings-btn logout-btn" id="logoutBtn" style="margin-top: 12px;">
-            🚪 Log Out
-            <span>›</span>
-          </button>
+            <button class="delete-btn" id="deleteAccountBtn" style="background: #ff6b6b; color: white; padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600;">
+              Delete Account
+            </button>
+          </div>
         </div>
-
-        <div class="settings-card danger-card" style="margin-top: 28px;">
-          <h3>🗑️ Danger Zone</h3>
-          <p style="margin-bottom: 14px; color: #777; font-size: 14px;">
-            Permanently delete your Cloud Notes account and sign out.
-            This action cannot be undone.
-          </p>
-
-          <button class="delete-btn" id="deleteAccountBtn" style="background: #ff6b6b; color: white; padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600;">
-            Delete Account
-          </button>
-        </div>
-
       </div>
-    </div>
-      
-  </main>
-</div>
 
-<script type="module" src="app.js"></script>
+    </main>
+  </div>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
