@@ -537,3 +537,46 @@ document.addEventListener("DOMContentLoaded", () => {
     updateQuote();
     updateTimerDisplay();
 });
+const cloudMessages = [
+
+"You're doing amazing! 🌸",
+
+"One task at a time! ☁️",
+
+"Don't forget to drink water 💙",
+
+"You've got this! ✨",
+
+"I'm cheering for you! 🎉",
+
+"Let's finish today's goals! 🌷",
+
+"Take a deep breath 🌿",
+
+"Progress > Perfection 💖"
+
+];
+
+const speech = document.getElementById("cloudSpeech");
+
+const cloud = document.getElementById("cloudFace");
+
+function randomCloudMessage(){
+
+if(!speech) return;
+
+const random=Math.floor(Math.random()*cloudMessages.length);
+
+speech.textContent=cloudMessages[random];
+
+}
+
+if(cloud){
+
+cloud.addEventListener("click",()=>{
+
+randomCloudMessage();
+
+});
+
+}
