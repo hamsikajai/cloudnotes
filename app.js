@@ -5,8 +5,13 @@ import {
     sendPasswordResetEmail,
     updatePassword,
     EmailAuthProvider,
-    reauthenticateWithCredential
+    reauthenticateWithCredential,
+    deleteUser
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+// ===========================
+// TASKS & BOARD LOGIC
+// ===========================
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
@@ -17,12 +22,10 @@ const list = document.getElementById("taskList");
 const savedTheme = localStorage.getItem("theme") || "pastel";
 document.body.setAttribute("data-theme", savedTheme);
 
-// ---------- INITIAL RENDER ----------
-renderTasks();
-
 // ---------- ADD TASK ----------
 function addTask() {
-    const value = input ? input.value.trim() : "";
+    if (!input) return;
+    const value = input.value.trim();
     if (!value) return;
 
     tasks.push({
@@ -30,7 +33,7 @@ function addTask() {
         done: false
     });
 
-    if (input) input.value = "";
+    input.value = "";
     saveTasks();
     renderTasks();
 }
@@ -96,7 +99,7 @@ function renderTasks() {
     updateProgress();
 }
 
-// ---------- SAVE ----------
+// ---------- SAVE TASKS ----------
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
@@ -137,7 +140,10 @@ function updateProgress() {
         `${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
 }
 
-// ---------- THEME SWITCHER ----------
+// ===========================
+// THEME SWITCHER & NAVIGATION
+// ===========================
+
 function toggleTheme() {
     const current = document.body.getAttribute("data-theme");
 
@@ -178,6 +184,10 @@ function showPage(pageId) {
         activeBtn.classList.add("active");
     }
 }
+
+// ===========================
+// REMINDERS
+// ===========================
 
 let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
 
@@ -230,8 +240,9 @@ function renderReminders() {
     });
 }
 
-// load on start
-renderReminders();
+// ===========================
+// GREETING & QUOTES
+// ===========================
 
 function updateGreeting() {
     const greeting = document.getElementById("greeting");
@@ -266,6 +277,10 @@ function updateQuote() {
     const random = Math.floor(Math.random() * quotes.length);
     quote.textContent = `"${quotes[random]}"`;
 }
+
+// ===========================
+// FOCUS TIMER
+// ===========================
 
 let timerInterval;
 let timeLeft = 25 * 60;
@@ -307,7 +322,9 @@ function toggleTimer() {
     }
 }
 
-updateTimerDisplay();
+// ===========================
+// NOTES
+// ===========================
 
 const notesBox = document.getElementById("notesBox");
 if (notesBox) {
@@ -317,28 +334,35 @@ if (notesBox) {
     });
 }
 
-// Expose functions called directly in HTML attributes (onclick)
+// EXPOSE GLOBAL FUNCTIONS FOR INLINE HTML ATTRIBUTES
 window.showPage = showPage;
 window.addTask = addTask;
 window.addReminder = addReminder;
 window.toggleTheme = toggleTheme;
 window.toggleTimer = toggleTimer;
 
-// ---------- SETTINGS PAGE LOGIC ----------
+// ===========================
+// AUTHENTICATION & SETTINGS
+// ===========================
 
-// Show logged in email
+// ---------- SHOW USER INFO ----------
 onAuthStateChanged(auth, (user) => {
-    const email = document.getElementById("userEmail");
-    if (!email) return;
+    const emailElement = document.getElementById("userEmail");
+    const nameElement = document.getElementById("userName");
 
     if (user) {
-        email.textContent = user.email;
+        if (emailElement) emailElement.textContent = user.email || "No email provided";
+        if (nameElement) {
+            const displayName = user.displayName || user.email.split("@")[0];
+            nameElement.textContent = displayName;
+        }
     } else {
-        email.textContent = "Not signed in";
+        if (emailElement) emailElement.textContent = "Not signed in";
+        if (nameElement) nameElement.textContent = "Guest";
     }
 });
 
-// Log Out
+// ---------- LOG OUT ----------
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
@@ -351,7 +375,7 @@ if (logoutBtn) {
     });
 }
 
-// OPTION 1: Direct In-Web Password Change
+// ---------- OPTION 1: DIRECT PASSWORD CHANGE ----------
 const changePasswordBtn = document.getElementById("changePasswordBtn");
 if (changePasswordBtn) {
     changePasswordBtn.addEventListener("click", async () => {
@@ -367,7 +391,7 @@ if (changePasswordBtn) {
             return;
         }
 
-        // 1. Validate Password Strength
+        // 1. Password Strength Validation
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
         if (!passwordRegex.test(newPassword)) {
@@ -382,7 +406,7 @@ if (changePasswordBtn) {
             return;
         }
 
-        // 2. Validate Matching Passwords
+        // 2. Passwords Match Validation
         if (newPassword !== confirmPassword) {
             alert("⚠️ Passwords do not match. Please try typing them again.");
             return;
@@ -419,7 +443,7 @@ if (changePasswordBtn) {
     });
 }
 
-// OPTION 2: Password Reset Email
+// ---------- OPTION 2: PASSWORD RESET EMAIL ----------
 const resetPasswordBtn = document.getElementById("resetPasswordBtn");
 if (resetPasswordBtn) {
     resetPasswordBtn.addEventListener("click", async () => {
@@ -440,8 +464,62 @@ if (resetPasswordBtn) {
     });
 }
 
+// ---------- DELETE ACCOUNT FOREVER ----------
+const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+
+        if (!user) {
+            alert("Please sign in first.");
+            return;
+        }
+
+        // 1. Confirm deletion popup
+        const confirmDelete = confirm(
+            "⚠️ ARE YOU SURE?\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            await deleteUser(user);
+            alert("Your account has been permanently deleted.");
+            window.location.href = "index.html";
+        } catch (error) {
+            console.error(error);
+
+            if (error.code === "auth/requires-recent-login") {
+                const currentPassword = prompt(
+                    "For security reasons, please enter your CURRENT password to finalize account deletion:"
+                );
+
+                if (!currentPassword) return;
+
+                try {
+                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                    await reauthenticateWithCredential(user, credential);
+                    await deleteUser(user);
+
+                    alert("Your account has been permanently deleted.");
+                    window.location.href = "index.html";
+                } catch (reauthError) {
+                    alert("Incorrect password. Account was not deleted.");
+                    console.error(reauthError);
+                }
+            } else {
+                alert("Failed to delete account: " + error.message);
+            }
+        }
+    });
+}
+
+// ---------- INITIALIZATION ----------
 document.addEventListener("DOMContentLoaded", () => {
     showPage("dashboard");
+    renderTasks();
+    renderReminders();
     updateGreeting();
     updateQuote();
+    updateTimerDisplay();
 });
