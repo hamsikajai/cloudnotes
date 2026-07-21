@@ -838,3 +838,12 @@ body {
   transform: translateX(-50%);
   z-index: 5;
 }
+/* Hide all pages by default so they don't stack on load */
+.page {
+  display: none;
+}
+
+/* Ensure the active/first page is shown */
+#dashboard {
+  display: block;
+}
