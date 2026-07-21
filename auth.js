@@ -1,4 +1,4 @@
-```javascript
+
 import { auth } from "./firebase.js";
 
 import {
@@ -69,4 +69,4 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
     }
 
 });
-```
+
