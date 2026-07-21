@@ -1,9 +1,10 @@
 import { auth } from "./firebase.js";
-
 import {
     onAuthStateChanged,
-    signOut
+    signOut,
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 const input = document.getElementById("taskInput");
@@ -55,6 +56,7 @@ function deleteTask(index) {
 
 // ---------- RENDER TASKS ----------
 function renderTasks() {
+    if (!list) return;
     list.innerHTML = "";
 
     tasks.forEach((task, index) => {
@@ -65,7 +67,6 @@ function renderTasks() {
             li.classList.add("done");
         }
 
-        // click to toggle complete (but ignore delete button)
         li.onclick = function (e) {
             if (e.target.classList.contains("delete-btn")) return;
             toggleTask(index);
@@ -148,25 +149,24 @@ function toggleTheme() {
         localStorage.setItem("theme", "dark");
     }
 }
-function showPage(pageId) {
 
+function showPage(pageId) {
     const pages = document.querySelectorAll(".page");
     const buttons = document.querySelectorAll(".nav-btn");
 
-    // hide all pages
     pages.forEach(page => {
         page.style.display = "none";
     });
 
-    // remove active class
     buttons.forEach(btn => {
         btn.classList.remove("active");
     });
 
-    // show selected page
-    document.getElementById(pageId).style.display = "block";
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.style.display = "block";
+    }
 
-    // activate clicked button
     const activeBtn = document.querySelector(
         `[onclick="showPage('${pageId}')"]`
     );
@@ -176,63 +176,59 @@ function showPage(pageId) {
     }
 }
 
-// default page on load
-document.addEventListener("DOMContentLoaded", () => {
-    showPage("dashboard");
-});
 let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
 
 function saveReminders() {
-  localStorage.setItem("reminders", JSON.stringify(reminders));
+    localStorage.setItem("reminders", JSON.stringify(reminders));
 }
 
 function addReminder() {
-  const input = document.getElementById("reminderInput");
-  const value = input.value.trim();
+    const input = document.getElementById("reminderInput");
+    if (!input) return;
+    const value = input.value.trim();
 
-  if (!value) return;
+    if (!value) return;
 
-  reminders.push(value);
-  input.value = "";
+    reminders.push(value);
+    input.value = "";
 
-  saveReminders();
-  renderReminders();
+    saveReminders();
+    renderReminders();
 }
 
 function deleteReminder(index) {
-  reminders.splice(index, 1);
-  saveReminders();
-  renderReminders();
+    reminders.splice(index, 1);
+    saveReminders();
+    renderReminders();
 }
 
 function renderReminders() {
-  const list = document.getElementById("reminderList");
-  if (!list) return;
+    const list = document.getElementById("reminderList");
+    if (!list) return;
 
-  list.innerHTML = "";
+    list.innerHTML = "";
 
-  reminders.forEach((reminder, index) => {
-    const li = document.createElement("li");
+    reminders.forEach((reminder, index) => {
+        const li = document.createElement("li");
 
-    const text = document.createElement("span");
-    text.textContent = reminder;
+        const text = document.createElement("span");
+        text.textContent = reminder;
 
-    const btn = document.createElement("button");
-    btn.textContent = "×";
-    btn.className = "rem-delete";
+        const btn = document.createElement("button");
+        btn.textContent = "×";
+        btn.className = "rem-delete";
 
-    btn.onclick = () => deleteReminder(index);
+        btn.onclick = () => deleteReminder(index);
 
-    li.appendChild(text);
-    li.appendChild(btn);
+        li.appendChild(text);
+        li.appendChild(btn);
 
-    list.appendChild(li);
-  });
+        list.appendChild(li);
+    });
 }
 
 // load on start
 renderReminders();
-
 
 function updateGreeting() {
     const greeting = document.getElementById("greeting");
@@ -249,98 +245,87 @@ function updateGreeting() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    showPage("dashboard");
-    updateGreeting();
-    updateQuote();
-});
 const quotes = [
-  "Small progress every day adds up.",
-  "You are capable of amazing things.",
-  "Progress, not perfection.",
-  "Every day is a fresh start.",
-  "Believe in yourself and keep going.",
-  "Little by little, a little becomes a lot.",
-  "Dream big. Start small.",
-  "Your future self will thank you."
+    "Small progress every day adds up.",
+    "You are capable of amazing things.",
+    "Progress, not perfection.",
+    "Every day is a fresh start.",
+    "Believe in yourself and keep going.",
+    "Little by little, a little becomes a lot.",
+    "Dream big. Start small.",
+    "Your future self will thank you."
 ];
 
 function updateQuote() {
-  const quote = document.getElementById("quoteText");
+    const quote = document.getElementById("quoteText");
+    if (!quote) return;
 
-  if (!quote) return;
-
-  const random =
-    Math.floor(Math.random() * quotes.length);
-
-  quote.textContent = `"${quotes[random]}"`;
+    const random = Math.floor(Math.random() * quotes.length);
+    quote.textContent = `"${quotes[random]}"`;
 }
+
 let timerInterval;
 let timeLeft = 25 * 60;
 let timerRunning = false;
 
 function updateTimerDisplay() {
-  const timer = document.getElementById("timer");
-  if (!timer) return;
+    const timer = document.getElementById("timer");
+    if (!timer) return;
 
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
 
-  timer.textContent =
-    `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+    timer.textContent =
+        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 function toggleTimer() {
-  const button = document.querySelector(".focus-btn");
+    const button = document.querySelector(".focus-btn");
 
-  if (!timerRunning) {
-    timerRunning = true;
-    button.textContent = "⏸ Pause Focus";
+    if (!timerRunning) {
+        timerRunning = true;
+        if (button) button.textContent = "⏸ Pause Focus";
 
-    timerInterval = setInterval(() => {
-      timeLeft--;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
 
-      updateTimerDisplay();
-
-      if (timeLeft <= 0) {
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                if (button) button.textContent = "✨ Start Focus ✨";
+                alert("🌸 Great job! Time for a break!");
+            }
+        }, 1000);
+    } else {
         clearInterval(timerInterval);
         timerRunning = false;
-        button.textContent = "✨ Start Focus ✨";
-        alert("🌸 Great job! Time for a break!");
-      }
-    }, 1000);
-
-  } else {
-    clearInterval(timerInterval);
-    timerRunning = false;
-    button.textContent = "▶ Resume Focus";
-  }
+        if (button) button.textContent = "▶ Resume Focus";
+    }
 }
 
 updateTimerDisplay();
+
 const notesBox = document.getElementById("notesBox");
+if (notesBox) {
+    notesBox.value = localStorage.getItem("notes") || "";
+    notesBox.addEventListener("input", () => {
+        localStorage.setItem("notes", notesBox.value);
+    });
+}
 
-// load
-notesBox.value = localStorage.getItem("notes") || "";
-
-// save on typing
-notesBox.addEventListener("input", () => {
-  localStorage.setItem("notes", notesBox.value);
-});
+// Expose functions called directly in HTML attributes (onclick)
 window.showPage = showPage;
 window.addTask = addTask;
 window.addReminder = addReminder;
 window.toggleTheme = toggleTheme;
 window.toggleTimer = toggleTimer;
-// ===========================
-// SETTINGS
-// ===========================
+
+// ---------- SETTINGS PAGE LOGIC ----------
 
 // Show logged in email
 onAuthStateChanged(auth, (user) => {
-
     const email = document.getElementById("userEmail");
-
     if (!email) return;
 
     if (user) {
@@ -348,41 +333,28 @@ onAuthStateChanged(auth, (user) => {
     } else {
         email.textContent = "Not signed in";
     }
-
 });
 
 // Log Out
 const logoutBtn = document.getElementById("logoutBtn");
-
 if (logoutBtn) {
-
     logoutBtn.addEventListener("click", async () => {
-
         try {
-
             await signOut(auth);
-
             window.location.href = "index.html";
-
         } catch (error) {
-
             alert("Couldn't log out.");
-
         }
-
     });
-
 }
-import { auth } from "./firebase.js";
-import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
+// Reset Password
 const resetPasswordBtn = document.getElementById("resetPasswordBtn");
-
 if (resetPasswordBtn) {
     resetPasswordBtn.addEventListener("click", async () => {
         const user = auth.currentUser;
 
-        if (!user) {
+        if (!user || !user.email) {
             alert("Please sign in first.");
             return;
         }
@@ -398,3 +370,9 @@ if (resetPasswordBtn) {
         }
     });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    showPage("dashboard");
+    updateGreeting();
+    updateQuote();
+});
