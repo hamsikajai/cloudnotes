@@ -351,21 +351,40 @@ if (logoutBtn) {
     });
 }
 
-// OPTION 1: Direct Password Change inside App
+// OPTION 1: Direct In-Web Password Change
 const changePasswordBtn = document.getElementById("changePasswordBtn");
 if (changePasswordBtn) {
     changePasswordBtn.addEventListener("click", async () => {
         const user = auth.currentUser;
         const newPasswordInput = document.getElementById("newPasswordInput");
+        const confirmPasswordInput = document.getElementById("confirmPasswordInput");
+
         const newPassword = newPasswordInput ? newPasswordInput.value : "";
+        const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : "";
 
         if (!user) {
             alert("Please sign in first.");
             return;
         }
 
-        if (!newPassword || newPassword.length < 6) {
-            alert("Please enter a new password with at least 6 characters.");
+        // 1. Validate Password Strength
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (!passwordRegex.test(newPassword)) {
+            alert(
+                "🔒 Password is too weak!\n\nYour password must include:\n" +
+                "• At least 8 characters\n" +
+                "• At least one uppercase letter (A-Z)\n" +
+                "• At least one lowercase letter (a-z)\n" +
+                "• At least one number (0-9)\n" +
+                "• At least one special character (@, $, !, %, *, ?, &)"
+            );
+            return;
+        }
+
+        // 2. Validate Matching Passwords
+        if (newPassword !== confirmPassword) {
+            alert("⚠️ Passwords do not match. Please try typing them again.");
             return;
         }
 
@@ -373,6 +392,7 @@ if (changePasswordBtn) {
             await updatePassword(user, newPassword);
             alert("🎉 Password updated successfully!");
             newPasswordInput.value = "";
+            confirmPasswordInput.value = "";
         } catch (error) {
             console.error(error);
 
@@ -387,6 +407,7 @@ if (changePasswordBtn) {
                     await updatePassword(user, newPassword);
                     alert("🎉 Password updated successfully!");
                     newPasswordInput.value = "";
+                    confirmPasswordInput.value = "";
                 } catch (reauthError) {
                     alert("Incorrect current password or re-authentication failed.");
                     console.error(reauthError);
@@ -411,9 +432,7 @@ if (resetPasswordBtn) {
 
         try {
             await sendPasswordResetEmail(auth, user.email);
-            alert(
-                "📧 Password reset email sent!\n\nCheck your inbox (and spam folder if needed)."
-            );
+            alert("📧 Password reset email sent!\n\nCheck your inbox (and spam folder if needed).");
         } catch (error) {
             alert("Couldn't send the password reset email. Please try again.");
             console.error(error);
