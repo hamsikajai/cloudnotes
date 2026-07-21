@@ -711,6 +711,10 @@ body {
    ☁️ NIMBUS CLOUD BUDDY STYLING
 =================================== */
 
+/* ===================================
+   ☁️ FLUFFY NIMBUS CLOUD BUDDY
+=================================== */
+
 #cloudBuddy {
   position: fixed;
   bottom: 24px;
@@ -720,8 +724,16 @@ body {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  animation: floatCloud 3s ease-in-out infinite;
 }
 
+/* Floating Animation */
+@keyframes floatCloud {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-7px); }
+}
+
+/* Speech Bubble Above Cloud */
 #cloudSpeech {
   background: #ffffff;
   padding: 8px 14px;
@@ -730,19 +742,33 @@ body {
   font-weight: 600;
   color: #4b6a88;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   border: 1px solid #e2f0ff;
   transition: all 0.3s ease;
   white-space: nowrap;
+  position: relative;
 }
 
+/* Little speech bubble arrow pointing down */
+#cloudSpeech::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: #ffffff transparent transparent transparent;
+}
+
+/* Base Cloud Body */
 #cloudFace {
-  width: 80px;
+  width: 95px;
   height: 50px;
   background: #ffffff;
-  border-radius: 40px;
+  border-radius: 50px;
   position: relative;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(180, 205, 230, 0.35);
   transition: transform 0.2s ease;
 }
 
@@ -750,62 +776,65 @@ body {
   transform: scale(1.08);
 }
 
+/* Left Fluffy Puffed Top */
 #cloudFace::before {
   content: "";
   position: absolute;
-  width: 34px;
-  height: 34px;
-  background: white;
+  width: 44px;
+  height: 44px;
+  background: #ffffff;
   border-radius: 50%;
-  top: -10px;
-  left: 12px;
+  top: -18px;
+  left: 14px;
 }
 
+/* Right Fluffy Puffed Top */
 #cloudFace::after {
   content: "";
   position: absolute;
-  width: 38px;
-  height: 38px;
-  background: white;
+  width: 48px;
+  height: 48px;
+  background: #ffffff;
   border-radius: 50%;
-  top: -14px;
-  right: 14px;
+  top: -22px;
+  right: 16px;
 }
 
+/* Facial Features (On top of cloud layers) */
 .eye {
   width: 7px;
   height: 7px;
-  background: #444;
+  background: #4b5d6e;
   border-radius: 50%;
   position: absolute;
   top: 18px;
-  z-index: 2;
+  z-index: 5;
 }
 
-.eye.left { left: 22px; }
-.eye.right { right: 22px; }
+.eye.left { left: 28px; }
+.eye.right { right: 28px; }
 
 .blush {
-  width: 8px;
+  width: 9px;
   height: 5px;
   background: #ffb7c5;
   border-radius: 50%;
   position: absolute;
   top: 25px;
-  z-index: 2;
+  z-index: 5;
 }
 
-.blush.left { left: 14px; }
-.blush.right { right: 14px; }
+.blush.left { left: 18px; }
+.blush.right { right: 18px; }
 
 .mouth {
   width: 8px;
   height: 5px;
-  border-bottom: 2px solid #444;
+  border-bottom: 2px solid #4b5d6e;
   border-radius: 0 0 8px 8px;
   position: absolute;
   bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 5;
 }
