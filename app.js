@@ -1,4 +1,10 @@
+import { auth } from "./firebase.js";
 
+import {
+    signOut,
+    sendPasswordResetEmail,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 const input = document.getElementById("taskInput");
