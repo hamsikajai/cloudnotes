@@ -45,7 +45,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
 } catch (error) {
 
-    alert(error.code + "\n\n" + error.message);
+    if (error.code === "auth/invalid-credential") {
+        alert("Incorrect email or password.");
+    } else {
+        alert(error.message);
+    }
 
 }
 
@@ -66,7 +70,15 @@ window.addEventListener("DOMContentLoaded", () => {
 
 } catch (error) {
 
-    alert(error.code + "\n\n" + error.message);
+    if (error.code === "auth/email-already-in-use") {
+        alert("An account with this email already exists. Please log in instead.");
+    } else if (error.code === "auth/weak-password") {
+        alert("Your password must be at least 6 characters long.");
+    } else if (error.code === "auth/invalid-email") {
+        alert("Please enter a valid email address.");
+    } else {
+        alert(error.message);
+    }
 
 }
 
