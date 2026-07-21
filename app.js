@@ -1,4 +1,9 @@
+import { auth } from "./firebase.js";
 
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 const input = document.getElementById("taskInput");
@@ -328,3 +333,43 @@ window.addReminder = addReminder;
 window.toggleTheme = toggleTheme;
 window.toggleTimer = toggleTimer;
 // ===========================
+// SETTINGS
+// ===========================
+
+// Show logged in email
+onAuthStateChanged(auth, (user) => {
+
+    const email = document.getElementById("userEmail");
+
+    if (!email) return;
+
+    if (user) {
+        email.textContent = user.email;
+    } else {
+        email.textContent = "Not signed in";
+    }
+
+});
+
+// Log Out
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener("click", async () => {
+
+        try {
+
+            await signOut(auth);
+
+            window.location.href = "index.html";
+
+        } catch (error) {
+
+            alert("Couldn't log out.");
+
+        }
+
+    });
+
+}
