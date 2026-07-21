@@ -129,34 +129,19 @@
     <div id="goals" class="page">
       <h2>🎯 Goals</h2>
       <p>Goal tracker coming soon 🌷</p>
-    </div>
-<section id="settingsPage" class="page">
-
+    </div><section id="settingsPage" class="page">
     <h2 class="settings-title">⚙️ Settings</h2>
 
     <div class="settings-container">
-    import { auth } from "./firebase.js";
-
-    import {
-        sendPasswordResetEmail
-    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-        <!-- Account -->
-
         <div class="settings-card">
-
             <h3>👤 Account</h3>
-
             <div class="setting-item">
                 <span>Email</span>
                 <span id="userEmail">Loading...</span>
             </div>
-
         </div>
 
-        <!-- Security -->
-
         <div class="settings-card">
-
             <h3>🔒 Security</h3>
 
             <button class="settings-btn" id="changePasswordBtn">
@@ -173,63 +158,22 @@
                 🚪 Log Out
                 <span>›</span>
             </button>
-
         </div>
 
-        <!-- Danger -->
-
         <div class="settings-card danger-card">
-
             <h3>🗑️ Danger Zone</h3>
-
             <p>
                 Permanently delete your Cloud Notes account.
                 This action cannot be undone.
             </p>
-
             <button class="delete-btn" id="deleteAccountBtn">
                 Delete Account
             </button>
-
         </div>
-const resetPasswordBtn = document.getElementById("resetPasswordBtn");
-
-if (resetPasswordBtn) {
-
-    resetPasswordBtn.addEventListener("click", async () => {
-
-        const user = auth.currentUser;
-
-        if (!user) {
-            alert("Please sign in first.");
-            return;
-        }
-
-        try {
-
-            await sendPasswordResetEmail(auth, user.email);
-
-            alert(
-                "📧 Password reset email sent!\n\nCheck your inbox (and spam folder if needed)."
-            );
-
-        } catch (error) {
-
-            alert("Couldn't send the password reset email. Please try again.");
-
-            console.error(error);
-
-        }
-
-    });
-
-}
     </div>
-
 </section>
 
-  </main>
-
+</main>
 </div>
 
 <script type="module" src="app.js"></script>
