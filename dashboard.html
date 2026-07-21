@@ -14,7 +14,6 @@
 
 <div class="app">
 
-  <!-- 🌸 SIDEBAR -->
   <aside class="sidebar">
     <h1 class="logo">☁️ Cloud Notes</h1>
 
@@ -31,13 +30,10 @@
     </div>
   </aside>
 
-  <!-- 🌸 MAIN CONTENT -->
   <main class="main">
 
-    <!-- 🏠 DASHBOARD -->
     <div id="dashboard" class="page">
 
-      <!-- 🌸 GREETING -->
       <header class="topbar">
         <h2 id="greeting">Good Morning 🌷</h2>
         <p id="date"></p>
@@ -47,7 +43,6 @@
 
       <div class="grid">
 
-        <!-- 🌷 TASKS -->
         <div class="card">
           <h3>🌷 Tasks</h3>
 
@@ -59,7 +54,6 @@
           <ul id="taskList"></ul>
         </div>
 
-        <!-- 📊 PROGRESS -->
         <div class="card">
           <h3>📊 Progress</h3>
 
@@ -70,7 +64,6 @@
           <p id="progressText">🌸 Add your first task!</p>
         </div>
 
-        <!-- ⏰ REMINDERS -->
         <div class="card">
           <h3>⏰ Reminders</h3>
 
@@ -82,57 +75,49 @@
           <ul id="reminderList"></ul>
         </div>
 
-        <!-- 💖 QUOTE -->
         <div class="card">
-  <h3>💖 Quote</h3>
-  <p id="quoteText"></p>
-</div>
+          <h3>💖 Quote</h3>
+          <p id="quoteText"></p>
+        </div>
 
       </div>
 
     </div>
 
+    <div id="notes" class="page">
+      <h2>📝 Notes</h2>
 
-    <!-- 📝 NOTES -->
-<div id="notes" class="page">
-  <h2>📝 Notes</h2>
+      <textarea id="notesBox" placeholder="Write your notes..."></textarea>
 
-  <textarea id="notesBox" placeholder="Write your notes..."></textarea>
+      <div class="card focus-card">
+        <h3>🌸 Focus Timer</h3>
 
-  <!-- 🌸 FOCUS TIMER -->
-  <div class="card focus-card">
-    <h3>🌸 Focus Timer</h3>
+        <h1 id="timer">25:00</h1>
 
-    <h1 id="timer">25:00</h1>
+        <button class="focus-btn" onclick="toggleTimer()">
+          ✨ Start Focus ✨
+        </button>
+      </div>
+    </div>
 
-    <button class="focus-btn" onclick="toggleTimer()">
-      ✨ Start Focus ✨
-    </button>
-  </div>
+    <div id="calendar" class="page">
+      <h2>📅 Calendar</h2>
+      <p>Coming soon 🌸</p>
+    </div>
 
-</div>
-
-<!-- 📅 CALENDAR -->
-<div id="calendar" class="page">
-  <h2>📅 Calendar</h2>
-  <p>Coming soon 🌸</p>
-</div>
-      
-
-    <!-- 💖 HABITS -->
     <div id="habits" class="page">
       <h2>💖 Habits</h2>
       <p>Habit tracker coming soon ✨</p>
     </div>
 
-    <!-- 🎯 GOALS -->
     <div id="goals" class="page">
       <h2>🎯 Goals</h2>
       <p>Goal tracker coming soon 🌷</p>
-    <section id="settingsPage" class="page">
+    </div> <div id="settingsPage" class="page">
       <h2 class="settings-title">⚙️ Settings</h2>
 
       <div class="settings-container">
+
         <div class="settings-card">
           <h3>👤 Account Information</h3>
           <div class="setting-item">
@@ -204,8 +189,9 @@
             Delete Account
           </button>
         </div>
+
       </div>
-    </section>
+    </div>
       
 </main>
 </div>
