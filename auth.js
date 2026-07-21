@@ -56,7 +56,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    alert("Email = [" + email + "]");
+    
 
     try {
 
