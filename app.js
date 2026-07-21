@@ -373,3 +373,28 @@ if (logoutBtn) {
     });
 
 }
+import { auth } from "./firebase.js";
+import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+const resetPasswordBtn = document.getElementById("resetPasswordBtn");
+
+if (resetPasswordBtn) {
+    resetPasswordBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+
+        if (!user) {
+            alert("Please sign in first.");
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, user.email);
+            alert(
+                "📧 Password reset email sent!\n\nCheck your inbox (and spam folder if needed)."
+            );
+        } catch (error) {
+            alert("Couldn't send the password reset email. Please try again.");
+            console.error(error);
+        }
+    });
+}
