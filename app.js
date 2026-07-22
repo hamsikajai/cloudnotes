@@ -130,7 +130,7 @@ function updateProgress() {
 
     if (percent === 100) {
         message = "🏆 All tasks completed!";
-        
+        completeToday();
         // Trigger Nimbus celebration once when reaching 100%
         if (!hasCelebrated) {
             celebrateWithNimbus();
@@ -590,6 +590,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (typeof updateGreeting === "function") updateGreeting();
     if (typeof updateQuote === "function") updateQuote();
     if (typeof updateTimerDisplay === "function") updateTimerDisplay();
+    updateStreakDisplay();
 });
 // ==========================
 // DAILY STREAK
