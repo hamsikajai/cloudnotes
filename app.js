@@ -1,4 +1,6 @@
 let hasCelebrated = false;
+let celebrating = false;
+
 import { auth } from "./firebase.js";
 import {
     onAuthStateChanged,
@@ -105,7 +107,7 @@ function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-// ---------- PROGRESS BAR ----------
+// ---------- PROGRESS BAR & CELEBRATION ----------
 function updateProgress() {
     const fill = document.querySelector(".fill");
     const progressText = document.getElementById("progressText");
@@ -115,6 +117,7 @@ function updateProgress() {
     if (tasks.length === 0) {
         fill.style.width = "0%";
         progressText.textContent = "🌸 Add your first task!";
+        hasCelebrated = false;
         return;
     }
 
@@ -126,55 +129,31 @@ function updateProgress() {
     let message = "";
 
     if (percent === 100) {
-
-    message = "🏆 All tasks completed!";
-
-    if (speech) {
-        speech.textContent = "YOU DID IT!! 🎉🌸";
+        message = "🏆 All tasks completed!";
+        
+        // Trigger Nimbus celebration once when reaching 100%
+        if (!hasCelebrated) {
+            celebrateWithNimbus();
+            hasCelebrated = true;
+        }
+    } else if (percent >= 75) {
+        message = "🌟 Almost there!";
+        hasCelebrated = false;
+    } else if (percent >= 50) {
+        message = "✨ Great progress!";
+        hasCelebrated = false;
+    } else if (percent >= 25) {
+        message = "🌸 Keep going!";
+        hasCelebrated = false;
+    } else {
+        message = "☁️ You've got this!";
+        hasCelebrated = false;
     }
-
-    if (cloud) {
-        cloud.textContent = "🥳";
-
-        setTimeout(() => {
-            cloud.textContent = "☁️";
-        }, 3000);
-    }
-
-} else if (percent >= 75) {
-
-    message = "🌟 Almost there!";
-
-} else if (percent >= 50) {
-
-    message = "✨ Great progress!";
-
-} else if (percent >= 25) {
-
-    message = "🌸 Keep going!";
-
-} else {
-
-    message = "☁️ You've got this!";
-
-}
 
     progressText.textContent =
         `${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
 }
-if (percent === 100 && !hasCelebrated) {
 
-    celebrateWithNimbus();
-
-    hasCelebrated = true;
-
-}
-
-if (percent < 100) {
-
-    hasCelebrated = false;
-
-}
 // ===========================
 // THEME SWITCHER & NAVIGATION
 // ===========================
@@ -410,7 +389,6 @@ if (logoutBtn) {
     });
 }
 
-// ---------- OPTION 1: DIRECT PASSWORD CHANGE ----------
 // ---------- TOGGLE PASSWORD INPUT FIELDS ----------
 const togglePasswordFormBtn = document.getElementById("togglePasswordFormBtn");
 const passwordFormContainer = document.getElementById("passwordFormContainer");
@@ -425,6 +403,7 @@ if (togglePasswordFormBtn && passwordFormContainer) {
         }
     });
 }
+
 const changePasswordBtn = document.getElementById("changePasswordBtn");
 if (changePasswordBtn) {
     changePasswordBtn.addEventListener("click", async () => {
@@ -440,7 +419,6 @@ if (changePasswordBtn) {
             return;
         }
 
-        // 1. Password Strength Validation
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
         if (!passwordRegex.test(newPassword)) {
@@ -455,7 +433,6 @@ if (changePasswordBtn) {
             return;
         }
 
-        // 2. Passwords Match Validation
         if (newPassword !== confirmPassword) {
             alert("⚠️ Passwords do not match. Please try typing them again.");
             return;
@@ -524,7 +501,6 @@ if (deleteAccountBtn) {
             return;
         }
 
-        // 1. Confirm deletion popup
         const confirmDelete = confirm(
             "⚠️ ARE YOU SURE?\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
         );
@@ -582,63 +558,33 @@ const cloud = document.getElementById("cloudFace");
 const speech = document.getElementById("cloudSpeech");
 
 function randomCloudMessage() {
-
     if (!speech) return;
-
     const random = Math.floor(Math.random() * cloudMessages.length);
-
     speech.textContent = cloudMessages[random];
-
 }
 
 if (cloud) {
-
     cloud.addEventListener("click", randomCloudMessage);
-
 }
-
-// Call this when ALL tasks are completed
-let celebrating = false;
 
 function celebrateWithNimbus() {
-
     if (celebrating) return;
-
     celebrating = true;
 
-    cloud.classList.add("happy");
-
-    speech.textContent = "🎉 You did it! All tasks complete!";
+    if (cloud) cloud.classList.add("happy");
+    if (speech) speech.textContent = "🎉 YOU DID IT!! All tasks completed! 🌸";
 
     setTimeout(() => {
-
-        cloud.classList.remove("happy");
-
-        speech.textContent = "You're doing amazing! 🌸";
-
+        if (cloud) cloud.classList.remove("happy");
+        if (speech) speech.textContent = "You're doing amazing! 🌸";
         celebrating = false;
-
-    }, 2500);
-
+    }, 3500);
 }
 
-    setTimeout(() => {
-
-        cloud.textContent = "☁️";
-
-        speech.textContent = "You're amazing! 💖";
-
-        speech.style.opacity = "0";
-
-    }, 3000);
-
-}
-// Ensure the Dashboard page loads as soon as the page is ready
+// ---------- INITIALIZATION ----------
 window.addEventListener("DOMContentLoaded", () => {
-    // Show dashboard on load
     showPage("dashboard");
 
-    // Initial renders
     if (typeof renderTasks === "function") renderTasks();
     if (typeof renderReminders === "function") renderReminders();
     if (typeof updateGreeting === "function") updateGreeting();
