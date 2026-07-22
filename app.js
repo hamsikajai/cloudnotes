@@ -379,6 +379,8 @@ window.addTask = addTask;
 window.addReminder = addReminder;
 window.toggleTheme = toggleTheme;
 window.toggleTimer = toggleTimer;
+window.previousMonth = previousMonth;
+window.nextMonth = nextMonth;
 
 // ===========================
 // AUTHENTICATION & SETTINGS
