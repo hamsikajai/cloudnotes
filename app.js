@@ -967,3 +967,12 @@ window.addEventListener("DOMContentLoaded", () => {
     updateStreakDisplay();
     renderCalendar();
 });
+// ---------- FONT FAMILY SELECTION ----------
+function formatFontFamily(fontName) {
+    if (!fontName) return;
+    document.execCommand("fontName", false, fontName);
+    autoSaveNote();
+}
+
+// Ensure it's exposed to window for inline HTML onchange events
+window.formatFontFamily = formatFontFamily;
