@@ -591,3 +591,63 @@ window.addEventListener("DOMContentLoaded", () => {
     if (typeof updateQuote === "function") updateQuote();
     if (typeof updateTimerDisplay === "function") updateTimerDisplay();
 });
+// ==========================
+// DAILY STREAK
+// ==========================
+
+let streak = Number(localStorage.getItem("streak")) || 0;
+
+let lastCompleted =
+localStorage.getItem("lastCompletedDate");
+
+function updateStreakDisplay(){
+
+const streakText =
+document.getElementById("streakCount");
+
+if(streakText){
+
+streakText.textContent = streak;
+
+}
+
+}
+
+function completeToday(){
+
+const today =
+new Date().toDateString();
+
+if(lastCompleted === today){
+
+return;
+
+}
+
+const yesterday =
+new Date();
+
+yesterday.setDate(yesterday.getDate()-1);
+
+if(lastCompleted === yesterday.toDateString()){
+
+streak++;
+
+}else{
+
+streak = 1;
+
+}
+
+lastCompleted = today;
+
+localStorage.setItem("streak",streak);
+
+localStorage.setItem(
+"lastCompletedDate",
+today
+);
+
+updateStreakDisplay();
+
+}
