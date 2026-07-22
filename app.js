@@ -293,49 +293,6 @@ function updateQuote() {
     quote.textContent = `"${quotes[random]}"`;
 }
 
-// ===========================
-// FOCUS TIMER
-// ===========================
-
-let timerInterval;
-let timeLeft = 25 * 60;
-let timerRunning = false;
-
-function updateTimerDisplay() {
-    const timer = document.getElementById("timer");
-    if (!timer) return;
-
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-
-    timer.textContent =
-        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
-
-function toggleTimer() {
-    const button = document.querySelector(".focus-btn");
-
-    if (!timerRunning) {
-        timerRunning = true;
-        if (button) button.textContent = "⏸ Pause Focus";
-
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            updateTimerDisplay();
-
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                timerRunning = false;
-                if (button) button.textContent = "✨ Start Focus ✨";
-                alert("🌸 Great job! Time for a break!");
-            }
-        }, 1000);
-    } else {
-        clearInterval(timerInterval);
-        timerRunning = false;
-        if (button) button.textContent = "▶ Resume Focus";
-    }
-}
 
 // =========================================
 // NOTES V2
