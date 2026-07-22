@@ -617,135 +617,250 @@ function completeToday() {
     updateStreakDisplay();
 }
 
-// =========================
-// CALENDAR
-// =========================
+// ========================================
+// CALENDAR V3
+// ========================================
 
 let currentDate = new Date();
-let selectedCalendarDate = null;
-let calendarTasks = JSON.parse(localStorage.getItem("calendarTasks")) || {};
 
-function renderCalendar() {
-    const monthYear = document.getElementById("monthYear");
-    const grid = document.getElementById("calendarGrid");
+let selectedCalendarDate = "";
 
-    if (!monthYear || !grid) return;
+let calendarTasks =
+JSON.parse(localStorage.getItem("calendarTasks")) || {};
 
-    grid.innerHTML = "";
+function renderCalendar(){
 
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+const grid=document.getElementById("calendarGrid");
+const monthYear=document.getElementById("monthYear");
 
-    monthYear.textContent = currentDate.toLocaleString("default", {
-        month: "long",
-        year: "numeric"
-    });
+if(!grid||!monthYear)return;
 
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+grid.innerHTML="";
 
-    // Empty boxes before month starts
-    for (let i = 0; i < firstDay; i++) {
-        const empty = document.createElement("div");
-        empty.className = "day empty";
-        grid.appendChild(empty);
-    }
+const year=currentDate.getFullYear();
+const month=currentDate.getMonth();
 
-    // Numbered days
-    for (let day = 1; day <= daysInMonth; day++) {
-        const cell = document.createElement("div");
-        cell.className = "day";
-        cell.textContent = day;
+monthYear.textContent=currentDate.toLocaleString(
+"default",
+{
+month:"long",
+year:"numeric"
+});
 
-        const key = `${year}-${month}-${day}`;
+const firstDay=new Date(year,month,1).getDay();
 
-        cell.onclick = () => {
-            selectedCalendarDate = key;
+const daysInMonth=
+new Date(year,month+1,0).getDate();
 
-            const selectedDateEl = document.getElementById("selectedDate");
-            if (selectedDateEl) {
-                selectedDateEl.textContent = `${currentDate.toLocaleString("default", { month: "long" })} ${day}`;
-            }
+for(let i=0;i<firstDay;i++){
 
-            renderCalendar();
-            renderCalendarTasks();
-        };
+const empty=document.createElement("div");
 
-        if (selectedCalendarDate === key) {
-            cell.classList.add("calendar-selected");
-        }
+empty.className="day empty";
 
-        const today = new Date();
-        if (
-            day === today.getDate() &&
-            month === today.getMonth() &&
-            year === today.getFullYear()
-        ) {
-            cell.classList.add("today");
-        }
+grid.appendChild(empty);
 
-        grid.appendChild(cell);
-    }
 }
 
-function renderCalendarTasks() {
-    const list = document.getElementById("calendarTaskList");
-    if (!list) return;
+for(let day=1;day<=daysInMonth;day++){
 
-    list.innerHTML = "";
+const cell=document.createElement("div");
 
-    const tasks = calendarTasks[selectedCalendarDate] || [];
+cell.className="day";
 
-    tasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <span>${task}</span>
-            <button onclick="deleteCalendarTask(${index})">❌</button>
-        `;
-        list.appendChild(li);
-    });
+cell.textContent=day;
+
+const key=`${year}-${month}-${day}`;
+
+cell.onclick=()=>{
+
+selectedCalendarDate=key;
+
+document.getElementById("selectedDate").textContent=
+`${currentDate.toLocaleString("default",{month:"long"})} ${day}`;
+
+renderCalendar();
+
+renderCalendarTasks();
+
+};
+
+const today=new Date();
+
+if(
+today.getDate()==day&&
+today.getMonth()==month&&
+today.getFullYear()==year
+){
+
+cell.classList.add("today");
+
 }
 
-function previousMonth() {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    renderCalendar();
+if(selectedCalendarDate===key){
+
+cell.classList.add("calendar-selected");
+
 }
 
-function nextMonth() {
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    renderCalendar();
+if(calendarTasks[key]){
+
+const dot=document.createElement("div");
+
+dot.className=
+`event-dot ${calendarTasks[key][0].category}`;
+
+cell.appendChild(dot);
+
 }
 
-function addCalendarTask() {
-    if (!selectedCalendarDate) {
-        alert("Select a date first!");
-        return;
-    }
+grid.appendChild(cell);
 
-    const input = document.getElementById("calendarTaskInput");
-    if (!input) return;
-
-    const value = input.value.trim();
-    if (!value) return;
-
-    if (!calendarTasks[selectedCalendarDate]) {
-        calendarTasks[selectedCalendarDate] = [];
-    }
-
-    calendarTasks[selectedCalendarDate].push(value);
-    localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
-
-    input.value = "";
-    renderCalendarTasks();
 }
 
-function deleteCalendarTask(index) {
-    if (!selectedCalendarDate || !calendarTasks[selectedCalendarDate]) return;
+}
 
-    calendarTasks[selectedCalendarDate].splice(index, 1);
-    localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
+function renderCalendarTasks(){
 
-    renderCalendarTasks();
+const list=
+document.getElementById("calendarTaskList");
+
+const counter=
+document.getElementById("eventCounter");
+
+list.innerHTML="";
+
+const tasks=
+calendarTasks[selectedCalendarDate]||[];
+
+counter.textContent=
+`${tasks.length} Event${tasks.length!==1?"s":""}`;
+
+if(tasks.length===0){
+
+list.innerHTML=
+`<p style="text-align:center;color:#888;margin-top:40px;">
+🌸 No events today
+</p>`;
+
+return;
+
+}
+
+tasks.forEach((task,index)=>{
+
+const li=document.createElement("li");
+
+li.className="calendar-event";
+
+li.innerHTML=`
+
+<div class="calendar-left">
+
+<span class="category-pill ${task.category}">
+${task.category}
+</span>
+
+<span>${task.text}</span>
+
+</div>
+
+<button
+class="calendar-delete"
+onclick="deleteCalendarTask(${index})">
+
+❌
+
+</button>
+
+`;
+
+list.appendChild(li);
+
+});
+
+}
+
+function addCalendarTask(){
+
+if(!selectedCalendarDate){
+
+alert("Choose a day first 🌸");
+
+return;
+
+}
+
+const input=
+document.getElementById("calendarTaskInput");
+
+const category=
+document.getElementById("eventCategory");
+
+const value=input.value.trim();
+
+if(!value)return;
+
+if(!calendarTasks[selectedCalendarDate]){
+
+calendarTasks[selectedCalendarDate]=[];
+
+}
+
+calendarTasks[selectedCalendarDate].push({
+
+text:value,
+
+category:category.value
+
+});
+
+localStorage.setItem(
+
+"calendarTasks",
+
+JSON.stringify(calendarTasks)
+
+);
+
+input.value="";
+
+renderCalendar();
+
+renderCalendarTasks();
+
+}
+
+function deleteCalendarTask(index){
+
+calendarTasks[selectedCalendarDate].splice(index,1);
+
+if(calendarTasks[selectedCalendarDate].length===0){
+
+delete calendarTasks[selectedCalendarDate];
+
+}
+
+localStorage.setItem(
+
+"calendarTasks",
+
+JSON.stringify(calendarTasks)
+
+);
+
+renderCalendar();
+
+renderCalendarTasks();
+
+}
+
+function goToToday(){
+
+currentDate=new Date();
+
+renderCalendar();
+
 }
 
 // EXPOSE CALENDAR FUNCTIONS TO GLOBAL SCOPE
