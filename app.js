@@ -585,16 +585,29 @@ if (cloud) {
 }
 
 // Call this when ALL tasks are completed
+let celebrating = false;
+
 function celebrateWithNimbus() {
 
-    if (!cloud || !speech) return;
+    if (celebrating) return;
 
-    cloud.textContent = "🥳";
+    celebrating = true;
 
-    speech.textContent = "YOU DID IT!! 🎉🌸";
+    cloud.classList.add("happy");
 
-    speech.style.opacity = "1";
-    speech.style.transform = "translateY(0)";
+    speech.textContent = "🎉 You did it! All tasks complete!";
+
+    setTimeout(() => {
+
+        cloud.classList.remove("happy");
+
+        speech.textContent = "You're doing amazing! 🌸";
+
+        celebrating = false;
+
+    }, 2500);
+
+}
 
     setTimeout(() => {
 
