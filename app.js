@@ -744,6 +744,57 @@ cell.classList.add("today");
 
 }
 
+const key =
+`${year}-${month}-${day}`;
+
+cell.onclick=()=>{
+
+selectedCalendarDate=key;
+
+document.getElementById("selectedDate").textContent=
+currentDate.toLocaleString("default",{month:"long"})
++" "+day;
+
+renderCalendar();
+function renderCalendarTasks(){
+
+const list =
+document.getElementById("calendarTaskList");
+
+if(!list) return;
+
+list.innerHTML="";
+
+const tasks=
+calendarTasks[selectedCalendarDate] || [];
+
+tasks.forEach((task,index)=>{
+
+const li=document.createElement("li");
+
+li.innerHTML=`
+<span>${task}</span>
+
+<button onclick="deleteCalendarTask(${index})">
+❌
+</button>
+`;
+
+list.appendChild(li);
+
+});
+
+}
+renderCalendarTasks();
+
+};
+
+if(selectedCalendarDate===key){
+
+cell.classList.add("calendar-selected");
+
+}
+
 grid.appendChild(cell);
 
 }
@@ -763,5 +814,52 @@ function nextMonth(){
 currentDate.setMonth(currentDate.getMonth()+1);
 
 renderCalendar();
+
+}
+function addCalendarTask(){
+
+if(!selectedCalendarDate){
+
+alert("Select a date first!");
+
+return;
+
+}
+
+const input=
+document.getElementById("calendarTaskInput");
+
+const value=input.value.trim();
+
+if(!value) return;
+
+if(!calendarTasks[selectedCalendarDate]){
+
+calendarTasks[selectedCalendarDate]=[];
+
+}
+
+calendarTasks[selectedCalendarDate].push(value);
+
+localStorage.setItem(
+"calendarTasks",
+JSON.stringify(calendarTasks)
+);
+
+input.value="";
+
+renderCalendarTasks();
+
+}
+function deleteCalendarTask(index){
+
+calendarTasks[selectedCalendarDate].splice(index,1);
+
+localStorage.setItem(
+"calendarTasks",
+JSON.stringify(calendarTasks)
+);
+
+renderCalendarTasks();
 
 }
