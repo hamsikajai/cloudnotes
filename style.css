@@ -128,17 +128,283 @@ body {
     );
 }
 
-/* ---------- NOTES ---------- */
+/* ==========================================
+                NOTES V2
+========================================== */
 
-textarea {
-    width: 100%;
-    height: 100px;
-    border: none;
-    outline: none;
-    padding: 10px;
-    border-radius: 12px;
-    background: #FFF8FC;
-    resize: none;
+.notes-wrapper{
+    display:grid;
+    grid-template-columns:280px 1fr;
+    gap:24px;
+    margin-top:20px;
+}
+
+.notes-sidebar,
+.notes-editor{
+
+    background:white;
+
+    border-radius:22px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+
+    padding:20px;
+
+}
+
+/* ---------- Sidebar ---------- */
+
+#newNoteBtn{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#bfe8ff;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    margin-bottom:15px;
+
+}
+
+#newNoteBtn:hover{
+
+    background:#9edcff;
+
+    transform:translateY(-2px);
+
+}
+
+#noteSearch{
+
+    width:100%;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#f5f9fc;
+
+    margin-bottom:18px;
+
+    font-size:15px;
+
+}
+
+#notesList{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    max-height:600px;
+
+    overflow-y:auto;
+
+}
+
+/* ---------- Note Cards ---------- */
+
+.note-card{
+
+    background:#f8fbff;
+
+    border-radius:16px;
+
+    padding:14px;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.note-card:hover{
+
+    background:#edf8ff;
+
+    transform:translateY(-2px);
+
+}
+
+.note-card.active{
+
+    background:#dff4ff;
+
+    border:2px solid #9fdcff;
+
+}
+
+.note-title{
+
+    font-weight:700;
+
+    color:#4b5d6e;
+
+    margin-bottom:4px;
+
+}
+
+.note-preview{
+
+    font-size:13px;
+
+    color:#888;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-overflow:ellipsis;
+
+}
+
+.note-date{
+
+    font-size:11px;
+
+    color:#aaa;
+
+    margin-top:8px;
+
+}
+
+/* ---------- Editor ---------- */
+
+#noteTitle{
+
+    width:100%;
+
+    border:none;
+
+    outline:none;
+
+    font-size:28px;
+
+    font-weight:700;
+
+    margin-bottom:18px;
+
+}
+
+#notesBox{
+
+    width:100%;
+
+    height:500px;
+
+    border:none;
+
+    outline:none;
+
+    resize:none;
+
+    font-size:16px;
+
+    line-height:1.7;
+
+    font-family:"Poppins",sans-serif;
+
+}
+
+/* ---------- Footer ---------- */
+
+.notes-footer{
+
+    margin-top:20px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+#charCount{
+
+    color:#999;
+
+    font-size:13px;
+
+}
+
+.pin-btn,
+.notes-footer .delete-btn{
+
+    border:none;
+
+    padding:10px 18px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    transition:.2s;
+
+}
+
+.pin-btn{
+
+    background:#ffe7a6;
+
+}
+
+.pin-btn:hover{
+
+    background:#ffd96c;
+
+}
+
+.notes-footer .delete-btn{
+
+    background:#ffd7d7;
+
+}
+
+.notes-footer .delete-btn:hover{
+
+    background:#ffb8b8;
+
+}
+
+/* ---------- Responsive ---------- */
+
+@media(max-width:900px){
+
+.notes-wrapper{
+
+grid-template-columns:1fr;
+
+}
+
+.notes-sidebar{
+
+order:2;
+
+}
+
+.notes-editor{
+
+order:1;
+
+}
+
 }
 
 /* ---------- TASK INPUT ---------- */
