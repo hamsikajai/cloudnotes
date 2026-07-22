@@ -13,30 +13,33 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 // ===========================
-// NAVIGATION / PAGE SWITCHING
+// NAVIGATION (FIXED)
 // ===========================
 function showPage(pageId) {
     const pages = document.querySelectorAll(".page");
-    pages.forEach((page) => {
+    pages.forEach(page => {
         page.classList.remove("active");
+        page.style.display = ""; // Remove inline style overrides
     });
 
-    const activePage = document.getElementById(pageId);
-    if (activePage) {
-        activePage.classList.add("active");
+    const buttons = document.querySelectorAll(".nav-btn");
+    buttons.forEach(btn => btn.classList.remove("active"));
+
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add("active");
     }
 
-    const navButtons = document.querySelectorAll(".nav-btn");
-    navButtons.forEach((btn) => {
-        btn.classList.remove("active");
-    });
+    const activeBtn = document.querySelector(`.nav-btn[onclick*="${pageId}"]`);
+    if (activeBtn) {
+        activeBtn.classList.add("active");
+    }
 
-    // Match navigation button
-    const targetBtn = Array.from(navButtons).find((btn) =>
-        btn.getAttribute("onclick") && btn.getAttribute("onclick").includes(pageId)
-    );
-    if (targetBtn) {
-        targetBtn.classList.add("active");
+    if (pageId === "dashboard") {
+        renderTasks();
+        renderReminders();
+    } else if (pageId === "notes") {
+        renderNotes();
     }
 }
 
@@ -45,29 +48,8 @@ function showPage(pageId) {
 // ===========================
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-function saveTasks() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-}
-
-function renderTasks() {
-    const list = document.getElementById("taskList");
-    if (!list) return;
-
-    list.innerHTML = "";
-
-    tasks.forEach((task, index) => {
-        const item = document.createElement("li");
-        item.id = `task-${index}`;
-        item.className = task.done ? "done" : "";
-
-        item.innerHTML = `
-            <span onclick="toggleTask(${index})">${task.text}</span>
-            <button onclick="deleteTask(${index})">🗑</button>
-        `;
-
-        list.appendChild(item);
-    });
-}
+const savedTheme = localStorage.getItem("theme") || "pastel";
+document.body.setAttribute("data-theme", savedTheme);
 
 function addTask() {
     const inputEl = document.getElementById("taskInput");
@@ -75,11 +57,7 @@ function addTask() {
     const value = inputEl.value.trim();
     if (!value) return;
 
-    tasks.push({
-        text: value,
-        done: false
-    });
-
+    tasks.push({ text: value, done: false });
     inputEl.value = "";
     saveTasks();
     renderTasks();
@@ -98,6 +76,71 @@ function deleteTask(index) {
     renderTasks();
 }
 
+function renderTasks() {
+    const listEl = document.getElementById("taskList");
+    if (!listEl) return;
+    listEl.innerHTML = "";
+
+    tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.id = `task-${index}`;
+        if (task.done) li.classList.add("done");
+
+        li.onclick = (e) => {
+            if (e.target.classList.contains("delete-btn")) return;
+            toggleTask(index);
+        };
+
+        const text = document.createElement("span");
+        text.textContent = task.text;
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "❌";
+        deleteBtn.className = "delete-btn";
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteTask(index);
+        };
+
+        li.appendChild(text);
+        li.appendChild(deleteBtn);
+        listEl.appendChild(li);
+    });
+
+    updateProgress();
+}
+
+function saveTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function updateProgress() {
+    const fill = document.querySelector(".fill");
+    const progressText = document.getElementById("progressText");
+    if (!fill || !progressText) return;
+
+    if (tasks.length === 0) {
+        fill.style.width = "0%";
+        progressText.textContent = "🌸 Add your first task!";
+        return;
+    }
+
+    const completed = tasks.filter(t => t.done).length;
+    const percent = Math.round((completed / tasks.length) * 100);
+    fill.style.width = percent + "%";
+    progressText.textContent = `${completed}/${tasks.length} tasks • ${percent}%`;
+}
+
+function toggleTheme() {
+    const current = document.body.getAttribute("data-theme");
+    let nextTheme = "dark";
+    if (current === "dark") nextTheme = "pastel";
+    else if (current === "pastel") nextTheme = "lavender";
+
+    document.body.setAttribute("data-theme", nextTheme);
+    localStorage.setItem("theme", nextTheme);
+}
+
 // ===========================
 // REMINDERS
 // ===========================
@@ -107,30 +150,14 @@ function saveReminders() {
     localStorage.setItem("reminders", JSON.stringify(reminders));
 }
 
-function renderReminders() {
-    const list = document.getElementById("reminderList");
-    if (!list) return;
-
-    list.innerHTML = "";
-
-    reminders.forEach((reminder, index) => {
-        const item = document.createElement("li");
-        item.innerHTML = `
-            <span>${reminder}</span>
-            <button onclick="deleteReminder(${index})">🗑</button>
-        `;
-        list.appendChild(item);
-    });
-}
-
 function addReminder() {
-    const inputEl = document.getElementById("reminderInput");
-    if (!inputEl) return;
-    const value = inputEl.value.trim();
+    const input = document.getElementById("reminderInput");
+    if (!input) return;
+    const value = input.value.trim();
     if (!value) return;
 
     reminders.push(value);
-    inputEl.value = "";
+    input.value = "";
     saveReminders();
     renderReminders();
 }
@@ -141,8 +168,51 @@ function deleteReminder(index) {
     renderReminders();
 }
 
+function renderReminders() {
+    const list = document.getElementById("reminderList");
+    if (!list) return;
+    list.innerHTML = "";
+
+    reminders.forEach((reminder, index) => {
+        const li = document.createElement("li");
+        const text = document.createElement("span");
+        text.textContent = reminder;
+
+        const btn = document.createElement("button");
+        btn.textContent = "×";
+        btn.className = "rem-delete";
+        btn.onclick = () => deleteReminder(index);
+
+        li.appendChild(text);
+        li.appendChild(btn);
+        list.appendChild(li);
+    });
+}
+
+function updateGreeting() {
+    const greeting = document.getElementById("greeting");
+    if (!greeting) return;
+
+    const hour = new Date().getHours();
+    if (hour < 12) greeting.textContent = "Good Morning 🌷";
+    else if (hour < 17) greeting.textContent = "Good Afternoon ☀️";
+    else greeting.textContent = "Good Evening 🌙";
+}
+
+function updateQuote() {
+    const quote = document.getElementById("quoteText");
+    if (!quote) return;
+    const quotes = [
+        "Small progress every day adds up.",
+        "You are capable of amazing things.",
+        "Progress, not perfection.",
+        "Every day is a fresh start."
+    ];
+    quote.textContent = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
+}
+
 // ===========================
-// NOTES SECTION (RICH TEXT)
+// NOTES SECTION
 // ===========================
 let notes = JSON.parse(localStorage.getItem("cloudNotes")) || [];
 let currentNote = -1;
@@ -172,7 +242,6 @@ function renderNotes() {
         tempDiv.innerHTML = note.content || "";
         const cleanText = tempDiv.textContent || tempDiv.innerText || "Empty note";
         const preview = cleanText.substring(0, 40);
-
         const date = note.updated ? new Date(note.updated).toLocaleDateString() : "";
 
         card.innerHTML = `
@@ -226,6 +295,27 @@ function openNote(index) {
     updateLastEditedTime(notes[index].updated);
     updateCharacterCount();
     renderNotes();
+}
+
+function togglePin() {
+    if (currentNote === -1 || !notes[currentNote]) return;
+
+    notes[currentNote].pinned = !notes[currentNote].pinned;
+    saveNotes();
+    renderNotes();
+
+    const pinBtn = document.getElementById("pinBtn");
+    if (pinBtn) {
+        if (notes[currentNote].pinned) {
+            pinBtn.style.background = "#ffd56b";
+            pinBtn.style.borderColor = "#f7c038";
+            pinBtn.textContent = "📌 Pinned";
+        } else {
+            pinBtn.style.background = "#fff";
+            pinBtn.style.borderColor = "#ddd";
+            pinBtn.textContent = "📌 Pin";
+        }
+    }
 }
 
 function autoSaveNote() {
@@ -289,29 +379,10 @@ function deleteCurrentNote() {
     updateCharacterCount();
 }
 
-function togglePin() {
-    if (currentNote === -1 || !notes[currentNote]) return;
-
-    notes[currentNote].pinned = !notes[currentNote].pinned;
-    saveNotes();
-    renderNotes();
-
-    const pinBtn = document.getElementById("pinBtn");
-    if (pinBtn) {
-        if (notes[currentNote].pinned) {
-            pinBtn.style.background = "#ffd56b";
-            pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "📌 Pinned";
-        } else {
-            pinBtn.style.background = "#fff";
-            pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "📌 Pin";
-        }
-    }
-}
-
 function searchNotes() {
-    const search = document.getElementById("noteSearch").value.toLowerCase();
+    const searchEl = document.getElementById("noteSearch");
+    if (!searchEl) return;
+    const search = searchEl.value.toLowerCase();
     const cards = document.querySelectorAll(".note-card");
 
     cards.forEach((card, index) => {
@@ -319,8 +390,8 @@ function searchNotes() {
         if (!note) return;
 
         const visible =
-            note.title.toLowerCase().includes(search) ||
-            note.content.toLowerCase().includes(search);
+            (note.title && note.title.toLowerCase().includes(search)) ||
+            (note.content && note.content.toLowerCase().includes(search));
 
         card.style.display = visible ? "block" : "none";
     });
@@ -357,9 +428,10 @@ function formatHighlightColor(color) {
 }
 
 // ===========================
-// EXPOSE GLOBAL FUNCTIONS
+// EXPOSE GLOBALS FOR INLINE HTML
 // ===========================
 window.showPage = showPage;
+window.toggleTheme = toggleTheme;
 window.addTask = addTask;
 window.toggleTask = toggleTask;
 window.deleteTask = deleteTask;
@@ -380,8 +452,11 @@ window.formatHighlightColor = formatHighlightColor;
 // ===========================
 window.addEventListener("DOMContentLoaded", () => {
     showPage("dashboard");
+
     renderTasks();
     renderReminders();
+    updateGreeting();
+    updateQuote();
     renderNotes();
 
     const noteTitleInput = document.getElementById("noteTitle");
