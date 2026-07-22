@@ -337,16 +337,245 @@ function toggleTimer() {
     }
 }
 
-// ===========================
-// NOTES
-// ===========================
+// =========================================
+// NOTES V2
+// =========================================
 
-const notesBox = document.getElementById("notesBox");
-if (notesBox) {
-    notesBox.value = localStorage.getItem("notes") || "";
-    notesBox.addEventListener("input", () => {
-        localStorage.setItem("notes", notesBox.value);
-    });
+let notes =
+JSON.parse(localStorage.getItem("cloudNotes")) || [];
+
+let currentNote = -1;
+
+function saveNotes(){
+
+localStorage.setItem(
+"cloudNotes",
+JSON.stringify(notes)
+);
+
+}
+
+function renderNotes(){
+
+const list=document.getElementById("notesList");
+
+if(!list)return;
+
+list.innerHTML="";
+
+notes.sort((a,b)=>{
+
+if(a.pinned&&!b.pinned)return-1;
+if(!a.pinned&&b.pinned)return 1;
+
+return b.updated-a.updated;
+
+});
+
+notes.forEach((note,index)=>{
+
+const card=document.createElement("div");
+
+card.className="note-card";
+
+if(index===currentNote){
+
+card.classList.add("active");
+
+}
+
+const preview=
+note.content.substring(0,45)||"Empty note";
+
+const date=
+new Date(note.updated)
+.toLocaleDateString();
+
+card.innerHTML=`
+
+<div class="note-title">
+
+${note.pinned?"📌 ":""}${note.title}
+
+</div>
+
+<div class="note-preview">
+
+${preview}
+
+</div>
+
+<div class="note-date">
+
+${date}
+
+</div>
+
+`;
+
+card.onclick=()=>{
+
+openNote(index);
+
+};
+
+list.appendChild(card);
+
+});
+
+}
+
+function createNote(){
+
+notes.unshift({
+
+title:"Untitled Note",
+
+content:"",
+
+pinned:false,
+
+updated:Date.now()
+
+});
+
+currentNote=0;
+
+saveNotes();
+
+renderNotes();
+
+openNote(0);
+
+}
+
+function openNote(index){
+
+currentNote=index;
+
+document.getElementById("noteTitle").value=
+notes[index].title;
+
+document.getElementById("notesBox").value=
+notes[index].content;
+
+updateCharacterCount();
+
+renderNotes();
+
+}
+
+function autoSaveNote(){
+
+if(currentNote===-1)return;
+
+notes[currentNote].title=
+document.getElementById("noteTitle").value||"Untitled Note";
+
+notes[currentNote].content=
+document.getElementById("notesBox").value;
+
+notes[currentNote].updated=
+Date.now();
+
+saveNotes();
+
+renderNotes();
+
+updateCharacterCount();
+
+}
+
+function deleteCurrentNote(){
+
+if(currentNote===-1)return;
+
+if(!confirm("Delete this note?"))return;
+
+notes.splice(currentNote,1);
+
+saveNotes();
+
+currentNote=-1;
+
+document.getElementById("noteTitle").value="";
+
+document.getElementById("notesBox").value="";
+
+renderNotes();
+
+updateCharacterCount();
+
+}
+
+function togglePin(){
+
+if(currentNote===-1)return;
+
+notes[currentNote].pinned=
+!notes[currentNote].pinned;
+
+saveNotes();
+
+renderNotes();
+
+}
+
+function searchNotes(){
+
+const search=
+document.getElementById("noteSearch")
+.value.toLowerCase();
+
+const cards=
+document.querySelectorAll(".note-card");
+
+cards.forEach((card,index)=>{
+
+const note=notes[index];
+
+const visible=
+
+note.title.toLowerCase().includes(search)||
+
+note.content.toLowerCase().includes(search);
+
+card.style.display=
+visible?"block":"none";
+
+});
+
+}
+
+function updateCharacterCount(){
+
+const text=
+document.getElementById("notesBox").value;
+
+document.getElementById("charCount").textContent=
+
+`${text.length} characters`;
+
+}
+
+document
+.getElementById("noteTitle")
+.addEventListener("input",autoSaveNote);
+
+document
+.getElementById("notesBox")
+.addEventListener("input",autoSaveNote);
+
+document
+.getElementById("notesBox")
+.addEventListener("input",updateCharacterCount);
+
+renderNotes();
+
+if(notes.length>0){
+
+openNote(0);
+
 }
 
 // EXPOSE GLOBAL FUNCTIONS FOR INLINE HTML ATTRIBUTES
