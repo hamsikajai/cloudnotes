@@ -838,3 +838,18 @@ body {
   transform: translateX(-50%);
   z-index: 5;
 }
+.happy{
+
+animation:bounce .5s ease-in-out 5;
+
+}
+
+@keyframes bounce{
+
+0%{transform:translateY(0);}
+25%{transform:translateY(-18px);}
+50%{transform:translateY(0);}
+75%{transform:translateY(-10px);}
+100%{transform:translateY(0);}
+
+}
