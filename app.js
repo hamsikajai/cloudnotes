@@ -45,8 +45,8 @@ function addTask() {
 function toggleTask(index) {
     tasks[index].done = !tasks[index].done;
     if (tasks[index].done) {
-    completeToday();
-}
+        completeToday();
+    }
     saveTasks();
     renderTasks();
 }
@@ -133,30 +133,6 @@ function updateProgress() {
 
     if (percent === 100) {
         message = "🏆 All tasks completed!";
-        function completeToday() {
-
-    const today = new Date().toDateString();
-
-    // Already counted today
-    if (lastCompleted === today) return;
-
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (lastCompleted === yesterday.toDateString()) {
-        streak++;
-    } else {
-        streak = 1;
-    }
-
-    lastCompleted = today;
-
-    localStorage.setItem("streak", streak);
-    localStorage.setItem("lastCompletedDate", today);
-
-    updateStreakDisplay();
-}
-        // Trigger Nimbus celebration once when reaching 100%
         if (!hasCelebrated) {
             celebrateWithNimbus();
             hasCelebrated = true;
@@ -380,12 +356,10 @@ window.addReminder = addReminder;
 window.toggleTheme = toggleTheme;
 window.toggleTimer = toggleTimer;
 
-
 // ===========================
 // AUTHENTICATION & SETTINGS
 // ===========================
 
-// ---------- SHOW USER INFO ----------
 onAuthStateChanged(auth, (user) => {
     const emailElement = document.getElementById("userEmail");
     const nameElement = document.getElementById("userName");
@@ -402,7 +376,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// ---------- LOG OUT ----------
+// LOG OUT
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
@@ -415,7 +389,7 @@ if (logoutBtn) {
     });
 }
 
-// ---------- TOGGLE PASSWORD INPUT FIELDS ----------
+// TOGGLE PASSWORD INPUT FIELDS
 const togglePasswordFormBtn = document.getElementById("togglePasswordFormBtn");
 const passwordFormContainer = document.getElementById("passwordFormContainer");
 const toggleArrow = document.getElementById("toggleArrow");
@@ -495,7 +469,7 @@ if (changePasswordBtn) {
     });
 }
 
-// ---------- OPTION 2: PASSWORD RESET EMAIL ----------
+// PASSWORD RESET EMAIL
 const resetPasswordBtn = document.getElementById("resetPasswordBtn");
 if (resetPasswordBtn) {
     resetPasswordBtn.addEventListener("click", async () => {
@@ -516,7 +490,7 @@ if (resetPasswordBtn) {
     });
 }
 
-// ---------- DELETE ACCOUNT FOREVER ----------
+// DELETE ACCOUNT FOREVER
 const deleteAccountBtn = document.getElementById("deleteAccountBtn");
 if (deleteAccountBtn) {
     deleteAccountBtn.addEventListener("click", async () => {
@@ -607,86 +581,51 @@ function celebrateWithNimbus() {
     }, 3500);
 }
 
-// ---------- INITIALIZATION ----------
-window.addEventListener("DOMContentLoaded", () => {
-    showPage("dashboard");
-
-    if (typeof renderTasks === "function") renderTasks();
-    if (typeof renderReminders === "function") renderReminders();
-    if (typeof updateGreeting === "function") updateGreeting();
-    if (typeof updateQuote === "function") updateQuote();
-    if (typeof updateTimerDisplay === "function") updateTimerDisplay();
-    updateStreakDisplay();
-    renderCalendar();
-});
 // ==========================
 // DAILY STREAK
 // ==========================
 
 let streak = Number(localStorage.getItem("streak")) || 0;
+let lastCompleted = localStorage.getItem("lastCompletedDate");
 
-let lastCompleted =
-localStorage.getItem("lastCompletedDate");
-
-function updateStreakDisplay(){
-
-const streakText =
-document.getElementById("streakCount");
-
-if(streakText){
-
-streakText.textContent = streak;
-
+function updateStreakDisplay() {
+    const streakText = document.getElementById("streakCount");
+    if (streakText) {
+        streakText.textContent = streak;
+    }
 }
 
+function completeToday() {
+    const today = new Date().toDateString();
+
+    if (lastCompleted === today) return;
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (lastCompleted === yesterday.toDateString()) {
+        streak++;
+    } else {
+        streak = 1;
+    }
+
+    lastCompleted = today;
+
+    localStorage.setItem("streak", streak);
+    localStorage.setItem("lastCompletedDate", today);
+
+    updateStreakDisplay();
 }
 
-function completeToday(){
-
-const today =
-new Date().toDateString();
-
-if(lastCompleted === today){
-
-return;
-
-}
-
-const yesterday =
-new Date();
-
-yesterday.setDate(yesterday.getDate()-1);
-
-if(lastCompleted === yesterday.toDateString()){
-
-streak++;
-
-}else{
-
-streak = 1;
-
-}
-
-lastCompleted = today;
-
-localStorage.setItem("streak",streak);
-
-localStorage.setItem(
-"lastCompletedDate",
-today
-);
-
-updateStreakDisplay();
-
-}
 // =========================
 // CALENDAR
 // =========================
 
 let currentDate = new Date();
+let selectedCalendarDate = null;
+let calendarTasks = JSON.parse(localStorage.getItem("calendarTasks")) || {};
 
 function renderCalendar() {
-
     const monthYear = document.getElementById("monthYear");
     const grid = document.getElementById("calendarGrid");
 
@@ -697,25 +636,23 @@ function renderCalendar() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    monthYear.textContent =
-        currentDate.toLocaleString("default", {
-            month: "long",
-            year: "numeric"
-        });
+    monthYear.textContent = currentDate.toLocaleString("default", {
+        month: "long",
+        year: "numeric"
+    });
 
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Empty boxes before the month starts
+    // Empty boxes before month starts
     for (let i = 0; i < firstDay; i++) {
         const empty = document.createElement("div");
         empty.className = "day empty";
         grid.appendChild(empty);
     }
 
-    // Actual numbered days
+    // Numbered days
     for (let day = 1; day <= daysInMonth; day++) {
-
         const cell = document.createElement("div");
         cell.className = "day";
         cell.textContent = day;
@@ -725,8 +662,10 @@ function renderCalendar() {
         cell.onclick = () => {
             selectedCalendarDate = key;
 
-            document.getElementById("selectedDate").textContent =
-                `${currentDate.toLocaleString("default",{month:"long"})} ${day}`;
+            const selectedDateEl = document.getElementById("selectedDate");
+            if (selectedDateEl) {
+                selectedDateEl.textContent = `${currentDate.toLocaleString("default", { month: "long" })} ${day}`;
+            }
 
             renderCalendar();
             renderCalendarTasks();
@@ -737,7 +676,6 @@ function renderCalendar() {
         }
 
         const today = new Date();
-
         if (
             day === today.getDate() &&
             month === today.getMonth() &&
@@ -750,6 +688,24 @@ function renderCalendar() {
     }
 }
 
+function renderCalendarTasks() {
+    const list = document.getElementById("calendarTaskList");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    const tasks = calendarTasks[selectedCalendarDate] || [];
+
+    tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <span>${task}</span>
+            <button onclick="deleteCalendarTask(${index})">❌</button>
+        `;
+        list.appendChild(li);
+    });
+}
+
 function previousMonth() {
     currentDate.setMonth(currentDate.getMonth() - 1);
     renderCalendar();
@@ -759,52 +715,54 @@ function nextMonth() {
     currentDate.setMonth(currentDate.getMonth() + 1);
     renderCalendar();
 }
-function addCalendarTask(){
 
-if(!selectedCalendarDate){
+function addCalendarTask() {
+    if (!selectedCalendarDate) {
+        alert("Select a date first!");
+        return;
+    }
 
-alert("Select a date first!");
+    const input = document.getElementById("calendarTaskInput");
+    if (!input) return;
 
-return;
+    const value = input.value.trim();
+    if (!value) return;
 
+    if (!calendarTasks[selectedCalendarDate]) {
+        calendarTasks[selectedCalendarDate] = [];
+    }
+
+    calendarTasks[selectedCalendarDate].push(value);
+    localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
+
+    input.value = "";
+    renderCalendarTasks();
 }
 
-const input=
-document.getElementById("calendarTaskInput");
+function deleteCalendarTask(index) {
+    if (!selectedCalendarDate || !calendarTasks[selectedCalendarDate]) return;
 
-const value=input.value.trim();
+    calendarTasks[selectedCalendarDate].splice(index, 1);
+    localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
 
-if(!value) return;
-
-if(!calendarTasks[selectedCalendarDate]){
-
-calendarTasks[selectedCalendarDate]=[];
-
+    renderCalendarTasks();
 }
 
-calendarTasks[selectedCalendarDate].push(value);
-
-localStorage.setItem(
-"calendarTasks",
-JSON.stringify(calendarTasks)
-);
-
-input.value="";
-
-renderCalendarTasks();
-
-}
-function deleteCalendarTask(index){
-
-calendarTasks[selectedCalendarDate].splice(index,1);
-
-localStorage.setItem(
-"calendarTasks",
-JSON.stringify(calendarTasks)
-);
-
-renderCalendarTasks();
-
-}
+// EXPOSE CALENDAR FUNCTIONS TO GLOBAL SCOPE
 window.previousMonth = previousMonth;
 window.nextMonth = nextMonth;
+window.addCalendarTask = addCalendarTask;
+window.deleteCalendarTask = deleteCalendarTask;
+
+// ---------- INITIALIZATION ----------
+window.addEventListener("DOMContentLoaded", () => {
+    showPage("dashboard");
+
+    if (typeof renderTasks === "function") renderTasks();
+    if (typeof renderReminders === "function") renderReminders();
+    if (typeof updateGreeting === "function") updateGreeting();
+    if (typeof updateQuote === "function") updateQuote();
+    if (typeof updateTimerDisplay === "function") updateTimerDisplay();
+    updateStreakDisplay();
+    renderCalendar();
+});
