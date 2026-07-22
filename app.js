@@ -402,6 +402,32 @@ function openNote(index) {
     renderNotes();
 }
 
+function togglePin() {
+    if (currentNote === -1 || !notes[currentNote]) return;
+
+    notes[currentNote].pinned = !notes[currentNote].pinned;
+    saveNotes();
+    renderNotes();
+
+    const pinBtn = document.getElementById("pinBtn");
+    if (pinBtn) {
+        if (notes[currentNote].pinned) {
+            pinBtn.style.background = "#ffd56b";
+            pinBtn.style.borderColor = "#f7c038";
+            pinBtn.textContent = "📌 Pinned";
+        } else {
+            pinBtn.style.background = "#fff";
+            pinBtn.style.borderColor = "#ddd";
+            pinBtn.textContent = "📌 Pin";
+        }
+    }
+}
+
+    updateLastEditedTime(notes[index].updated);
+    updateCharacterCount();
+    renderNotes();
+}
+
 function autoSaveNote() {
     if (currentNote === -1 || !notes[currentNote]) return;
 
