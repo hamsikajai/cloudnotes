@@ -853,3 +853,39 @@ animation:bounce .5s ease-in-out 5;
 100%{transform:translateY(0);}
 
 }
+.streak-card{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:18px 22px;
+
+margin-bottom:20px;
+
+background:linear-gradient(135deg,#fff8ec,#fff2da);
+
+border-radius:18px;
+
+box-shadow:0 8px 20px rgba(0,0,0,.06);
+
+font-family:Poppins,sans-serif;
+
+}
+
+.streak-left{
+
+font-size:22px;
+font-weight:600;
+
+color:#ff8f3d;
+
+}
+
+.streak-right{
+
+font-size:15px;
+
+color:#666;
+
+}
