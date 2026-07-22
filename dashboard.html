@@ -119,17 +119,11 @@
 
         <div class="notes-editor">
 
-            <div class="notes-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px;">
+            <div class="notes-header" style="margin-bottom: 12px;">
                 <input
                     id="noteTitle"
                     placeholder="Untitled Note"
-                    style="flex: 1; border: none; font-size: 22px; font-weight: 700; outline: none; background: transparent;">
-
-                <div style="display: flex; gap: 6px;">
-                    <button class="save-btn" onclick="autoSaveNote()" title="Save Note" style="padding: 6px 12px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-weight: 600;">💾 Save</button>
-                    <button id="pinBtn" class="pin-btn" onclick="togglePin()" style="padding: 6px 12px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-weight: 600;">📌 Pin</button>
-                    <button class="delete-btn" onclick="deleteCurrentNote()" style="padding: 6px 12px; border-radius: 8px; border: 1px solid #ffccd5; background: #fff0f3; color: #d90429; cursor: pointer; font-weight: 600;">🗑 Delete</button>
-                </div>
+                    style="width: 100%; border: none; font-size: 22px; font-weight: 700; outline: none; background: transparent;">
             </div>
 
             <div class="editor-toolbar" style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 12px; background: #f8fbff; border: 1px solid #e1eef8; border-radius: 12px; margin-bottom: 12px;">
@@ -175,10 +169,20 @@
                 placeholder="Start typing..."
                 style="flex: 1; border: none; outline: none; font-size: 15px; line-height: 1.6; padding: 8px; min-height: 220px; overflow-y: auto;"></div>
 
-            <div class="notes-footer" style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #777;">
-                <span id="saveStatus" style="color: #6bc26b; font-weight: 600;">Saved</span>
-                <span id="lastEdited">Last edited: Never</span>
-                <span id="charCount">0 characters</span>
+            <div class="notes-footer" style="display: flex; flex-direction: column; gap: 10px; padding-top: 12px; border-top: 1px solid #f0f0f0;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #777;">
+                    <span id="saveStatus" style="color: #6bc26b; font-weight: 600;">Saved</span>
+                    <span id="lastEdited">Last edited: Never</span>
+                    <span id="charCount">0 characters</span>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;">
+                    <button class="save-btn" onclick="autoSaveNote()" title="Save Note" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #ddd; background: #f8fbff; cursor: pointer; font-weight: 600;">💾 Save</button>
+                    <button id="pinBtn" class="pin-btn" onclick="togglePin()" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-weight: 600;">📌 Pin</button>
+                    <button class="delete-btn" onclick="deleteCurrentNote()" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #ffccd5; background: #fff0f3; color: #d90429; cursor: pointer; font-weight: 600;">🗑 Delete</button>
+                </div>
+
             </div>
 
         </div>
