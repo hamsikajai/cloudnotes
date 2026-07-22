@@ -1554,3 +1554,31 @@ grid-template-columns:1fr;
 }
 
 }
+/* ===========================
+   FONT SELECTOR & TOOLBAR
+=========================== */
+
+.font-select {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: white;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  cursor: pointer;
+  outline: none;
+  transition: 0.2s;
+}
+
+.font-select:hover {
+  background: #eef6fc;
+}
+
+/* Font Options Preview Styles */
+.font-select option[value="Arial"] { font-family: Arial, sans-serif; }
+.font-select option[value="cursive"] { font-family: cursive; }
+.font-select option[value="Oswald"] { font-family: 'Oswald', sans-serif; }
+.font-select option[value="Georgia"] { font-family: Georgia, serif; }
+.font-select option[value="'Courier New', monospace"] { font-family: 'Courier New', monospace; }
+.font-select option[value="Poppins"] { font-family: 'Poppins', sans-serif; }
