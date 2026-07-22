@@ -94,9 +94,73 @@
         </div>
       </div>
 
-      <div id="notes" class="page" style="display: none;">
-        <h2>📝 Notes</h2>
-        <textarea id="notesBox" placeholder="Write your notes..."></textarea>
+      <!-- =========================
+        NOTES V2
+========================= -->
+
+<div id="notes" class="page">
+
+    <h2>📝 Notes</h2>
+
+    <div class="notes-wrapper">
+
+        <!-- Sidebar -->
+        <div class="notes-sidebar">
+
+            <button id="newNoteBtn" onclick="createNote()">
+                + New Note
+            </button>
+
+            <input
+                type="text"
+                id="noteSearch"
+                placeholder="🔍 Search..."
+                oninput="searchNotes()">
+
+            <div id="notesList"></div>
+
+        </div>
+
+        <!-- Editor -->
+        <div class="notes-editor">
+
+            <input
+                id="noteTitle"
+                placeholder="Untitled Note">
+
+            <textarea
+                id="notesBox"
+                placeholder="Start typing..."></textarea>
+
+            <div class="notes-footer">
+
+                <span id="charCount">
+                    0 characters
+                </span>
+
+                <div>
+
+                    <button
+                        class="pin-btn"
+                        onclick="togglePin()">
+                        📌 Pin
+                    </button>
+
+                    <button
+                        class="delete-btn"
+                        onclick="deleteCurrentNote()">
+                        🗑 Delete
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
         <div class="card focus-card">
           <h3>🌸 Focus Timer</h3>
