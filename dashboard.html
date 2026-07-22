@@ -258,10 +258,131 @@
     </div>
 
 </div>
-      <div id="habits" class="page" style="display: none;">
-        <h2>💖 Habits</h2>
-        <p>Habit tracker coming soon ✨</p>
-      </div>
+      <!-- ===========================
+        HABITS FINAL
+============================ -->
+
+<div id="habits" class="page">
+
+    <h2>💖 Habits</h2>
+
+    <div class="habit-top">
+
+        <button id="addHabitBtn">
+            + New Habit
+        </button>
+
+        <div class="overall-progress">
+
+            <h3>Today's Progress</h3>
+
+            <div class="progress-bar">
+
+                <div
+                    id="overallProgressFill"
+                    class="progress-fill">
+                </div>
+
+            </div>
+
+            <span id="overallProgressText">
+                0 / 0 Habits
+            </span>
+
+        </div>
+
+        <div class="overall-streak">
+
+            🔥
+
+            <h3 id="overallStreak">
+
+                0 Day Streak
+
+            </h3>
+
+        </div>
+
+    </div>
+
+    <div id="habitsContainer">
+
+        <!-- Habit cards appear here -->
+
+    </div>
+
+</div>
+
+<!-- ===========================
+        ADD HABIT POPUP
+============================ -->
+
+<div id="habitModal" class="habit-modal">
+
+    <div class="habit-modal-content">
+
+        <h2>New Habit</h2>
+
+        <input
+            id="habitName"
+            placeholder="Habit name">
+
+        <input
+            id="habitEmoji"
+            placeholder="Emoji (🌸)">
+
+        <select id="habitType">
+
+            <option value="check">
+
+                ✅ Checkbox
+
+            </option>
+
+            <option value="counter">
+
+                💧 Counter
+
+            </option>
+
+            <option value="timer">
+
+                ⏱ Timer
+
+            </option>
+
+            <option value="number">
+
+                🔢 Number Goal
+
+            </option>
+
+        </select>
+
+        <input
+            id="habitGoal"
+            type="number"
+            placeholder="Goal">
+
+        <div class="habit-buttons">
+
+            <button id="cancelHabit">
+
+                Cancel
+
+            </button>
+
+            <button id="saveHabit">
+
+                Save
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 
       <div id="goals" class="page" style="display: none;">
         <h2>🎯 Goals</h2>
