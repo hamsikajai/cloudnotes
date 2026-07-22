@@ -105,66 +105,93 @@
         </div>
       </div>
 
-      <div id="calendar" class="page">
+      <!-- =========================
+     CALENDAR V3
+========================= -->
 
-<h2>📅 Calendar</h2>
+<div id="calendar" class="page">
 
-<div class="calendar-wrapper">
+    <h2>📅 Calendar</h2>
 
-<div class="calendar-card">
+    <div class="calendar-wrapper">
 
-<div class="calendar-header">
+        <div class="calendar-card">
 
-<button onclick="previousMonth()">◀</button>
+            <div class="calendar-header">
 
-<h3 id="monthYear"></h3>
+                <button onclick="previousMonth()">◀</button>
 
-<button onclick="nextMonth()">▶</button>
+                <h3 id="monthYear"></h3>
+
+                <div>
+
+                    <button onclick="goToToday()">Today</button>
+
+                    <button onclick="nextMonth()">▶</button>
+
+                </div>
+
+            </div>
+
+            <div class="weekdays">
+
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+
+            </div>
+
+            <div id="calendarGrid" class="calendar-grid"></div>
+
+        </div>
+
+        <div class="day-panel">
+
+            <h3 id="selectedDate">
+                🌸 Select a Day
+            </h3>
+
+            <p id="eventCounter">
+                No events yet
+            </p>
+
+            <div class="calendar-input">
+
+                <input
+                    id="calendarTaskInput"
+                    placeholder="Add an event...">
+
+                <select id="eventCategory">
+
+                    <option value="school">📚 School</option>
+
+                    <option value="personal">🌸 Personal</option>
+
+                    <option value="birthday">🎂 Birthday</option>
+
+                    <option value="work">💼 Work</option>
+
+                </select>
+
+                <button onclick="addCalendarTask()">
+
+                    Add
+
+                </button>
+
+            </div>
+
+            <ul id="calendarTaskList"></ul>
+
+        </div>
+
+    </div>
 
 </div>
-
-<div class="weekdays">
-
-<div>Sun</div>
-<div>Mon</div>
-<div>Tue</div>
-<div>Wed</div>
-<div>Thu</div>
-<div>Fri</div>
-<div>Sat</div>
-
-</div>
-<div id="calendar-dates"></div>
-<div id="calendarGrid" class="calendar-grid"></div>
-
-</div>
-
-<div class="day-panel">
-
-<h3 id="selectedDate">
-Select a Day 🌸
-</h3>
-
-<div class="task-input">
-
-<input
-id="calendarTaskInput"
-placeholder="Add event...">
-
-<button onclick="addCalendarTask()">
-Add
-</button>
-
-</div>
-
-<ul id="calendarTaskList"></ul>
-
-</div>
-
-</div>
-
-</div>
-
       <div id="habits" class="page" style="display: none;">
         <h2>💖 Habits</h2>
         <p>Habit tracker coming soon ✨</p>
