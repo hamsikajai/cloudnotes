@@ -44,6 +44,9 @@ function addTask() {
 // ---------- TOGGLE COMPLETE ----------
 function toggleTask(index) {
     tasks[index].done = !tasks[index].done;
+    if (tasks[index].done) {
+    completeToday();
+}
     saveTasks();
     renderTasks();
 }
