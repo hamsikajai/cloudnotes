@@ -27,8 +27,9 @@ document.body.setAttribute("data-theme", savedTheme);
 
 // ---------- ADD TASK ----------
 function addTask() {
-    if (!input) return;
-    const value = input.value.trim();
+    const inputEl = document.getElementById("taskInput");
+    if (!inputEl) return;
+    const value = inputEl.value.trim();
     if (!value) return;
 
     tasks.push({
@@ -36,13 +37,14 @@ function addTask() {
         done: false
     });
 
-    input.value = "";
+    inputEl.value = "";
     saveTasks();
     renderTasks();
 }
 
 // ---------- TOGGLE COMPLETE ----------
 function toggleTask(index) {
+    if (!tasks[index]) return;
     tasks[index].done = !tasks[index].done;
     if (tasks[index].done) {
         completeToday();
@@ -68,8 +70,9 @@ function deleteTask(index) {
 
 // ---------- RENDER TASKS ----------
 function renderTasks() {
-    if (!list) return;
-    list.innerHTML = "";
+    const listEl = document.getElementById("taskList");
+    if (!listEl) return;
+    listEl.innerHTML = "";
 
     tasks.forEach((task, index) => {
         const li = document.createElement("li");
@@ -99,7 +102,7 @@ function renderTasks() {
         li.appendChild(text);
         li.appendChild(deleteBtn);
 
-        list.appendChild(li);
+        listEl.appendChild(li);
     });
 
     updateProgress();
@@ -178,8 +181,10 @@ function showPage(pageId) {
     const pages = document.querySelectorAll(".page");
     const buttons = document.querySelectorAll(".nav-btn");
 
+    // Hide all pages and strip 'active' class so pages don't stack
     pages.forEach(page => {
         page.style.display = "none";
+        page.classList.remove("active");
     });
 
     buttons.forEach(btn => {
@@ -189,6 +194,7 @@ function showPage(pageId) {
     const targetPage = document.getElementById(pageId);
     if (targetPage) {
         targetPage.style.display = "block";
+        targetPage.classList.add("active");
     }
 
     const activeBtn = document.querySelector(
@@ -199,15 +205,15 @@ function showPage(pageId) {
         activeBtn.classList.add("active");
     }
 
-    // Re-render components dynamically when returning to a page
+    // Re-render components dynamically when opening a page
     if (pageId === "calendar") {
-        if (typeof renderCalendar === "function") renderCalendar();
-        if (typeof renderCalendarTasks === "function") renderCalendarTasks();
+        renderCalendar();
+        renderCalendarTasks();
     } else if (pageId === "dashboard") {
-        if (typeof renderTasks === "function") renderTasks();
-        if (typeof renderReminders === "function") renderReminders();
+        renderTasks();
+        renderReminders();
     } else if (pageId === "notes") {
-        if (typeof renderNotes === "function") renderNotes();
+        renderNotes();
     }
 }
 
@@ -368,7 +374,7 @@ function renderNotes() {
     notes.sort((a, b) => {
         if (a.pinned && !b.pinned) return -1;
         if (!a.pinned && b.pinned) return 1;
-        return b.updated - a.updated;
+        return (b.updated || 0) - (a.updated || 0);
     });
 
     notes.forEach((note, index) => {
@@ -380,10 +386,10 @@ function renderNotes() {
         }
 
         const preview = note.content ? note.content.substring(0, 45) : "Empty note";
-        const date = new Date(note.updated).toLocaleDateString();
+        const date = note.updated ? new Date(note.updated).toLocaleDateString() : "";
 
         card.innerHTML = `
-            <div class="note-title">${note.pinned ? "📌 " : ""}${note.title}</div>
+            <div class="note-title">${note.pinned ? "📌 " : ""}${note.title || "Untitled"}</div>
             <div class="note-preview">${preview}</div>
             <div class="note-date">${date}</div>
         `;
@@ -408,12 +414,14 @@ function createNote() {
 }
 
 function openNote(index) {
+    if (!notes[index]) return;
     currentNote = index;
+
     const titleEl = document.getElementById("noteTitle");
     const boxEl = document.getElementById("notesBox");
 
-    if (titleEl) titleEl.value = notes[index].title;
-    if (boxEl) boxEl.value = notes[index].content;
+    if (titleEl) titleEl.value = notes[index].title || "";
+    if (boxEl) boxEl.value = notes[index].content || "";
 
     updateCharacterCount();
     renderNotes();
@@ -472,8 +480,8 @@ function searchNotes() {
         if (!note) return;
 
         const visible =
-            note.title.toLowerCase().includes(search) ||
-            note.content.toLowerCase().includes(search);
+            (note.title && note.title.toLowerCase().includes(search)) ||
+            (note.content && note.content.toLowerCase().includes(search));
 
         card.style.display = visible ? "block" : "none";
     });
@@ -763,7 +771,7 @@ function completeToday() {
 }
 
 // =========================
-// CALENDAR
+// CALENDAR (ROBUST RENDER)
 // =========================
 
 let currentDate = new Date();
@@ -789,7 +797,7 @@ function renderCalendar() {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Empty boxes before month starts
+    // Empty cells before first day of month
     for (let i = 0; i < firstDay; i++) {
         const empty = document.createElement("div");
         empty.className = "day empty";
@@ -829,6 +837,21 @@ function renderCalendar() {
             cell.classList.add("today");
         }
 
+        // Render Category Dots if task exists
+        if (calendarTasks[key] && calendarTasks[key].length > 0) {
+            const dotsContainer = document.createElement("div");
+            dotsContainer.className = "day-dots";
+
+            calendarTasks[key].forEach(t => {
+                const categoryClass = typeof t === "object" ? (t.category || "work") : "work";
+                const dot = document.createElement("span");
+                dot.className = `dot ${categoryClass}`;
+                dotsContainer.appendChild(dot);
+            });
+
+            cell.appendChild(dotsContainer);
+        }
+
         grid.appendChild(cell);
     }
 }
@@ -839,10 +862,11 @@ function renderCalendarTasks() {
 
     list.innerHTML = "";
 
-    const tasks = calendarTasks[selectedCalendarDate] || [];
+    const tasksForDate = calendarTasks[selectedCalendarDate] || [];
 
-    tasks.forEach((task, index) => {
+    tasksForDate.forEach((task, index) => {
         const li = document.createElement("li");
+        li.className = "calendar-event";
 
         const taskText = typeof task === "object" ? task.text : task;
 
@@ -871,6 +895,8 @@ function addCalendarTask() {
     }
 
     const input = document.getElementById("calendarTaskInput");
+    const category = document.getElementById("eventCategory");
+
     if (!input) return;
 
     const value = input.value.trim();
@@ -880,10 +906,15 @@ function addCalendarTask() {
         calendarTasks[selectedCalendarDate] = [];
     }
 
-    calendarTasks[selectedCalendarDate].push(value);
+    calendarTasks[selectedCalendarDate].push({
+        text: value,
+        category: category ? category.value : "work"
+    });
+
     localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
 
     input.value = "";
+    renderCalendar();
     renderCalendarTasks();
 }
 
@@ -898,6 +929,7 @@ function deleteCalendarTask(index) {
 
     localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
 
+    renderCalendar();
     renderCalendarTasks();
 }
 
@@ -920,22 +952,18 @@ window.createNote = createNote;
 window.deleteCurrentNote = deleteCurrentNote;
 window.togglePin = togglePin;
 window.searchNotes = searchNotes;
+window.goToToday = goToToday;
 
 // ---------- INITIALIZATION ----------
 window.addEventListener("DOMContentLoaded", () => {
     showPage("dashboard");
 
-    if (typeof renderTasks === "function") renderTasks();
-    if (typeof renderReminders === "function") renderReminders();
-    if (typeof updateGreeting === "function") updateGreeting();
-    if (typeof updateQuote === "function") updateQuote();
-    if (typeof updateTimerDisplay === "function") updateTimerDisplay();
-    if (typeof renderNotes === "function") {
-        renderNotes();
-        if (notes.length > 0 && typeof openNote === "function") {
-            openNote(0);
-        }
-    }
+    renderTasks();
+    renderReminders();
+    updateGreeting();
+    updateQuote();
+    updateTimerDisplay();
+    renderNotes();
     updateStreakDisplay();
     renderCalendar();
 });
