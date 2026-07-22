@@ -690,29 +690,30 @@ function renderCalendar() {
     const monthYear = document.getElementById("monthYear");
     const grid = document.getElementById("calendarGrid");
 
-    if (!grid || !monthYear) return;
+    if (!monthYear || !grid) return;
 
     grid.innerHTML = "";
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    monthYear.textContent = currentDate.toLocaleString("default", {
-        month: "long",
-        year: "numeric"
-    });
+    monthYear.textContent =
+        currentDate.toLocaleString("default", {
+            month: "long",
+            year: "numeric"
+        });
 
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Empty cells before the first day
+    // Empty boxes before the month starts
     for (let i = 0; i < firstDay; i++) {
         const empty = document.createElement("div");
         empty.className = "day empty";
         grid.appendChild(empty);
     }
 
-    // Actual days
+    // Actual numbered days
     for (let day = 1; day <= daysInMonth; day++) {
 
         const cell = document.createElement("div");
@@ -725,8 +726,7 @@ function renderCalendar() {
             selectedCalendarDate = key;
 
             document.getElementById("selectedDate").textContent =
-                currentDate.toLocaleString("default", { month: "long" }) +
-                " " + day;
+                `${currentDate.toLocaleString("default",{month:"long"})} ${day}`;
 
             renderCalendar();
             renderCalendarTasks();
