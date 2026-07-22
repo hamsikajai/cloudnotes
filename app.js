@@ -1,3 +1,4 @@
+let hasCelebrated = false;
 import { auth } from "./firebase.js";
 import {
     onAuthStateChanged,
@@ -161,7 +162,19 @@ function updateProgress() {
     progressText.textContent =
         `${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
 }
+if (percent === 100 && !hasCelebrated) {
 
+    celebrateWithNimbus();
+
+    hasCelebrated = true;
+
+}
+
+if (percent < 100) {
+
+    hasCelebrated = false;
+
+}
 // ===========================
 // THEME SWITCHER & NAVIGATION
 // ===========================
