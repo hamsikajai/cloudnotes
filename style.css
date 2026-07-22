@@ -1793,3 +1793,373 @@ grid-template-columns:1fr;
 .font-select option[value="Georgia"] { font-family: Georgia, serif; }
 .font-select option[value="'Courier New', monospace"] { font-family: 'Courier New', monospace; }
 .font-select option[value="Poppins"] { font-family: 'Poppins', sans-serif; }
+/* ==========================================
+              HABITS FINAL
+========================================== */
+
+.habit-top{
+    display:grid;
+    grid-template-columns:220px 1fr 220px;
+    gap:20px;
+    margin-bottom:25px;
+    align-items:stretch;
+}
+
+#addHabitBtn{
+    border:none;
+    border-radius:18px;
+    background:#bfe8ff;
+    font-size:18px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.25s;
+    padding:18px;
+}
+
+#addHabitBtn:hover{
+    transform:translateY(-3px);
+    background:#9fdcff;
+}
+
+.overall-progress,
+.overall-streak{
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:18px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+
+}
+
+.overall-progress h3,
+.overall-streak h3{
+
+    margin:0 0 12px;
+
+    color:#4b5d6e;
+
+}
+
+.progress-bar{
+
+    height:14px;
+
+    background:#edf5fb;
+
+    border-radius:999px;
+
+    overflow:hidden;
+
+}
+
+.progress-fill{
+
+    width:0%;
+
+    height:100%;
+
+    border-radius:999px;
+
+    background:linear-gradient(
+        90deg,
+        #9fdcff,
+        #7ed8c9
+    );
+
+    transition:.4s;
+
+}
+
+#overallProgressText{
+
+    display:block;
+
+    margin-top:10px;
+
+    color:#777;
+
+}
+
+/* -------------------- */
+
+#habitsContainer{
+
+    display:grid;
+
+    gap:18px;
+
+}
+
+.habit-card{
+
+    background:white;
+
+    border-radius:22px;
+
+    padding:22px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+
+    transition:.25s;
+
+}
+
+.habit-card:hover{
+
+    transform:translateY(-3px);
+
+}
+
+.habit-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:15px;
+
+}
+
+.habit-title{
+
+    font-size:22px;
+
+    font-weight:700;
+
+}
+
+.habit-streak{
+
+    background:#fff5db;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+.habit-controls{
+
+    margin-top:18px;
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+.habit-btn{
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:10px 18px;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    transition:.2s;
+
+}
+
+.complete-btn{
+
+    background:#bff2d5;
+
+}
+
+.complete-btn:hover{
+
+    background:#9be8bb;
+
+}
+
+.delete-btn{
+
+    background:#ffd7d7;
+
+}
+
+.delete-btn:hover{
+
+    background:#ffbcbc;
+
+}
+
+/* Counter */
+
+.counter{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    margin-top:12px;
+
+}
+
+.counter button{
+
+    width:34px;
+
+    height:34px;
+
+    border:none;
+
+    border-radius:50%;
+
+    cursor:pointer;
+
+    background:#dff5ff;
+
+    font-size:18px;
+
+}
+
+/* Progress */
+
+.habit-progress{
+
+    margin-top:15px;
+
+}
+
+.habit-progress .progress-bar{
+
+    margin-top:8px;
+
+}
+
+/* ---------------- Modal ---------------- */
+
+.habit-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.35);
+
+    display:none;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:10000;
+
+}
+
+.habit-modal.show{
+
+    display:flex;
+
+}
+
+.habit-modal-content{
+
+    width:420px;
+
+    max-width:90%;
+
+    background:white;
+
+    border-radius:24px;
+
+    padding:25px;
+
+}
+
+.habit-modal-content h2{
+
+    margin-top:0;
+
+}
+
+.habit-modal-content input,
+.habit-modal-content select{
+
+    width:100%;
+
+    padding:12px;
+
+    margin-top:12px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#f5f9fc;
+
+    font-size:15px;
+
+    box-sizing:border-box;
+
+}
+
+.habit-buttons{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:10px;
+
+    margin-top:20px;
+
+}
+
+.habit-buttons button{
+
+    border:none;
+
+    padding:12px 18px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+}
+
+#cancelHabit{
+
+    background:#ececec;
+
+}
+
+#saveHabit{
+
+    background:#bfe8ff;
+
+}
+
+#saveHabit:hover{
+
+    background:#9fdcff;
+
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media(max-width:900px){
+
+.habit-top{
+
+grid-template-columns:1fr;
+
+}
+
+}
