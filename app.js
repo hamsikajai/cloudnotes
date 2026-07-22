@@ -685,135 +685,79 @@ updateStreakDisplay();
 
 let currentDate = new Date();
 
-function renderCalendar(){
+function renderCalendar() {
 
-const monthYear =
-document.getElementById("monthYear");
+    const monthYear = document.getElementById("monthYear");
+    const grid = document.getElementById("calendarGrid");
 
-const grid =
-document.getElementById("calendarGrid");
+    if (!grid || !monthYear) return;
 
-if(!grid) return;
+    grid.innerHTML = "";
 
-grid.innerHTML="";
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
 
-const year=currentDate.getFullYear();
+    monthYear.textContent = currentDate.toLocaleString("default", {
+        month: "long",
+        year: "numeric"
+    });
 
-const month=currentDate.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-monthYear.textContent=
-currentDate.toLocaleString("default",{
-month:"long",
-year:"numeric"
-});
+    // Empty cells before the first day
+    for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement("div");
+        empty.className = "day empty";
+        grid.appendChild(empty);
+    }
 
-const firstDay=
-new Date(year,month,1).getDay();
+    // Actual days
+    for (let day = 1; day <= daysInMonth; day++) {
 
-const daysInMonth=
-new Date(year,month+1,0).getDate();
+        const cell = document.createElement("div");
+        cell.className = "day";
+        cell.textContent = day;
 
-for(let i=0;i<firstDay;i++){
+        const key = `${year}-${month}-${day}`;
 
-const empty=document.createElement("div");
+        cell.onclick = () => {
+            selectedCalendarDate = key;
 
-empty.className="day empty";
+            document.getElementById("selectedDate").textContent =
+                currentDate.toLocaleString("default", { month: "long" }) +
+                " " + day;
 
-grid.appendChild(empty);
+            renderCalendar();
+            renderCalendarTasks();
+        };
 
+        if (selectedCalendarDate === key) {
+            cell.classList.add("calendar-selected");
+        }
+
+        const today = new Date();
+
+        if (
+            day === today.getDate() &&
+            month === today.getMonth() &&
+            year === today.getFullYear()
+        ) {
+            cell.classList.add("today");
+        }
+
+        grid.appendChild(cell);
+    }
 }
 
-for(let day=1;day<=daysInMonth;day++){
-
-const cell=document.createElement("div");
-
-cell.className="day";
-
-cell.textContent=day;
-
-const today=new Date();
-
-if(
-day===today.getDate()&&
-month===today.getMonth()&&
-year===today.getFullYear()
-){
-
-cell.classList.add("today");
-
+function previousMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
 }
 
-const key =
-`${year}-${month}-${day}`;
-
-cell.onclick=()=>{
-
-selectedCalendarDate=key;
-
-document.getElementById("selectedDate").textContent=
-currentDate.toLocaleString("default",{month:"long"})
-+" "+day;
-
-renderCalendar();
-function renderCalendarTasks(){
-
-const list =
-document.getElementById("calendarTaskList");
-
-if(!list) return;
-
-list.innerHTML="";
-
-const tasks=
-calendarTasks[selectedCalendarDate] || [];
-
-tasks.forEach((task,index)=>{
-
-const li=document.createElement("li");
-
-li.innerHTML=`
-<span>${task}</span>
-
-<button onclick="deleteCalendarTask(${index})">
-❌
-</button>
-`;
-
-list.appendChild(li);
-
-});
-
-}
-renderCalendarTasks();
-
-};
-
-if(selectedCalendarDate===key){
-
-cell.classList.add("calendar-selected");
-
-}
-
-grid.appendChild(cell);
-
-}
-
-}
-
-function previousMonth(){
-
-currentDate.setMonth(currentDate.getMonth()-1);
-
-renderCalendar();
-
-}
-
-function nextMonth(){
-
-currentDate.setMonth(currentDate.getMonth()+1);
-
-renderCalendar();
-
+function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar();
 }
 function addCalendarTask(){
 
