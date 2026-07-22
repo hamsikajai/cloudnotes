@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Poppins:wght@400;600&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -94,73 +95,75 @@
         </div>
       </div>
 
-      <!-- =========================
-        NOTES V2
-========================= -->
+<section id="notes" class="page">
+  <div class="notes-container">
+    
+    <aside class="notes-sidebar">
+      <div class="notes-sidebar-header">
+        <input type="text" id="noteSearch" placeholder="🔍 Search notes..." oninput="searchNotes()" />
+        <button class="add-note-btn" onclick="createNote()">+ New Note</button>
+      </div>
+      <div id="notesList" class="notes-list"></div>
+    </aside>
 
-<div id="notes" class="page">
-
-    <h2>📝 Notes</h2>
-
-    <div class="notes-wrapper">
-
-        <!-- Sidebar -->
-        <div class="notes-sidebar">
-
-            <button id="newNoteBtn" onclick="createNote()">
-                + New Note
-            </button>
-
-            <input
-                type="text"
-                id="noteSearch"
-                placeholder="🔍 Search..."
-                oninput="searchNotes()">
-
-            <div id="notesList"></div>
-
+    <main class="notes-editor">
+      <div class="editor-header">
+        <input type="text" id="noteTitle" placeholder="Untitled Note" />
+        
+        <div class="editor-actions">
+          <button class="save-btn" onclick="autoSaveNote()" title="Save Note">💾 Save</button>
+          <button id="pinBtn" class="pin-btn" onclick="togglePin()" title="Pin Note">📌 Pin</button>
+          <button class="delete-note-btn" onclick="deleteCurrentNote()" title="Delete Note">🗑️</button>
         </div>
+      </div>
+ 
+      <div class="editor-toolbar">
+        <select id="fontFamilySelect" class="font-select" onchange="formatFontFamily(this.value)" title="Choose Font">
+          <option value="Nunito">Nunito (Default)</option>
+          <option value="Arial">Arial</option>
+          <option value="cursive">Cursive / Handwriting</option>
+          <option value="Oswald">Oswald</option>
+          <option value="Georgia">Georgia</option>
+          <option value="'Courier New', monospace">Courier New</option>
+          <option value="Poppins">Poppins</option>
+        </select>
 
-        <!-- Editor -->
-        <div class="notes-editor">
+        <span class="toolbar-divider"></span>
 
-            <input
-                id="noteTitle"
-                placeholder="Untitled Note">
+        <button type="button" onclick="formatText('bold')" title="Bold"><b>B</b></button>
+        <button type="button" onclick="formatText('italic')" title="Italic"><i>I</i></button>
+        <button type="button" onclick="formatText('underline')" title="Underline"><u>U</u></button>
+        <button type="button" onclick="formatText('strikeThrough')" title="Strikethrough"><s>S</s></button>
+        
+        <span class="toolbar-divider"></span>
 
-            <textarea
-                id="notesBox"
-                placeholder="Start typing..."></textarea>
+        <label class="color-picker-label" title="Font Color">
+          🎨 Color
+          <input type="color" id="textColorPicker" onchange="formatTextColor(this.value)" value="#333333" />
+        </label>
 
-            <div class="notes-footer">
+        <label class="color-picker-label" title="Highlight Color">
+          🖍️ Highlight
+          <input type="color" id="highlightColorPicker" onchange="formatHighlightColor(this.value)" value="#ffff7b" />
+        </label>
 
-                <span id="charCount">
-                    0 characters
-                </span>
+        <span class="toolbar-divider"></span>
 
-                <div>
+        <button type="button" onclick="formatText('insertUnorderedList')" title="Bullet List">• List</button>
+        <button type="button" onclick="formatText('insertOrderedList')" title="Numbered List">1. List</button>
+      </div>
 
-                    <button
-                        class="pin-btn"
-                        onclick="togglePin()">
-                        📌 Pin
-                    </button>
+      <div id="notesBox" contenteditable="true" placeholder="Start typing your note here..."></div>
 
-                    <button
-                        class="delete-btn"
-                        onclick="deleteCurrentNote()">
-                        🗑 Delete
-                    </button>
+      <div class="editor-footer">
+        <span id="saveStatus" class="save-status">Saved</span>
+        <span id="lastEdited" class="last-edited">Last edited: Never</span>
+        <span id="charCount">0 characters</span>
+      </div>
+    </main>
 
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
+  </div>
+</section>
 
       <!-- =========================
      CALENDAR V3
