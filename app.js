@@ -616,6 +616,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (typeof updateQuote === "function") updateQuote();
     if (typeof updateTimerDisplay === "function") updateTimerDisplay();
     updateStreakDisplay();
+    renderCalendar();
 });
 // ==========================
 // DAILY STREAK
@@ -675,5 +676,90 @@ today
 );
 
 updateStreakDisplay();
+
+}
+// =========================
+// CALENDAR
+// =========================
+
+let currentDate = new Date();
+
+function renderCalendar(){
+
+const monthYear =
+document.getElementById("monthYear");
+
+const grid =
+document.getElementById("calendarGrid");
+
+if(!grid) return;
+
+grid.innerHTML="";
+
+const year=currentDate.getFullYear();
+
+const month=currentDate.getMonth();
+
+monthYear.textContent=
+currentDate.toLocaleString("default",{
+month:"long",
+year:"numeric"
+});
+
+const firstDay=
+new Date(year,month,1).getDay();
+
+const daysInMonth=
+new Date(year,month+1,0).getDate();
+
+for(let i=0;i<firstDay;i++){
+
+const empty=document.createElement("div");
+
+empty.className="day empty";
+
+grid.appendChild(empty);
+
+}
+
+for(let day=1;day<=daysInMonth;day++){
+
+const cell=document.createElement("div");
+
+cell.className="day";
+
+cell.textContent=day;
+
+const today=new Date();
+
+if(
+day===today.getDate()&&
+month===today.getMonth()&&
+year===today.getFullYear()
+){
+
+cell.classList.add("today");
+
+}
+
+grid.appendChild(cell);
+
+}
+
+}
+
+function previousMonth(){
+
+currentDate.setMonth(currentDate.getMonth()-1);
+
+renderCalendar();
+
+}
+
+function nextMonth(){
+
+currentDate.setMonth(currentDate.getMonth()+1);
+
+renderCalendar();
 
 }
