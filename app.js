@@ -130,7 +130,29 @@ function updateProgress() {
 
     if (percent === 100) {
         message = "🏆 All tasks completed!";
-        completeToday();
+        function completeToday() {
+
+    const today = new Date().toDateString();
+
+    // Already counted today
+    if (lastCompleted === today) return;
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (lastCompleted === yesterday.toDateString()) {
+        streak++;
+    } else {
+        streak = 1;
+    }
+
+    lastCompleted = today;
+
+    localStorage.setItem("streak", streak);
+    localStorage.setItem("lastCompletedDate", today);
+
+    updateStreakDisplay();
+}
         // Trigger Nimbus celebration once when reaching 100%
         if (!hasCelebrated) {
             celebrateWithNimbus();
