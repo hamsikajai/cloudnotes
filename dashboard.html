@@ -100,9 +100,15 @@
     
     <aside class="notes-sidebar">
       <div class="notes-sidebar-header">
-        <input type="text" id="noteSearch" placeholder="🔍 Search notes..." oninput="searchNotes()" />
+        <input 
+          type="text" 
+          id="noteSearch" 
+          placeholder="🔍 Search notes..." 
+          oninput="searchNotes()" 
+        />
         <button class="add-note-btn" onclick="createNote()">+ New Note</button>
       </div>
+      
       <div id="notesList" class="notes-list"></div>
     </aside>
 
@@ -116,7 +122,7 @@
           <button class="delete-note-btn" onclick="deleteCurrentNote()" title="Delete Note">🗑️</button>
         </div>
       </div>
- 
+
       <div class="editor-toolbar">
         <select id="fontFamilySelect" class="font-select" onchange="formatFontFamily(this.value)" title="Choose Font">
           <option value="Nunito">Nunito (Default)</option>
