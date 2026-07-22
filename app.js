@@ -309,53 +309,8 @@ function updateQuote() {
     const random = Math.floor(Math.random() * quotes.length);
     quote.textContent = `"${quotes[random]}"`;
 }
-
-// ===========================
-// FOCUS TIMER
-// ===========================
-
-let timerInterval;
-let timeLeft = 25 * 60;
-let timerRunning = false;
-
-function updateTimerDisplay() {
-    const timer = document.getElementById("timer");
-    if (!timer) return;
-
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-
-    timer.textContent =
-        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
-
-function toggleTimer() {
-    const button = document.querySelector(".focus-btn");
-
-    if (!timerRunning) {
-        timerRunning = true;
-        if (button) button.textContent = "⏸ Pause Focus";
-
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            updateTimerDisplay();
-
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                timerRunning = false;
-                if (button) button.textContent = "✨ Start Focus ✨";
-                alert("🌸 Great job! Time for a break!");
-            }
-        }, 1000);
-    } else {
-        clearInterval(timerInterval);
-        timerRunning = false;
-        if (button) button.textContent = "▶ Resume Focus";
-    }
-}
-
 // =========================================
-// NOTES V2
+// NOTES V2 (WITH RICH TEXT & METADATA)
 // =========================================
 
 let notes = JSON.parse(localStorage.getItem("cloudNotes")) || [];
@@ -371,6 +326,7 @@ function renderNotes() {
 
     list.innerHTML = "";
 
+    // Sort: Pinned notes first, then by last updated timestamp
     notes.sort((a, b) => {
         if (a.pinned && !b.pinned) return -1;
         if (!a.pinned && b.pinned) return 1;
@@ -385,12 +341,17 @@ function renderNotes() {
             card.classList.add("active");
         }
 
-        const preview = note.content ? note.content.substring(0, 45) : "Empty note";
+        // Clean out HTML tags for the sidebar preview snippet
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = note.content || "";
+        const cleanText = tempDiv.textContent || tempDiv.innerText || "Empty note";
+        const preview = cleanText.substring(0, 40);
+
         const date = note.updated ? new Date(note.updated).toLocaleDateString() : "";
 
         card.innerHTML = `
-            <div class="note-title">${note.pinned ? "📌 " : ""}${note.title || "Untitled"}</div>
-            <div class="note-preview">${preview}</div>
+            <div class="note-title">${note.pinned ? "📌 " : ""}${note.title || "Untitled Note"}</div>
+            <div class="note-preview">${preview}...</div>
             <div class="note-date">${date}</div>
         `;
 
@@ -419,10 +380,24 @@ function openNote(index) {
 
     const titleEl = document.getElementById("noteTitle");
     const boxEl = document.getElementById("notesBox");
+    const pinBtn = document.getElementById("pinBtn");
 
     if (titleEl) titleEl.value = notes[index].title || "";
-    if (boxEl) boxEl.value = notes[index].content || "";
+    if (boxEl) boxEl.innerHTML = notes[index].content || "";
 
+    if (pinBtn) {
+        if (notes[index].pinned) {
+            pinBtn.style.background = "#ffd56b";
+            pinBtn.style.borderColor = "#f7c038";
+            pinBtn.textContent = "📌 Pinned";
+        } else {
+            pinBtn.style.background = "#fff";
+            pinBtn.style.borderColor = "#ddd";
+            pinBtn.textContent = "📌 Pin";
+        }
+    }
+
+    updateLastEditedTime(notes[index].updated);
     updateCharacterCount();
     renderNotes();
 }
@@ -434,12 +409,40 @@ function autoSaveNote() {
     const boxEl = document.getElementById("notesBox");
 
     notes[currentNote].title = titleEl ? (titleEl.value || "Untitled Note") : "Untitled Note";
-    notes[currentNote].content = boxEl ? boxEl.value : "";
+    notes[currentNote].content = boxEl ? boxEl.innerHTML : "";
     notes[currentNote].updated = Date.now();
 
     saveNotes();
     renderNotes();
     updateCharacterCount();
+    updateLastEditedTime(notes[currentNote].updated);
+    showSavingStatus();
+}
+
+let saveTimeout;
+function showSavingStatus() {
+    const statusEl = document.getElementById("saveStatus");
+    if (!statusEl) return;
+
+    statusEl.textContent = "Saving...";
+    statusEl.style.color = "#ffa500";
+
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        statusEl.textContent = "Saved";
+        statusEl.style.color = "#6bc26b";
+    }, 500);
+}
+
+function updateLastEditedTime(timestamp) {
+    const lastEditedEl = document.getElementById("lastEdited");
+    if (!lastEditedEl || !timestamp) return;
+
+    const date = new Date(timestamp);
+    const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateString = date.toLocaleDateString();
+
+    lastEditedEl.textContent = `Last edited: ${dateString} at ${timeString}`;
 }
 
 function deleteCurrentNote() {
@@ -454,7 +457,7 @@ function deleteCurrentNote() {
     const boxEl = document.getElementById("notesBox");
 
     if (titleEl) titleEl.value = "";
-    if (boxEl) boxEl.value = "";
+    if (boxEl) boxEl.innerHTML = "";
 
     renderNotes();
     updateCharacterCount();
@@ -466,13 +469,23 @@ function togglePin() {
     notes[currentNote].pinned = !notes[currentNote].pinned;
     saveNotes();
     renderNotes();
+
+    const pinBtn = document.getElementById("pinBtn");
+    if (pinBtn) {
+        if (notes[currentNote].pinned) {
+            pinBtn.style.background = "#ffd56b";
+            pinBtn.style.borderColor = "#f7c038";
+            pinBtn.textContent = "📌 Pinned";
+        } else {
+            pinBtn.style.background = "#fff";
+            pinBtn.style.borderColor = "#ddd";
+            pinBtn.textContent = "📌 Pin";
+        }
+    }
 }
 
 function searchNotes() {
-    const searchEl = document.getElementById("noteSearch");
-    if (!searchEl) return;
-
-    const search = searchEl.value.toLowerCase();
+    const search = document.getElementById("noteSearch").value.toLowerCase();
     const cards = document.querySelectorAll(".note-card");
 
     cards.forEach((card, index) => {
@@ -480,8 +493,8 @@ function searchNotes() {
         if (!note) return;
 
         const visible =
-            (note.title && note.title.toLowerCase().includes(search)) ||
-            (note.content && note.content.toLowerCase().includes(search));
+            note.title.toLowerCase().includes(search) ||
+            note.content.toLowerCase().includes(search);
 
         card.style.display = visible ? "block" : "none";
     });
@@ -492,23 +505,66 @@ function updateCharacterCount() {
     const countEl = document.getElementById("charCount");
 
     if (boxEl && countEl) {
-        countEl.textContent = `${boxEl.value.length} characters`;
+        countEl.textContent = `${boxEl.innerText.trim().length} characters`;
     }
 }
 
-// Safe Notes Event Listeners
-const noteTitleInput = document.getElementById("noteTitle");
-const notesBoxInput = document.getElementById("notesBox");
-
-if (noteTitleInput) {
-    noteTitleInput.addEventListener("input", autoSaveNote);
+// FORMATTING CONTROLS
+function formatText(command, value = null) {
+    document.execCommand(command, false, value);
+    autoSaveNote();
 }
 
-if (notesBoxInput) {
-    notesBoxInput.addEventListener("input", autoSaveNote);
-    notesBoxInput.addEventListener("input", updateCharacterCount);
+function formatFontFamily(fontName) {
+    if (!fontName) return;
+    document.execCommand("fontName", false, fontName);
+    autoSaveNote();
 }
 
+function formatTextColor(color) {
+    document.execCommand("foreColor", false, color);
+    autoSaveNote();
+}
+
+function formatHighlightColor(color) {
+    document.execCommand("hiliteColor", false, color);
+    autoSaveNote();
+}
+
+// EVENT LISTENERS FOR AUTO-SAVE & CHAR COUNT
+document.addEventListener("DOMContentLoaded", () => {
+    const noteTitleInput = document.getElementById("noteTitle");
+    const notesBoxInput = document.getElementById("notesBox");
+
+    if (noteTitleInput) {
+        noteTitleInput.addEventListener("input", autoSaveNote);
+    }
+
+    if (notesBoxInput) {
+        notesBoxInput.addEventListener("input", () => {
+            autoSaveNote();
+            updateCharacterCount();
+        });
+    }
+
+    renderNotes();
+
+    if (notes.length > 0) {
+        openNote(0);
+    }
+});
+
+// EXPOSE FUNCTIONS GLOBALLY
+window.createNote = createNote;
+window.openNote = openNote;
+window.autoSaveNote = autoSaveNote;
+window.deleteCurrentNote = deleteCurrentNote;
+window.togglePin = togglePin;
+window.searchNotes = searchNotes;
+window.formatText = formatText;
+window.formatFontFamily = formatFontFamily;
+window.formatTextColor = formatTextColor;
+window.formatHighlightColor = formatHighlightColor;
 // ===========================
 // AUTHENTICATION & SETTINGS
 // ===========================
