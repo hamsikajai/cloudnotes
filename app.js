@@ -198,6 +198,17 @@ function showPage(pageId) {
     if (activeBtn) {
         activeBtn.classList.add("active");
     }
+
+    // Re-render components dynamically when returning to a page
+    if (pageId === "calendar") {
+        if (typeof renderCalendar === "function") renderCalendar();
+        if (typeof renderCalendarTasks === "function") renderCalendarTasks();
+    } else if (pageId === "dashboard") {
+        if (typeof renderTasks === "function") renderTasks();
+        if (typeof renderReminders === "function") renderReminders();
+    } else if (pageId === "notes") {
+        if (typeof renderNotes === "function") renderNotes();
+    }
 }
 
 // ===========================
@@ -293,254 +304,202 @@ function updateQuote() {
     quote.textContent = `"${quotes[random]}"`;
 }
 
+// ===========================
+// FOCUS TIMER
+// ===========================
+
+let timerInterval;
+let timeLeft = 25 * 60;
+let timerRunning = false;
+
+function updateTimerDisplay() {
+    const timer = document.getElementById("timer");
+    if (!timer) return;
+
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+
+    timer.textContent =
+        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function toggleTimer() {
+    const button = document.querySelector(".focus-btn");
+
+    if (!timerRunning) {
+        timerRunning = true;
+        if (button) button.textContent = "⏸ Pause Focus";
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                if (button) button.textContent = "✨ Start Focus ✨";
+                alert("🌸 Great job! Time for a break!");
+            }
+        }, 1000);
+    } else {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        if (button) button.textContent = "▶ Resume Focus";
+    }
+}
 
 // =========================================
 // NOTES V2
 // =========================================
 
-let notes =
-JSON.parse(localStorage.getItem("cloudNotes")) || [];
-
+let notes = JSON.parse(localStorage.getItem("cloudNotes")) || [];
 let currentNote = -1;
 
-function saveNotes(){
-
-localStorage.setItem(
-"cloudNotes",
-JSON.stringify(notes)
-);
-
+function saveNotes() {
+    localStorage.setItem("cloudNotes", JSON.stringify(notes));
 }
 
-function renderNotes(){
+function renderNotes() {
+    const list = document.getElementById("notesList");
+    if (!list) return;
 
-const list=document.getElementById("notesList");
+    list.innerHTML = "";
 
-if(!list)return;
+    notes.sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return b.updated - a.updated;
+    });
 
-list.innerHTML="";
+    notes.forEach((note, index) => {
+        const card = document.createElement("div");
+        card.className = "note-card";
 
-notes.sort((a,b)=>{
+        if (index === currentNote) {
+            card.classList.add("active");
+        }
 
-if(a.pinned&&!b.pinned)return-1;
-if(!a.pinned&&b.pinned)return 1;
+        const preview = note.content ? note.content.substring(0, 45) : "Empty note";
+        const date = new Date(note.updated).toLocaleDateString();
 
-return b.updated-a.updated;
+        card.innerHTML = `
+            <div class="note-title">${note.pinned ? "📌 " : ""}${note.title}</div>
+            <div class="note-preview">${preview}</div>
+            <div class="note-date">${date}</div>
+        `;
 
-});
-
-notes.forEach((note,index)=>{
-
-const card=document.createElement("div");
-
-card.className="note-card";
-
-if(index===currentNote){
-
-card.classList.add("active");
-
+        card.onclick = () => openNote(index);
+        list.appendChild(card);
+    });
 }
 
-const preview=
-note.content.substring(0,45)||"Empty note";
+function createNote() {
+    notes.unshift({
+        title: "Untitled Note",
+        content: "",
+        pinned: false,
+        updated: Date.now()
+    });
 
-const date=
-new Date(note.updated)
-.toLocaleDateString();
-
-card.innerHTML=`
-
-<div class="note-title">
-
-${note.pinned?"📌 ":""}${note.title}
-
-</div>
-
-<div class="note-preview">
-
-${preview}
-
-</div>
-
-<div class="note-date">
-
-${date}
-
-</div>
-
-`;
-
-card.onclick=()=>{
-
-openNote(index);
-
-};
-
-list.appendChild(card);
-
-});
-
+    currentNote = 0;
+    saveNotes();
+    renderNotes();
+    openNote(0);
 }
 
-function createNote(){
+function openNote(index) {
+    currentNote = index;
+    const titleEl = document.getElementById("noteTitle");
+    const boxEl = document.getElementById("notesBox");
 
-notes.unshift({
+    if (titleEl) titleEl.value = notes[index].title;
+    if (boxEl) boxEl.value = notes[index].content;
 
-title:"Untitled Note",
-
-content:"",
-
-pinned:false,
-
-updated:Date.now()
-
-});
-
-currentNote=0;
-
-saveNotes();
-
-renderNotes();
-
-openNote(0);
-
+    updateCharacterCount();
+    renderNotes();
 }
 
-function openNote(index){
+function autoSaveNote() {
+    if (currentNote === -1 || !notes[currentNote]) return;
 
-currentNote=index;
+    const titleEl = document.getElementById("noteTitle");
+    const boxEl = document.getElementById("notesBox");
 
-document.getElementById("noteTitle").value=
-notes[index].title;
+    notes[currentNote].title = titleEl ? (titleEl.value || "Untitled Note") : "Untitled Note";
+    notes[currentNote].content = boxEl ? boxEl.value : "";
+    notes[currentNote].updated = Date.now();
 
-document.getElementById("notesBox").value=
-notes[index].content;
-
-updateCharacterCount();
-
-renderNotes();
-
+    saveNotes();
+    renderNotes();
+    updateCharacterCount();
 }
 
-function autoSaveNote(){
+function deleteCurrentNote() {
+    if (currentNote === -1) return;
+    if (!confirm("Delete this note?")) return;
 
-if(currentNote===-1)return;
+    notes.splice(currentNote, 1);
+    saveNotes();
+    currentNote = -1;
 
-notes[currentNote].title=
-document.getElementById("noteTitle").value||"Untitled Note";
+    const titleEl = document.getElementById("noteTitle");
+    const boxEl = document.getElementById("notesBox");
 
-notes[currentNote].content=
-document.getElementById("notesBox").value;
+    if (titleEl) titleEl.value = "";
+    if (boxEl) boxEl.value = "";
 
-notes[currentNote].updated=
-Date.now();
-
-saveNotes();
-
-renderNotes();
-
-updateCharacterCount();
-
+    renderNotes();
+    updateCharacterCount();
 }
 
-function deleteCurrentNote(){
+function togglePin() {
+    if (currentNote === -1 || !notes[currentNote]) return;
 
-if(currentNote===-1)return;
-
-if(!confirm("Delete this note?"))return;
-
-notes.splice(currentNote,1);
-
-saveNotes();
-
-currentNote=-1;
-
-document.getElementById("noteTitle").value="";
-
-document.getElementById("notesBox").value="";
-
-renderNotes();
-
-updateCharacterCount();
-
+    notes[currentNote].pinned = !notes[currentNote].pinned;
+    saveNotes();
+    renderNotes();
 }
 
-function togglePin(){
+function searchNotes() {
+    const searchEl = document.getElementById("noteSearch");
+    if (!searchEl) return;
 
-if(currentNote===-1)return;
+    const search = searchEl.value.toLowerCase();
+    const cards = document.querySelectorAll(".note-card");
 
-notes[currentNote].pinned=
-!notes[currentNote].pinned;
+    cards.forEach((card, index) => {
+        const note = notes[index];
+        if (!note) return;
 
-saveNotes();
+        const visible =
+            note.title.toLowerCase().includes(search) ||
+            note.content.toLowerCase().includes(search);
 
-renderNotes();
-
+        card.style.display = visible ? "block" : "none";
+    });
 }
 
-function searchNotes(){
+function updateCharacterCount() {
+    const boxEl = document.getElementById("notesBox");
+    const countEl = document.getElementById("charCount");
 
-const search=
-document.getElementById("noteSearch")
-.value.toLowerCase();
-
-const cards=
-document.querySelectorAll(".note-card");
-
-cards.forEach((card,index)=>{
-
-const note=notes[index];
-
-const visible=
-
-note.title.toLowerCase().includes(search)||
-
-note.content.toLowerCase().includes(search);
-
-card.style.display=
-visible?"block":"none";
-
-});
-
+    if (boxEl && countEl) {
+        countEl.textContent = `${boxEl.value.length} characters`;
+    }
 }
 
-function updateCharacterCount(){
+// Safe Notes Event Listeners
+const noteTitleInput = document.getElementById("noteTitle");
+const notesBoxInput = document.getElementById("notesBox");
 
-const text=
-document.getElementById("notesBox").value;
-
-document.getElementById("charCount").textContent=
-
-`${text.length} characters`;
-
+if (noteTitleInput) {
+    noteTitleInput.addEventListener("input", autoSaveNote);
 }
 
-document
-.getElementById("noteTitle")
-.addEventListener("input",autoSaveNote);
-
-document
-.getElementById("notesBox")
-.addEventListener("input",autoSaveNote);
-
-document
-.getElementById("notesBox")
-.addEventListener("input",updateCharacterCount);
-
-renderNotes();
-
-if(notes.length>0){
-
-openNote(0);
-
+if (notesBoxInput) {
+    notesBoxInput.addEventListener("input", autoSaveNote);
+    notesBoxInput.addEventListener("input", updateCharacterCount);
 }
-
-// EXPOSE GLOBAL FUNCTIONS FOR INLINE HTML ATTRIBUTES
-window.showPage = showPage;
-window.addTask = addTask;
-window.addReminder = addReminder;
-window.toggleTheme = toggleTheme;
-window.toggleTimer = toggleTimer;
 
 // ===========================
 // AUTHENTICATION & SETTINGS
@@ -803,257 +762,164 @@ function completeToday() {
     updateStreakDisplay();
 }
 
-// ========================================
-// CALENDAR V3
-// ========================================
+// =========================
+// CALENDAR
+// =========================
 
 let currentDate = new Date();
+let selectedCalendarDate = null;
+let calendarTasks = JSON.parse(localStorage.getItem("calendarTasks")) || {};
 
-let selectedCalendarDate = "";
+function renderCalendar() {
+    const monthYear = document.getElementById("monthYear");
+    const grid = document.getElementById("calendarGrid");
 
-let calendarTasks =
-JSON.parse(localStorage.getItem("calendarTasks")) || {};
+    if (!monthYear || !grid) return;
 
-function renderCalendar(){
+    grid.innerHTML = "";
 
-const grid=document.getElementById("calendarGrid");
-const monthYear=document.getElementById("monthYear");
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
 
-if(!grid||!monthYear)return;
+    monthYear.textContent = currentDate.toLocaleString("default", {
+        month: "long",
+        year: "numeric"
+    });
 
-grid.innerHTML="";
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-const year=currentDate.getFullYear();
-const month=currentDate.getMonth();
+    // Empty boxes before month starts
+    for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement("div");
+        empty.className = "day empty";
+        grid.appendChild(empty);
+    }
 
-monthYear.textContent=currentDate.toLocaleString(
-"default",
-{
-month:"long",
-year:"numeric"
-});
+    // Numbered days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement("div");
+        cell.className = "day";
+        cell.textContent = day;
 
-const firstDay=new Date(year,month,1).getDay();
+        const key = `${year}-${month}-${day}`;
 
-const daysInMonth=
-new Date(year,month+1,0).getDate();
+        cell.onclick = () => {
+            selectedCalendarDate = key;
 
-for(let i=0;i<firstDay;i++){
+            const selectedDateEl = document.getElementById("selectedDate");
+            if (selectedDateEl) {
+                selectedDateEl.textContent = `${currentDate.toLocaleString("default", { month: "long" })} ${day}`;
+            }
 
-const empty=document.createElement("div");
+            renderCalendar();
+            renderCalendarTasks();
+        };
 
-empty.className="day empty";
+        if (selectedCalendarDate === key) {
+            cell.classList.add("calendar-selected");
+        }
 
-grid.appendChild(empty);
+        const today = new Date();
+        if (
+            day === today.getDate() &&
+            month === today.getMonth() &&
+            year === today.getFullYear()
+        ) {
+            cell.classList.add("today");
+        }
 
+        grid.appendChild(cell);
+    }
 }
 
-for(let day=1;day<=daysInMonth;day++){
+function renderCalendarTasks() {
+    const list = document.getElementById("calendarTaskList");
+    if (!list) return;
 
-const cell=document.createElement("div");
+    list.innerHTML = "";
 
-cell.className="day";
+    const tasks = calendarTasks[selectedCalendarDate] || [];
 
-cell.textContent=day;
+    tasks.forEach((task, index) => {
+        const li = document.createElement("li");
 
-const key=`${year}-${month}-${day}`;
+        const taskText = typeof task === "object" ? task.text : task;
 
-cell.onclick=()=>{
-
-selectedCalendarDate=key;
-
-document.getElementById("selectedDate").textContent=
-`${currentDate.toLocaleString("default",{month:"long"})} ${day}`;
-
-renderCalendar();
-
-renderCalendarTasks();
-
-};
-
-const today=new Date();
-
-if(
-today.getDate()==day&&
-today.getMonth()==month&&
-today.getFullYear()==year
-){
-
-cell.classList.add("today");
-
+        li.innerHTML = `
+            <span>${taskText}</span>
+            <button onclick="deleteCalendarTask(${index})">❌</button>
+        `;
+        list.appendChild(li);
+    });
 }
 
-if(selectedCalendarDate===key){
-
-cell.classList.add("calendar-selected");
-
+function previousMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
 }
 
-if(calendarTasks[key]){
-
-const dot=document.createElement("div");
-
-dot.className=
-`event-dot ${calendarTasks[key][0].category}`;
-
-cell.appendChild(dot);
-
+function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar();
 }
 
-grid.appendChild(cell);
+function addCalendarTask() {
+    if (!selectedCalendarDate) {
+        alert("Select a date first!");
+        return;
+    }
 
+    const input = document.getElementById("calendarTaskInput");
+    if (!input) return;
+
+    const value = input.value.trim();
+    if (!value) return;
+
+    if (!calendarTasks[selectedCalendarDate]) {
+        calendarTasks[selectedCalendarDate] = [];
+    }
+
+    calendarTasks[selectedCalendarDate].push(value);
+    localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
+
+    input.value = "";
+    renderCalendarTasks();
 }
 
+function deleteCalendarTask(index) {
+    if (!selectedCalendarDate || !calendarTasks[selectedCalendarDate]) return;
+
+    calendarTasks[selectedCalendarDate].splice(index, 1);
+
+    if (calendarTasks[selectedCalendarDate].length === 0) {
+        delete calendarTasks[selectedCalendarDate];
+    }
+
+    localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
+
+    renderCalendarTasks();
 }
 
-function renderCalendarTasks(){
-
-const list=
-document.getElementById("calendarTaskList");
-
-const counter=
-document.getElementById("eventCounter");
-
-list.innerHTML="";
-
-const tasks=
-calendarTasks[selectedCalendarDate]||[];
-
-counter.textContent=
-`${tasks.length} Event${tasks.length!==1?"s":""}`;
-
-if(tasks.length===0){
-
-list.innerHTML=
-`<p style="text-align:center;color:#888;margin-top:40px;">
-🌸 No events today
-</p>`;
-
-return;
-
+function goToToday() {
+    currentDate = new Date();
+    renderCalendar();
 }
 
-tasks.forEach((task,index)=>{
-
-const li=document.createElement("li");
-
-li.className="calendar-event";
-
-li.innerHTML=`
-
-<div class="calendar-left">
-
-<span class="category-pill ${task.category}">
-${task.category}
-</span>
-
-<span>${task.text}</span>
-
-</div>
-
-<button
-class="calendar-delete"
-onclick="deleteCalendarTask(${index})">
-
-❌
-
-</button>
-
-`;
-
-list.appendChild(li);
-
-});
-
-}
-
-function addCalendarTask(){
-
-if(!selectedCalendarDate){
-
-alert("Choose a day first 🌸");
-
-return;
-
-}
-
-const input=
-document.getElementById("calendarTaskInput");
-
-const category=
-document.getElementById("eventCategory");
-
-const value=input.value.trim();
-
-if(!value)return;
-
-if(!calendarTasks[selectedCalendarDate]){
-
-calendarTasks[selectedCalendarDate]=[];
-
-}
-
-calendarTasks[selectedCalendarDate].push({
-
-text:value,
-
-category:category.value
-
-});
-
-localStorage.setItem(
-
-"calendarTasks",
-
-JSON.stringify(calendarTasks)
-
-);
-
-input.value="";
-
-renderCalendar();
-
-renderCalendarTasks();
-
-}
-
-function deleteCalendarTask(index){
-
-calendarTasks[selectedCalendarDate].splice(index,1);
-
-if(calendarTasks[selectedCalendarDate].length===0){
-
-delete calendarTasks[selectedCalendarDate];
-
-}
-
-localStorage.setItem(
-
-"calendarTasks",
-
-JSON.stringify(calendarTasks)
-
-);
-
-renderCalendar();
-
-renderCalendarTasks();
-
-}
-
-function goToToday(){
-
-currentDate=new Date();
-
-renderCalendar();
-
-}
-
-// EXPOSE CALENDAR FUNCTIONS TO GLOBAL SCOPE
+// EXPOSE GLOBAL FUNCTIONS FOR INLINE HTML ATTRIBUTES
+window.showPage = showPage;
+window.addTask = addTask;
+window.addReminder = addReminder;
+window.toggleTheme = toggleTheme;
+window.toggleTimer = toggleTimer;
 window.previousMonth = previousMonth;
 window.nextMonth = nextMonth;
 window.addCalendarTask = addCalendarTask;
 window.deleteCalendarTask = deleteCalendarTask;
+window.createNote = createNote;
+window.deleteCurrentNote = deleteCurrentNote;
+window.togglePin = togglePin;
+window.searchNotes = searchNotes;
 
 // ---------- INITIALIZATION ----------
 window.addEventListener("DOMContentLoaded", () => {
@@ -1064,6 +930,12 @@ window.addEventListener("DOMContentLoaded", () => {
     if (typeof updateGreeting === "function") updateGreeting();
     if (typeof updateQuote === "function") updateQuote();
     if (typeof updateTimerDisplay === "function") updateTimerDisplay();
+    if (typeof renderNotes === "function") {
+        renderNotes();
+        if (notes.length > 0 && typeof openNote === "function") {
+            openNote(0);
+        }
+    }
     updateStreakDisplay();
     renderCalendar();
 });
