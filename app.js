@@ -12,135 +12,20 @@ import {
     deleteUser
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
-// =========================================
-// AUTHENTICATION & ACCOUNT SETTINGS
-// =========================================
-
-onAuthStateChanged(auth, (user) => {
-    const emailEl = document.getElementById("userEmail");
-    if (user) {
-        if (emailEl) emailEl.textContent = user.email;
-    } else {
-        if (window.location.pathname.includes("dashboard.html")) {
-            window.location.href = "index.html";
-        }
-    }
-});
-
-window.addEventListener("DOMContentLoaded", () => {
-    const logoutBtn = document.getElementById("logoutBtn");
-    const resetPasswordBtn = document.getElementById("resetPasswordBtn");
-    const changePasswordBtn = document.getElementById("changePasswordBtn");
-    const deleteAccountBtn = document.getElementById("deleteAccountBtn");
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", async () => {
-            await signOut(auth);
-            window.location.href = "index.html";
-        });
-    }
-
-    if (resetPasswordBtn) {
-        resetPasswordBtn.addEventListener("click", async () => {
-            const user = auth.currentUser;
-            if (user && user.email) {
-                try {
-                    await sendPasswordResetEmail(auth, user.email);
-                    alert("Password reset email sent!");
-                } catch (err) {
-                    alert("Error sending password reset email: " + err.message);
-                }
-            }
-        });
-    }
-
-    if (changePasswordBtn) {
-        changePasswordBtn.addEventListener("click", async () => {
-            const currentPw = document.getElementById("currentPassword")?.value;
-            const newPw = document.getElementById("newPassword")?.value;
-
-            if (!currentPw || !newPw) {
-                alert("Please fill in both password fields.");
-                return;
-            }
-
-            const user = auth.currentUser;
-            if (!user) return;
-
-            const credential = EmailAuthProvider.credential(user.email, currentPw);
-            try {
-                await reauthenticateWithCredential(user, credential);
-                await updatePassword(user, newPw);
-                alert("Password updated successfully!");
-                document.getElementById("currentPassword").value = "";
-                document.getElementById("newPassword").value = "";
-            } catch (err) {
-                alert("Failed to update password: " + err.message);
-            }
-        });
-    }
-
-    if (deleteAccountBtn) {
-        deleteAccountBtn.addEventListener("click", async () => {
-            if (!confirm("Are you sure you want to permanently delete your account?")) return;
-            const user = auth.currentUser;
-            if (user) {
-                try {
-                    await deleteUser(user);
-                    alert("Account deleted.");
-                    window.location.href = "index.html";
-                } catch (err) {
-                    alert("Failed to delete account: " + err.message);
-                }
-            }
-        });
-    }
-});
-
-// =========================================
-// NAVIGATION (SHOW & HIDE PAGES)
-// =========================================
-
-function showPage(pageId) {
-    const pages = document.querySelectorAll(".page");
-    pages.forEach(page => {
-        page.classList.remove("active");
-        page.style.display = ""; // Reset inline display styles
-    });
-
-    const buttons = document.querySelectorAll(".nav-btn");
-    buttons.forEach(btn => btn.classList.remove("active"));
-
-    const targetPage = document.getElementById(pageId);
-    if (targetPage) {
-        targetPage.classList.add("active");
-    }
-
-    const activeBtn = document.querySelector(`.nav-btn[onclick*="${pageId}"]`);
-    if (activeBtn) {
-        activeBtn.classList.add("active");
-    }
-
-    // Refresh contents when switching views
-    if (pageId === "dashboard") {
-        renderTasks();
-        renderReminders();
-    } else if (pageId === "notes") {
-        renderNotes();
-    } else if (pageId === "calendar") {
-        renderCalendar();
-    }
-}
-
-// =========================================
+// ===========================
 // TASKS & BOARD LOGIC
-// =========================================
+// ===========================
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
+const input = document.getElementById("taskInput");
+const list = document.getElementById("taskList");
+
+// ---------- LOAD THEME ----------
 const savedTheme = localStorage.getItem("theme") || "pastel";
 document.body.setAttribute("data-theme", savedTheme);
 
+// ---------- ADD TASK ----------
 function addTask() {
     const inputEl = document.getElementById("taskInput");
     if (!inputEl) return;
@@ -157,6 +42,7 @@ function addTask() {
     renderTasks();
 }
 
+// ---------- TOGGLE COMPLETE ----------
 function toggleTask(index) {
     if (!tasks[index]) return;
     tasks[index].done = !tasks[index].done;
@@ -167,12 +53,22 @@ function toggleTask(index) {
     renderTasks();
 }
 
+// ---------- DELETE TASK ----------
 function deleteTask(index) {
-    tasks.splice(index, 1);
-    saveTasks();
-    renderTasks();
+    const item = document.getElementById(`task-${index}`);
+
+    if (item) {
+        item.classList.add("fade-out");
+    }
+
+    setTimeout(() => {
+        tasks.splice(index, 1);
+        saveTasks();
+        renderTasks();
+    }, 200);
 }
 
+// ---------- RENDER TASKS ----------
 function renderTasks() {
     const listEl = document.getElementById("taskList");
     if (!listEl) return;
@@ -195,7 +91,7 @@ function renderTasks() {
         text.textContent = task.text;
 
         const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "❌";
+        deleteBtn.textContent = "Ã¢ÂÂ";
         deleteBtn.className = "delete-btn";
 
         deleteBtn.onclick = function (e) {
@@ -205,16 +101,19 @@ function renderTasks() {
 
         li.appendChild(text);
         li.appendChild(deleteBtn);
+
         listEl.appendChild(li);
     });
 
     updateProgress();
 }
 
+// ---------- SAVE TASKS ----------
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+// ---------- PROGRESS BAR & CELEBRATION ----------
 function updateProgress() {
     const fill = document.querySelector(".fill");
     const progressText = document.getElementById("progressText");
@@ -223,7 +122,7 @@ function updateProgress() {
 
     if (tasks.length === 0) {
         fill.style.width = "0%";
-        progressText.textContent = "🌸 Add your first task!";
+        progressText.textContent = "Ã°ÂÂÂ¸ Add your first task!";
         hasCelebrated = false;
         return;
     }
@@ -234,20 +133,34 @@ function updateProgress() {
     fill.style.width = percent + "%";
 
     let message = "";
+
     if (percent === 100) {
-        message = "🏆 All tasks completed!";
+        message = "Ã°ÂÂÂ All tasks completed!";
+        if (!hasCelebrated) {
+            celebrateWithNimbus();
+            hasCelebrated = true;
+        }
     } else if (percent >= 75) {
-        message = "🌟 Almost there!";
+        message = "Ã°ÂÂÂ Almost there!";
+        hasCelebrated = false;
     } else if (percent >= 50) {
-        message = "✨ Great progress!";
+        message = "Ã¢ÂÂ¨ Great progress!";
+        hasCelebrated = false;
     } else if (percent >= 25) {
-        message = "🌸 Keep going!";
+        message = "Ã°ÂÂÂ¸ Keep going!";
+        hasCelebrated = false;
     } else {
-        message = "☁️ You've got this!";
+        message = "Ã¢ÂÂÃ¯Â¸Â You've got this!";
+        hasCelebrated = false;
     }
 
-    progressText.textContent = `${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
+    progressText.textContent =
+        `${message} Ã¢ÂÂ¢ ${completed}/${tasks.length} tasks Ã¢ÂÂ¢ ${percent}%`;
 }
+
+// ===========================
+// THEME SWITCHER & NAVIGATION
+// ===========================
 
 function toggleTheme() {
     const current = document.body.getAttribute("data-theme");
@@ -264,9 +177,49 @@ function toggleTheme() {
     }
 }
 
-// =========================================
+function showPage(pageId) {
+    const pages = document.querySelectorAll(".page");
+    const buttons = document.querySelectorAll(".nav-btn");
+
+    // Hide all pages and strip 'active' class so pages don't stack
+    pages.forEach(page => {
+        page.style.display = "none";
+        page.classList.remove("active");
+    });
+
+    buttons.forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.style.display = "block";
+        targetPage.classList.add("active");
+    }
+
+    const activeBtn = document.querySelector(
+        `[onclick="showPage('${pageId}')"]`
+    );
+
+    if (activeBtn) {
+        activeBtn.classList.add("active");
+    }
+
+    // Re-render components dynamically when opening a page
+    if (pageId === "calendar") {
+        renderCalendar();
+        renderCalendarTasks();
+    } else if (pageId === "dashboard") {
+        renderTasks();
+        renderReminders();
+    } else if (pageId === "notes") {
+        renderNotes();
+    }
+}
+
+// ===========================
 // REMINDERS
-// =========================================
+// ===========================
 
 let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
 
@@ -307,7 +260,7 @@ function renderReminders() {
         text.textContent = reminder;
 
         const btn = document.createElement("button");
-        btn.textContent = "×";
+        btn.textContent = "ÃÂ";
         btn.className = "rem-delete";
 
         btn.onclick = () => deleteReminder(index);
@@ -319,9 +272,9 @@ function renderReminders() {
     });
 }
 
-// =========================================
+// ===========================
 // GREETING & QUOTES
-// =========================================
+// ===========================
 
 function updateGreeting() {
     const greeting = document.getElementById("greeting");
@@ -330,11 +283,11 @@ function updateGreeting() {
     const hour = new Date().getHours();
 
     if (hour < 12) {
-        greeting.textContent = "Good Morning 🌷";
+        greeting.textContent = "Good Morning Ã°ÂÂÂ·";
     } else if (hour < 17) {
-        greeting.textContent = "Good Afternoon ☀️";
+        greeting.textContent = "Good Afternoon Ã¢ÂÂÃ¯Â¸Â";
     } else {
-        greeting.textContent = "Good Evening 🌙";
+        greeting.textContent = "Good Evening Ã°ÂÂÂ";
     }
 }
 
@@ -356,98 +309,8 @@ function updateQuote() {
     const random = Math.floor(Math.random() * quotes.length);
     quote.textContent = `"${quotes[random]}"`;
 }
-
 // =========================================
-// FOCUS TIMER
-// =========================================
-
-let timerInterval = null;
-let timerSeconds = 25 * 60;
-let isTimerRunning = false;
-
-function updateTimerDisplay() {
-    const display = document.getElementById("timerDisplay");
-    if (!display) return;
-
-    const mins = Math.floor(timerSeconds / 60);
-    const secs = timerSeconds % 60;
-
-    display.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-}
-
-function toggleTimer() {
-    const btn = document.getElementById("startTimerBtn");
-
-    if (isTimerRunning) {
-        clearInterval(timerInterval);
-        isTimerRunning = false;
-        if (btn) btn.textContent = "▶ Start";
-    } else {
-        isTimerRunning = true;
-        if (btn) btn.textContent = "⏸ Pause";
-
-        timerInterval = setInterval(() => {
-            if (timerSeconds > 0) {
-                timerSeconds--;
-                updateTimerDisplay();
-            } else {
-                clearInterval(timerInterval);
-                isTimerRunning = false;
-                if (btn) btn.textContent = "▶ Start";
-                alert("🎉 Focus session complete!");
-                timerSeconds = 25 * 60;
-                updateTimerDisplay();
-            }
-        }, 1000);
-    }
-}
-
-function resetTimer() {
-    clearInterval(timerInterval);
-    isTimerRunning = false;
-    timerSeconds = 25 * 60;
-    const btn = document.getElementById("startTimerBtn");
-    if (btn) btn.textContent = "▶ Start";
-    updateTimerDisplay();
-}
-
-// =========================================
-// STREAK TRACKER
-// =========================================
-
-let streakData = JSON.parse(localStorage.getItem("streakData")) || {
-    count: 0,
-    lastDate: null
-};
-
-function updateStreakDisplay() {
-    const el = document.getElementById("streakCount");
-    if (el) {
-        el.textContent = `${streakData.count} 🔥`;
-    }
-}
-
-function completeToday() {
-    const today = new Date().toDateString();
-
-    if (streakData.lastDate === today) return;
-
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (streakData.lastDate === yesterday.toDateString()) {
-        streakData.count++;
-    } else {
-        streakData.count = 1;
-    }
-
-    streakData.lastDate = today;
-    localStorage.setItem("streakData", JSON.stringify(streakData));
-    updateStreakDisplay();
-}
-
-// =========================================
-// NOTES SECTION
+// NOTES V2 (WITH RICH TEXT & METADATA)
 // =========================================
 
 let notes = JSON.parse(localStorage.getItem("cloudNotes")) || [];
@@ -463,6 +326,7 @@ function renderNotes() {
 
     list.innerHTML = "";
 
+    // Sort: Pinned notes first, then by last updated timestamp
     notes.sort((a, b) => {
         if (a.pinned && !b.pinned) return -1;
         if (!a.pinned && b.pinned) return 1;
@@ -477,6 +341,7 @@ function renderNotes() {
             card.classList.add("active");
         }
 
+        // Clean out HTML tags for the sidebar preview snippet
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = note.content || "";
         const cleanText = tempDiv.textContent || tempDiv.innerText || "Empty note";
@@ -485,7 +350,7 @@ function renderNotes() {
         const date = note.updated ? new Date(note.updated).toLocaleDateString() : "";
 
         card.innerHTML = `
-            <div class="note-title">${note.pinned ? "📌 " : ""}${note.title || "Untitled Note"}</div>
+            <div class="note-title">${note.pinned ? "Ã°ÂÂÂ " : ""}${note.title || "Untitled Note"}</div>
             <div class="note-preview">${preview}...</div>
             <div class="note-date">${date}</div>
         `;
@@ -524,11 +389,11 @@ function openNote(index) {
         if (notes[index].pinned) {
             pinBtn.style.background = "#ffd56b";
             pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "📌 Pinned";
+            pinBtn.textContent = "Ã°ÂÂÂ Pinned";
         } else {
             pinBtn.style.background = "#fff";
             pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "📌 Pin";
+            pinBtn.textContent = "Ã°ÂÂÂ Pin";
         }
     }
 
@@ -549,13 +414,18 @@ function togglePin() {
         if (notes[currentNote].pinned) {
             pinBtn.style.background = "#ffd56b";
             pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "📌 Pinned";
+            pinBtn.textContent = "Ã°ÂÂÂ Pinned";
         } else {
             pinBtn.style.background = "#fff";
             pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "📌 Pin";
+            pinBtn.textContent = "Ã°ÂÂÂ Pin";
         }
     }
+}
+
+    updateLastEditedTime(notes[index].updated);
+    updateCharacterCount();
+    renderNotes();
 }
 
 function autoSaveNote() {
@@ -619,10 +489,29 @@ function deleteCurrentNote() {
     updateCharacterCount();
 }
 
+function togglePin() {
+    if (currentNote === -1 || !notes[currentNote]) return;
+
+    notes[currentNote].pinned = !notes[currentNote].pinned;
+    saveNotes();
+    renderNotes();
+
+    const pinBtn = document.getElementById("pinBtn");
+    if (pinBtn) {
+        if (notes[currentNote].pinned) {
+            pinBtn.style.background = "#ffd56b";
+            pinBtn.style.borderColor = "#f7c038";
+            pinBtn.textContent = "Ã°ÂÂÂ Pinned";
+        } else {
+            pinBtn.style.background = "#fff";
+            pinBtn.style.borderColor = "#ddd";
+            pinBtn.textContent = "Ã°ÂÂÂ Pin";
+        }
+    }
+}
+
 function searchNotes() {
-    const searchEl = document.getElementById("noteSearch");
-    if (!searchEl) return;
-    const search = searchEl.value.toLowerCase();
+    const search = document.getElementById("noteSearch").value.toLowerCase();
     const cards = document.querySelectorAll(".note-card");
 
     cards.forEach((card, index) => {
@@ -630,8 +519,8 @@ function searchNotes() {
         if (!note) return;
 
         const visible =
-            (note.title && note.title.toLowerCase().includes(search)) ||
-            (note.content && note.content.toLowerCase().includes(search));
+            note.title.toLowerCase().includes(search) ||
+            note.content.toLowerCase().includes(search);
 
         card.style.display = visible ? "block" : "none";
     });
@@ -646,6 +535,7 @@ function updateCharacterCount() {
     }
 }
 
+// FORMATTING CONTROLS
 function formatText(command, value = null) {
     document.execCommand(command, false, value);
     autoSaveNote();
@@ -667,17 +557,312 @@ function formatHighlightColor(color) {
     autoSaveNote();
 }
 
-// =========================================
-// CALENDAR
-// =========================================
+// EVENT LISTENERS FOR AUTO-SAVE & CHAR COUNT
+document.addEventListener("DOMContentLoaded", () => {
+    const noteTitleInput = document.getElementById("noteTitle");
+    const notesBoxInput = document.getElementById("notesBox");
+
+    if (noteTitleInput) {
+        noteTitleInput.addEventListener("input", autoSaveNote);
+    }
+
+    if (notesBoxInput) {
+        notesBoxInput.addEventListener("input", () => {
+            autoSaveNote();
+            updateCharacterCount();
+        });
+    }
+
+    renderNotes();
+
+    if (notes.length > 0) {
+        openNote(0);
+    }
+});
+
+// EXPOSE FUNCTIONS GLOBALLY
+window.createNote = createNote;
+window.openNote = openNote;
+window.autoSaveNote = autoSaveNote;
+window.deleteCurrentNote = deleteCurrentNote;
+window.togglePin = togglePin;
+window.searchNotes = searchNotes;
+window.formatText = formatText;
+window.formatFontFamily = formatFontFamily;
+window.formatTextColor = formatTextColor;
+window.formatHighlightColor = formatHighlightColor;
+// ===========================
+// AUTHENTICATION & SETTINGS
+// ===========================
+
+onAuthStateChanged(auth, (user) => {
+    const emailElement = document.getElementById("userEmail");
+    const nameElement = document.getElementById("userName");
+
+    if (user) {
+        if (emailElement) emailElement.textContent = user.email || "No email provided";
+        if (nameElement) {
+            const displayName = user.displayName || user.email.split("@")[0];
+            nameElement.textContent = displayName;
+        }
+    } else {
+        if (emailElement) emailElement.textContent = "Not signed in";
+        if (nameElement) nameElement.textContent = "Guest";
+    }
+});
+
+// LOG OUT
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+        try {
+            await signOut(auth);
+            window.location.href = "index.html";
+        } catch (error) {
+            alert("Couldn't log out.");
+        }
+    });
+}
+
+// TOGGLE PASSWORD INPUT FIELDS
+const togglePasswordFormBtn = document.getElementById("togglePasswordFormBtn");
+const passwordFormContainer = document.getElementById("passwordFormContainer");
+const toggleArrow = document.getElementById("toggleArrow");
+
+if (togglePasswordFormBtn && passwordFormContainer) {
+    togglePasswordFormBtn.addEventListener("click", () => {
+        const isHidden = passwordFormContainer.style.display === "none";
+        passwordFormContainer.style.display = isHidden ? "block" : "none";
+        if (toggleArrow) {
+            toggleArrow.textContent = isHidden ? "Ã¢ÂÂ" : "Ã¢ÂÂº";
+        }
+    });
+}
+
+const changePasswordBtn = document.getElementById("changePasswordBtn");
+if (changePasswordBtn) {
+    changePasswordBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+        const newPasswordInput = document.getElementById("newPasswordInput");
+        const confirmPasswordInput = document.getElementById("confirmPasswordInput");
+
+        const newPassword = newPasswordInput ? newPasswordInput.value : "";
+        const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : "";
+
+        if (!user) {
+            alert("Please sign in first.");
+            return;
+        }
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (!passwordRegex.test(newPassword)) {
+            alert(
+                "Ã°ÂÂÂ Password is too weak!\n\nYour password must include:\n" +
+                "Ã¢ÂÂ¢ At least 8 characters\n" +
+                "Ã¢ÂÂ¢ At least one uppercase letter (A-Z)\n" +
+                "Ã¢ÂÂ¢ At least one lowercase letter (a-z)\n" +
+                "Ã¢ÂÂ¢ At least one number (0-9)\n" +
+                "Ã¢ÂÂ¢ At least one special character (@, $, !, %, *, ?, &)"
+            );
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            alert("Ã¢ÂÂ Ã¯Â¸Â Passwords do not match. Please try typing them again.");
+            return;
+        }
+
+        try {
+            await updatePassword(user, newPassword);
+            alert("Ã°ÂÂÂ Password updated successfully!");
+            newPasswordInput.value = "";
+            confirmPasswordInput.value = "";
+        } catch (error) {
+            console.error(error);
+
+            if (error.code === "auth/requires-recent-login") {
+                const currentPassword = prompt("For security reasons, please enter your CURRENT password to confirm:");
+
+                if (!currentPassword) return;
+
+                try {
+                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                    await reauthenticateWithCredential(user, credential);
+                    await updatePassword(user, newPassword);
+                    alert("Ã°ÂÂÂ Password updated successfully!");
+                    newPasswordInput.value = "";
+                    confirmPasswordInput.value = "";
+                } catch (reauthError) {
+                    alert("Incorrect current password or re-authentication failed.");
+                    console.error(reauthError);
+                }
+            } else {
+                alert("Failed to update password: " + error.message);
+            }
+        }
+    });
+}
+
+// PASSWORD RESET EMAIL
+const resetPasswordBtn = document.getElementById("resetPasswordBtn");
+if (resetPasswordBtn) {
+    resetPasswordBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+
+        if (!user || !user.email) {
+            alert("Please sign in first.");
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, user.email);
+            alert("Ã°ÂÂÂ§ Password reset email sent!\n\nCheck your inbox (and spam folder if needed).");
+        } catch (error) {
+            alert("Couldn't send the password reset email. Please try again.");
+            console.error(error);
+        }
+    });
+}
+
+// DELETE ACCOUNT FOREVER
+const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+
+        if (!user) {
+            alert("Please sign in first.");
+            return;
+        }
+
+        const confirmDelete = confirm(
+            "Ã¢ÂÂ Ã¯Â¸Â ARE YOU SURE?\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            await deleteUser(user);
+            alert("Your account has been permanently deleted.");
+            window.location.href = "index.html";
+        } catch (error) {
+            console.error(error);
+
+            if (error.code === "auth/requires-recent-login") {
+                const currentPassword = prompt(
+                    "For security reasons, please enter your CURRENT password to finalize account deletion:"
+                );
+
+                if (!currentPassword) return;
+
+                try {
+                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                    await reauthenticateWithCredential(user, credential);
+                    await deleteUser(user);
+
+                    alert("Your account has been permanently deleted.");
+                    window.location.href = "index.html";
+                } catch (reauthError) {
+                    alert("Incorrect password. Account was not deleted.");
+                    console.error(reauthError);
+                }
+            } else {
+                alert("Failed to delete account: " + error.message);
+            }
+        }
+    });
+}
+
+// =========================
+// Ã¢ÂÂÃ¯Â¸Â NIMBUS CLOUD BUDDY
+// =========================
+
+const cloudMessages = [
+    "You're doing amazing! Ã°ÂÂÂ¸",
+    "One task at a time! Ã¢ÂÂÃ¯Â¸Â",
+    "Keep going, you've got this! Ã°ÂÂÂ",
+    "Don't forget to drink water! Ã°ÂÂÂ",
+    "I'm cheering for you! Ã°ÂÂÂ",
+    "Take a deep breath Ã°ÂÂÂ¿",
+    "Progress > Perfection Ã¢ÂÂ¨",
+    "Let's finish today's goals! Ã°ÂÂÂ·"
+];
+
+const cloud = document.getElementById("cloudFace");
+const speech = document.getElementById("cloudSpeech");
+
+function randomCloudMessage() {
+    if (!speech) return;
+    const random = Math.floor(Math.random() * cloudMessages.length);
+    speech.textContent = cloudMessages[random];
+}
+
+if (cloud) {
+    cloud.addEventListener("click", randomCloudMessage);
+}
+
+function celebrateWithNimbus() {
+    if (celebrating) return;
+    celebrating = true;
+
+    if (cloud) cloud.classList.add("happy");
+    if (speech) speech.textContent = "Ã°ÂÂÂ YOU DID IT!! All tasks completed! Ã°ÂÂÂ¸";
+
+    setTimeout(() => {
+        if (cloud) cloud.classList.remove("happy");
+        if (speech) speech.textContent = "You're doing amazing! Ã°ÂÂÂ¸";
+        celebrating = false;
+    }, 3500);
+}
+
+// ==========================
+// DAILY STREAK
+// ==========================
+
+let streak = Number(localStorage.getItem("streak")) || 0;
+let lastCompleted = localStorage.getItem("lastCompletedDate");
+
+function updateStreakDisplay() {
+    const streakText = document.getElementById("streakCount");
+    if (streakText) {
+        streakText.textContent = streak;
+    }
+}
+
+function completeToday() {
+    const today = new Date().toDateString();
+
+    if (lastCompleted === today) return;
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (lastCompleted === yesterday.toDateString()) {
+        streak++;
+    } else {
+        streak = 1;
+    }
+
+    lastCompleted = today;
+
+    localStorage.setItem("streak", streak);
+    localStorage.setItem("lastCompletedDate", today);
+
+    updateStreakDisplay();
+}
+
+// =========================
+// CALENDAR (ROBUST RENDER)
+// =========================
 
 let currentDate = new Date();
 let selectedCalendarDate = null;
 let calendarTasks = JSON.parse(localStorage.getItem("calendarTasks")) || {};
 
 function renderCalendar() {
-    const monthYear = document.getElementById("calendarMonthYear");
-    const grid = document.getElementById("calendarDays");
+    const monthYear = document.getElementById("monthYear");
+    const grid = document.getElementById("calendarGrid");
 
     if (!monthYear || !grid) return;
 
@@ -686,30 +871,46 @@ function renderCalendar() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
-
-    monthYear.textContent = `${monthNames[month]} ${year}`;
+    monthYear.textContent = currentDate.toLocaleString("default", {
+        month: "long",
+        year: "numeric"
+    });
 
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
+    // Empty cells before first day of month
     for (let i = 0; i < firstDay; i++) {
-        const emptyCell = document.createElement("div");
-        emptyCell.className = "calendar-day empty";
-        grid.appendChild(emptyCell);
+        const empty = document.createElement("div");
+        empty.className = "day empty";
+        grid.appendChild(empty);
     }
 
-    const today = new Date();
-
+    // Numbered days
     for (let day = 1; day <= daysInMonth; day++) {
         const cell = document.createElement("div");
-        cell.className = "calendar-day";
+        cell.className = "day";
+        cell.textContent = day;
 
-        const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const key = `${year}-${month}-${day}`;
 
+        cell.onclick = () => {
+            selectedCalendarDate = key;
+
+            const selectedDateEl = document.getElementById("selectedDate");
+            if (selectedDateEl) {
+                selectedDateEl.textContent = `${currentDate.toLocaleString("default", { month: "long" })} ${day}`;
+            }
+
+            renderCalendar();
+            renderCalendarTasks();
+        };
+
+        if (selectedCalendarDate === key) {
+            cell.classList.add("calendar-selected");
+        }
+
+        const today = new Date();
         if (
             day === today.getDate() &&
             month === today.getMonth() &&
@@ -718,33 +919,23 @@ function renderCalendar() {
             cell.classList.add("today");
         }
 
-        if (selectedCalendarDate === dateKey) {
-            cell.classList.add("selected");
+        // Render Category Dots if task exists
+        if (calendarTasks[key] && calendarTasks[key].length > 0) {
+            const dotsContainer = document.createElement("div");
+            dotsContainer.className = "day-dots";
+
+            calendarTasks[key].forEach(t => {
+                const categoryClass = typeof t === "object" ? (t.category || "work") : "work";
+                const dot = document.createElement("span");
+                dot.className = `dot ${categoryClass}`;
+                dotsContainer.appendChild(dot);
+            });
+
+            cell.appendChild(dotsContainer);
         }
 
-        cell.innerHTML = `<span class="day-number">${day}</span>`;
-
-        if (calendarTasks[dateKey] && calendarTasks[dateKey].length > 0) {
-            const dot = document.createElement("div");
-            dot.className = "task-dot";
-            cell.appendChild(dot);
-        }
-
-        cell.onclick = () => selectCalendarDate(dateKey);
         grid.appendChild(cell);
     }
-}
-
-function selectCalendarDate(dateKey) {
-    selectedCalendarDate = dateKey;
-
-    const display = document.getElementById("selectedDateDisplay");
-    if (display) {
-        display.textContent = `Tasks for ${dateKey}`;
-    }
-
-    renderCalendar();
-    renderCalendarTasks();
 }
 
 function renderCalendarTasks() {
@@ -753,28 +944,42 @@ function renderCalendarTasks() {
 
     list.innerHTML = "";
 
-    if (!selectedCalendarDate || !calendarTasks[selectedCalendarDate]) {
-        list.innerHTML = `<p style="color: #888; font-size: 14px;">No tasks for this day.</p>`;
-        return;
-    }
+    const tasksForDate = calendarTasks[selectedCalendarDate] || [];
 
-    calendarTasks[selectedCalendarDate].forEach((taskText, index) => {
-        const item = document.createElement("div");
-        item.className = "calendar-task-item";
-        item.innerHTML = `
+    tasksForDate.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.className = "calendar-event";
+
+        const taskText = typeof task === "object" ? task.text : task;
+
+        li.innerHTML = `
             <span>${taskText}</span>
-            <button onclick="deleteCalendarTask(${index})">❌</button>
+            <button onclick="deleteCalendarTask(${index})">Ã¢ÂÂ</button>
         `;
-        list.appendChild(item);
+        list.appendChild(li);
     });
 }
 
+function previousMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
+}
+
+function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar();
+}
+
 function addCalendarTask() {
-    const input = document.getElementById("calendarTaskInput");
-    if (!input || !selectedCalendarDate) {
-        alert("Please select a date on the calendar first!");
+    if (!selectedCalendarDate) {
+        alert("Select a date first!");
         return;
     }
+
+    const input = document.getElementById("calendarTaskInput");
+    const category = document.getElementById("eventCategory");
+
+    if (!input) return;
 
     const value = input.value.trim();
     if (!value) return;
@@ -783,7 +988,11 @@ function addCalendarTask() {
         calendarTasks[selectedCalendarDate] = [];
     }
 
-    calendarTasks[selectedCalendarDate].push(value);
+    calendarTasks[selectedCalendarDate].push({
+        text: value,
+        category: category ? category.value : "work"
+    });
+
     localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
 
     input.value = "";
@@ -799,3 +1008,53 @@ function deleteCalendarTask(index) {
     if (calendarTasks[selectedCalendarDate].length === 0) {
         delete calendarTasks[selectedCalendarDate];
     }
+
+    localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
+
+    renderCalendar();
+    renderCalendarTasks();
+}
+
+function goToToday() {
+    currentDate = new Date();
+    renderCalendar();
+}
+
+// EXPOSE GLOBAL FUNCTIONS FOR INLINE HTML ATTRIBUTES
+window.showPage = showPage;
+window.addTask = addTask;
+window.addReminder = addReminder;
+window.toggleTheme = toggleTheme;
+window.toggleTimer = toggleTimer;
+window.previousMonth = previousMonth;
+window.nextMonth = nextMonth;
+window.addCalendarTask = addCalendarTask;
+window.deleteCalendarTask = deleteCalendarTask;
+window.createNote = createNote;
+window.deleteCurrentNote = deleteCurrentNote;
+window.togglePin = togglePin;
+window.searchNotes = searchNotes;
+window.goToToday = goToToday;
+
+// ---------- INITIALIZATION ----------
+window.addEventListener("DOMContentLoaded", () => {
+    showPage("dashboard");
+
+    renderTasks();
+    renderReminders();
+    updateGreeting();
+    updateQuote();
+    updateTimerDisplay();
+    renderNotes();
+    updateStreakDisplay();
+    renderCalendar();
+});
+// ---------- FONT FAMILY SELECTION ----------
+function formatFontFamily(fontName) {
+    if (!fontName) return;
+    document.execCommand("fontName", false, fontName);
+    autoSaveNote();
+}
+
+// Ensure it's exposed to window for inline HTML onchange events
+window.formatFontFamily = formatFontFamily;
