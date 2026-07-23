@@ -1,11 +1,3 @@
-window.onerror = function(message, source, line, col, error) {
-    alert(
-        "ERROR:\n\n" +
-        message +
-        "\n\nLine: " + line +
-        "\nColumn: " + col
-    );
-};
 let hasCelebrated = false;
 let celebrating = false;
 
@@ -99,7 +91,7 @@ function renderTasks() {
         text.textContent = task.text;
 
         const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "ÃÂ¢ÃÂÃÂ";
+        deleteBtn.textContent = "✕";
         deleteBtn.className = "delete-btn";
 
         deleteBtn.onclick = function (e) {
@@ -130,7 +122,7 @@ function updateProgress() {
 
     if (tasks.length === 0) {
         fill.style.width = "0%";
-        progressText.textContent = "ÃÂ°ÃÂÃÂÃÂ¸ Add your first task!";
+        progressText.textContent = "🌸 Add your first task!";
         hasCelebrated = false;
         return;
     }
@@ -143,27 +135,27 @@ function updateProgress() {
     let message = "";
 
     if (percent === 100) {
-        message = "ÃÂ°ÃÂÃÂÃÂ All tasks completed!";
+        message = "🏆 All tasks completed!";
         if (!hasCelebrated) {
             celebrateWithNimbus();
             hasCelebrated = true;
         }
     } else if (percent >= 75) {
-        message = "ÃÂ°ÃÂÃÂÃÂ Almost there!";
+        message = "🌟 Almost there!";
         hasCelebrated = false;
     } else if (percent >= 50) {
-        message = "ÃÂ¢ÃÂÃÂ¨ Great progress!";
+        message = "✨ Great progress!";
         hasCelebrated = false;
     } else if (percent >= 25) {
-        message = "ÃÂ°ÃÂÃÂÃÂ¸ Keep going!";
+        message = "🌸 Keep going!";
         hasCelebrated = false;
     } else {
-        message = "ÃÂ¢ÃÂÃÂÃÂ¯ÃÂ¸ÃÂ You've got this!";
+        message = "☁️ You've got this!";
         hasCelebrated = false;
     }
 
     progressText.textContent =
-        `${message} ÃÂ¢ÃÂÃÂ¢ ${completed}/${tasks.length} tasks ÃÂ¢ÃÂÃÂ¢ ${percent}%`;
+        `${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
 }
 
 // ===========================
@@ -185,37 +177,41 @@ function toggleTheme() {
     }
 }
 
-// ---------- PAGE SWITCHING ----------
 function showPage(pageId) {
-    // 1. Hide all pages
     const pages = document.querySelectorAll(".page");
+    const buttons = document.querySelectorAll(".nav-btn");
+
     pages.forEach(page => {
+        page.style.display = "none";
         page.classList.remove("active");
-        page.style.display = "none"; // Ensures page hides completely
     });
 
-    // 2. Show the selected page
-    const selectedPage = document.getElementById(pageId);
-    if (selectedPage) {
-        selectedPage.classList.add("active");
-        selectedPage.style.display = "block"; // Shows selected page
-    }
-
-    // 3. Update active state on sidebar navigation buttons
-    const navButtons = document.querySelectorAll(".nav-btn");
-    navButtons.forEach(btn => {
+    buttons.forEach(btn => {
         btn.classList.remove("active");
     });
 
-    // Highlight active sidebar button
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.style.display = "block";
+        targetPage.classList.add("active");
+    }
+
     const activeBtn = document.querySelector(`.nav-btn[onclick*="${pageId}"]`);
     if (activeBtn) {
         activeBtn.classList.add("active");
     }
+
+    if (pageId === "calendar") {
+        renderCalendar();
+        renderCalendarTasks();
+    } else if (pageId === "dashboard") {
+        renderTasks();
+        renderReminders();
+    } else if (pageId === "notes") {
+        renderNotes();
+    }
 }
 
-// Expose to window so onclick="showPage('...') works in HTML
-window.showPage = showPage;
 // ===========================
 // REMINDERS
 // ===========================
@@ -259,7 +255,7 @@ function renderReminders() {
         text.textContent = reminder;
 
         const btn = document.createElement("button");
-        btn.textContent = "ÃÂÃÂ";
+        btn.textContent = "×";
         btn.className = "rem-delete";
 
         btn.onclick = () => deleteReminder(index);
@@ -282,11 +278,11 @@ function updateGreeting() {
     const hour = new Date().getHours();
 
     if (hour < 12) {
-        greeting.textContent = "Good Morning ÃÂ°ÃÂÃÂÃÂ·";
+        greeting.textContent = "Good Morning 🌷";
     } else if (hour < 17) {
-        greeting.textContent = "Good Afternoon ÃÂ¢ÃÂÃÂÃÂ¯ÃÂ¸ÃÂ";
+        greeting.textContent = "Good Afternoon ☀️";
     } else {
-        greeting.textContent = "Good Evening ÃÂ°ÃÂÃÂÃÂ";
+        greeting.textContent = "Good Evening 🌙";
     }
 }
 
@@ -308,6 +304,7 @@ function updateQuote() {
     const random = Math.floor(Math.random() * quotes.length);
     quote.textContent = `"${quotes[random]}"`;
 }
+
 // =========================================
 // NOTES V2 (WITH RICH TEXT & METADATA)
 // =========================================
@@ -325,7 +322,6 @@ function renderNotes() {
 
     list.innerHTML = "";
 
-    // Sort: Pinned notes first, then by last updated timestamp
     notes.sort((a, b) => {
         if (a.pinned && !b.pinned) return -1;
         if (!a.pinned && b.pinned) return 1;
@@ -340,7 +336,6 @@ function renderNotes() {
             card.classList.add("active");
         }
 
-        // Clean out HTML tags for the sidebar preview snippet
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = note.content || "";
         const cleanText = tempDiv.textContent || tempDiv.innerText || "Empty note";
@@ -349,7 +344,7 @@ function renderNotes() {
         const date = note.updated ? new Date(note.updated).toLocaleDateString() : "";
 
         card.innerHTML = `
-            <div class="note-title">${note.pinned ? "ÃÂ°ÃÂÃÂÃÂ " : ""}${note.title || "Untitled Note"}</div>
+            <div class="note-title">${note.pinned ? "📌 " : ""}${note.title || "Untitled Note"}</div>
             <div class="note-preview">${preview}...</div>
             <div class="note-date">${date}</div>
         `;
@@ -388,11 +383,11 @@ function openNote(index) {
         if (notes[index].pinned) {
             pinBtn.style.background = "#ffd56b";
             pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "ÃÂ°ÃÂÃÂÃÂ Pinned";
+            pinBtn.textContent = "📌 Pinned";
         } else {
             pinBtn.style.background = "#fff";
             pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "ÃÂ°ÃÂÃÂÃÂ Pin";
+            pinBtn.textContent = "📌 Pin";
         }
     }
 
@@ -413,18 +408,13 @@ function togglePin() {
         if (notes[currentNote].pinned) {
             pinBtn.style.background = "#ffd56b";
             pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "ÃÂ°ÃÂÃÂÃÂ Pinned";
+            pinBtn.textContent = "📌 Pinned";
         } else {
             pinBtn.style.background = "#fff";
             pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "ÃÂ°ÃÂÃÂÃÂ Pin";
+            pinBtn.textContent = "📌 Pin";
         }
     }
-}
-
-    updateLastEditedTime(notes[index].updated);
-    updateCharacterCount();
-    renderNotes();
 }
 
 function autoSaveNote() {
@@ -488,29 +478,10 @@ function deleteCurrentNote() {
     updateCharacterCount();
 }
 
-function togglePin() {
-    if (currentNote === -1 || !notes[currentNote]) return;
-
-    notes[currentNote].pinned = !notes[currentNote].pinned;
-    saveNotes();
-    renderNotes();
-
-    const pinBtn = document.getElementById("pinBtn");
-    if (pinBtn) {
-        if (notes[currentNote].pinned) {
-            pinBtn.style.background = "#ffd56b";
-            pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "ÃÂ°ÃÂÃÂÃÂ Pinned";
-        } else {
-            pinBtn.style.background = "#fff";
-            pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "ÃÂ°ÃÂÃÂÃÂ Pin";
-        }
-    }
-}
-
 function searchNotes() {
-    const search = document.getElementById("noteSearch").value.toLowerCase();
+    const searchEl = document.getElementById("noteSearch");
+    if (!searchEl) return;
+    const search = searchEl.value.toLowerCase();
     const cards = document.querySelectorAll(".note-card");
 
     cards.forEach((card, index) => {
@@ -556,40 +527,6 @@ function formatHighlightColor(color) {
     autoSaveNote();
 }
 
-// EVENT LISTENERS FOR AUTO-SAVE & CHAR COUNT
-document.addEventListener("DOMContentLoaded", () => {
-    const noteTitleInput = document.getElementById("noteTitle");
-    const notesBoxInput = document.getElementById("notesBox");
-
-    if (noteTitleInput) {
-        noteTitleInput.addEventListener("input", autoSaveNote);
-    }
-
-    if (notesBoxInput) {
-        notesBoxInput.addEventListener("input", () => {
-            autoSaveNote();
-            updateCharacterCount();
-        });
-    }
-
-    renderNotes();
-
-    if (notes.length > 0) {
-        openNote(0);
-    }
-});
-
-// EXPOSE FUNCTIONS GLOBALLY
-window.createNote = createNote;
-window.openNote = openNote;
-window.autoSaveNote = autoSaveNote;
-window.deleteCurrentNote = deleteCurrentNote;
-window.togglePin = togglePin;
-window.searchNotes = searchNotes;
-window.formatText = formatText;
-window.formatFontFamily = formatFontFamily;
-window.formatTextColor = formatTextColor;
-window.formatHighlightColor = formatHighlightColor;
 // ===========================
 // AUTHENTICATION & SETTINGS
 // ===========================
@@ -633,7 +570,7 @@ if (togglePasswordFormBtn && passwordFormContainer) {
         const isHidden = passwordFormContainer.style.display === "none";
         passwordFormContainer.style.display = isHidden ? "block" : "none";
         if (toggleArrow) {
-            toggleArrow.textContent = isHidden ? "ÃÂ¢ÃÂÃÂ" : "ÃÂ¢ÃÂÃÂº";
+            toggleArrow.textContent = isHidden ? "⌄" : "›";
         }
     });
 }
@@ -657,24 +594,24 @@ if (changePasswordBtn) {
 
         if (!passwordRegex.test(newPassword)) {
             alert(
-                "ÃÂ°ÃÂÃÂÃÂ Password is too weak!\n\nYour password must include:\n" +
-                "ÃÂ¢ÃÂÃÂ¢ At least 8 characters\n" +
-                "ÃÂ¢ÃÂÃÂ¢ At least one uppercase letter (A-Z)\n" +
-                "ÃÂ¢ÃÂÃÂ¢ At least one lowercase letter (a-z)\n" +
-                "ÃÂ¢ÃÂÃÂ¢ At least one number (0-9)\n" +
-                "ÃÂ¢ÃÂÃÂ¢ At least one special character (@, $, !, %, *, ?, &)"
+                "🔒 Password is too weak!\n\nYour password must include:\n" +
+                "• At least 8 characters\n" +
+                "• At least one uppercase letter (A-Z)\n" +
+                "• At least one lowercase letter (a-z)\n" +
+                "• At least one number (0-9)\n" +
+                "• At least one special character (@, $, !, %, *, ?, &)"
             );
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert("ÃÂ¢ÃÂÃÂ ÃÂ¯ÃÂ¸ÃÂ Passwords do not match. Please try typing them again.");
+            alert("⚠️ Passwords do not match. Please try typing them again.");
             return;
         }
 
         try {
             await updatePassword(user, newPassword);
-            alert("ÃÂ°ÃÂÃÂÃÂ Password updated successfully!");
+            alert("🎉 Password updated successfully!");
             newPasswordInput.value = "";
             confirmPasswordInput.value = "";
         } catch (error) {
@@ -689,7 +626,7 @@ if (changePasswordBtn) {
                     const credential = EmailAuthProvider.credential(user.email, currentPassword);
                     await reauthenticateWithCredential(user, credential);
                     await updatePassword(user, newPassword);
-                    alert("ÃÂ°ÃÂÃÂÃÂ Password updated successfully!");
+                    alert("🎉 Password updated successfully!");
                     newPasswordInput.value = "";
                     confirmPasswordInput.value = "";
                 } catch (reauthError) {
@@ -716,7 +653,7 @@ if (resetPasswordBtn) {
 
         try {
             await sendPasswordResetEmail(auth, user.email);
-            alert("ÃÂ°ÃÂÃÂÃÂ§ Password reset email sent!\n\nCheck your inbox (and spam folder if needed).");
+            alert("📧 Password reset email sent!\n\nCheck your inbox (and spam folder if needed).");
         } catch (error) {
             alert("Couldn't send the password reset email. Please try again.");
             console.error(error);
@@ -736,7 +673,7 @@ if (deleteAccountBtn) {
         }
 
         const confirmDelete = confirm(
-            "ÃÂ¢ÃÂÃÂ ÃÂ¯ÃÂ¸ÃÂ ARE YOU SURE?\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
+            "⚠️ ARE YOU SURE?\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
         );
 
         if (!confirmDelete) return;
@@ -774,18 +711,18 @@ if (deleteAccountBtn) {
 }
 
 // =========================
-// ÃÂ¢ÃÂÃÂÃÂ¯ÃÂ¸ÃÂ NIMBUS CLOUD BUDDY
+// ☁️ NIMBUS CLOUD BUDDY
 // =========================
 
 const cloudMessages = [
-    "You're doing amazing! ÃÂ°ÃÂÃÂÃÂ¸",
-    "One task at a time! ÃÂ¢ÃÂÃÂÃÂ¯ÃÂ¸ÃÂ",
-    "Keep going, you've got this! ÃÂ°ÃÂÃÂÃÂ",
-    "Don't forget to drink water! ÃÂ°ÃÂÃÂÃÂ",
-    "I'm cheering for you! ÃÂ°ÃÂÃÂÃÂ",
-    "Take a deep breath ÃÂ°ÃÂÃÂÃÂ¿",
-    "Progress > Perfection ÃÂ¢ÃÂÃÂ¨",
-    "Let's finish today's goals! ÃÂ°ÃÂÃÂÃÂ·"
+    "You're doing amazing! 🌸",
+    "One task at a time! ☁️",
+    "Keep going, you've got this! 💖",
+    "Don't forget to drink water! 💙",
+    "I'm cheering for you! 🎉",
+    "Take a deep breath 🌿",
+    "Progress > Perfection ✨",
+    "Let's finish today's goals! 🌷"
 ];
 
 const cloud = document.getElementById("cloudFace");
@@ -806,11 +743,11 @@ function celebrateWithNimbus() {
     celebrating = true;
 
     if (cloud) cloud.classList.add("happy");
-    if (speech) speech.textContent = "ÃÂ°ÃÂÃÂÃÂ YOU DID IT!! All tasks completed! ÃÂ°ÃÂÃÂÃÂ¸";
+    if (speech) speech.textContent = "🎉 YOU DID IT!! All tasks completed! 🌸";
 
     setTimeout(() => {
         if (cloud) cloud.classList.remove("happy");
-        if (speech) speech.textContent = "You're doing amazing! ÃÂ°ÃÂÃÂÃÂ¸";
+        if (speech) speech.textContent = "You're doing amazing! 🌸";
         celebrating = false;
     }, 3500);
 }
@@ -878,14 +815,12 @@ function renderCalendar() {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Empty cells before first day of month
     for (let i = 0; i < firstDay; i++) {
         const empty = document.createElement("div");
         empty.className = "day empty";
         grid.appendChild(empty);
     }
 
-    // Numbered days
     for (let day = 1; day <= daysInMonth; day++) {
         const cell = document.createElement("div");
         cell.className = "day";
@@ -918,7 +853,6 @@ function renderCalendar() {
             cell.classList.add("today");
         }
 
-        // Render Category Dots if task exists
         if (calendarTasks[key] && calendarTasks[key].length > 0) {
             const dotsContainer = document.createElement("div");
             dotsContainer.className = "day-dots";
@@ -953,7 +887,7 @@ function renderCalendarTasks() {
 
         li.innerHTML = `
             <span>${taskText}</span>
-            <button onclick="deleteCalendarTask(${index})">ÃÂ¢ÃÂÃÂ</button>
+            <button onclick="deleteCalendarTask(${index})">✕</button>
         `;
         list.appendChild(li);
     });
@@ -1033,6 +967,13 @@ window.deleteCurrentNote = deleteCurrentNote;
 window.togglePin = togglePin;
 window.searchNotes = searchNotes;
 window.goToToday = goToToday;
+window.createNote = createNote;
+window.openNote = openNote;
+window.autoSaveNote = autoSaveNote;
+window.formatText = formatText;
+window.formatFontFamily = formatFontFamily;
+window.formatTextColor = formatTextColor;
+window.formatHighlightColor = formatHighlightColor;
 
 // ---------- INITIALIZATION ----------
 window.addEventListener("DOMContentLoaded", () => {
@@ -1042,17 +983,25 @@ window.addEventListener("DOMContentLoaded", () => {
     renderReminders();
     updateGreeting();
     updateQuote();
-    updateTimerDisplay();
     renderNotes();
     updateStreakDisplay();
     renderCalendar();
-});
-// ---------- FONT FAMILY SELECTION ----------
-function formatFontFamily(fontName) {
-    if (!fontName) return;
-    document.execCommand("fontName", false, fontName);
-    autoSaveNote();
-}
 
-// Ensure it's exposed to window for inline HTML onchange events
-window.formatFontFamily = formatFontFamily;
+    const noteTitleInput = document.getElementById("noteTitle");
+    const notesBoxInput = document.getElementById("notesBox");
+
+    if (noteTitleInput) {
+        noteTitleInput.addEventListener("input", autoSaveNote);
+    }
+
+    if (notesBoxInput) {
+        notesBoxInput.addEventListener("input", () => {
+            autoSaveNote();
+            updateCharacterCount();
+        });
+    }
+
+    if (notes.length > 0) {
+        openNote(0);
+    }
+});
