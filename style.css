@@ -610,7 +610,7 @@ body {
   grid-column: 1 / -1;
   padding-top: 10px;
 }
-#notes {
+#notes.active {
   display: flex;
   flex-direction: column;
   gap: 15px;
