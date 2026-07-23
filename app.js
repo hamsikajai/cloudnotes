@@ -1025,7 +1025,6 @@ window.showPage = showPage;
 window.addTask = addTask;
 window.addReminder = addReminder;
 window.toggleTheme = toggleTheme;
-window.toggleTimer = toggleTimer;
 window.previousMonth = previousMonth;
 window.nextMonth = nextMonth;
 window.addCalendarTask = addCalendarTask;
