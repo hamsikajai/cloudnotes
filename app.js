@@ -1,4 +1,3 @@
-console.log("Top of app.js");
 let hasCelebrated = false;
 let celebrating = false;
 
@@ -1039,21 +1038,16 @@ window.goToToday = goToToday;
 
 // ---------- INITIALIZATION ----------
 window.addEventListener("DOMContentLoaded", () => {
-
-    console.log("DOM loaded");
-
     showPage("dashboard");
 
-    console.log("After showPage");
-
-    if (typeof renderTasks === "function") {
-        console.log("Rendering tasks");
-        renderTasks();
-    }
-
-    console.log("Still running");
-
-});
+    renderTasks();
+    renderReminders();
+    updateGreeting();
+    updateQuote();
+    updateTimerDisplay();
+    renderNotes();
+    updateStreakDisplay();
+    renderCalendar();
 });
 // ---------- FONT FAMILY SELECTION ----------
 function formatFontFamily(fontName) {
