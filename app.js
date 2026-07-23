@@ -185,46 +185,37 @@ function toggleTheme() {
     }
 }
 
+// ---------- PAGE SWITCHING ----------
 function showPage(pageId) {
+    // 1. Hide all pages
     const pages = document.querySelectorAll(".page");
-    const buttons = document.querySelectorAll(".nav-btn");
-
-    // Hide all pages and strip 'active' class so pages don't stack
     pages.forEach(page => {
-        page.style.display = "none";
         page.classList.remove("active");
+        page.style.display = "none"; // Ensures page hides completely
     });
 
-    buttons.forEach(btn => {
+    // 2. Show the selected page
+    const selectedPage = document.getElementById(pageId);
+    if (selectedPage) {
+        selectedPage.classList.add("active");
+        selectedPage.style.display = "block"; // Shows selected page
+    }
+
+    // 3. Update active state on sidebar navigation buttons
+    const navButtons = document.querySelectorAll(".nav-btn");
+    navButtons.forEach(btn => {
         btn.classList.remove("active");
     });
 
-    const targetPage = document.getElementById(pageId);
-    if (targetPage) {
-        targetPage.style.display = "block";
-        targetPage.classList.add("active");
-    }
-
-    const activeBtn = document.querySelector(
-        `[onclick="showPage('${pageId}')"]`
-    );
-
+    // Highlight active sidebar button
+    const activeBtn = document.querySelector(`.nav-btn[onclick*="${pageId}"]`);
     if (activeBtn) {
         activeBtn.classList.add("active");
     }
-
-    // Re-render components dynamically when opening a page
-    if (pageId === "calendar") {
-        renderCalendar();
-        renderCalendarTasks();
-    } else if (pageId === "dashboard") {
-        renderTasks();
-        renderReminders();
-    } else if (pageId === "notes") {
-        renderNotes();
-    }
 }
 
+// Expose to window so onclick="showPage('...') works in HTML
+window.showPage = showPage;
 // ===========================
 // REMINDERS
 // ===========================
