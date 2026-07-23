@@ -1,3 +1,11 @@
+window.onerror = function(message, source, line, col, error) {
+    alert(
+        "ERROR:\n\n" +
+        message +
+        "\n\nLine: " + line +
+        "\nColumn: " + col
+    );
+};
 let hasCelebrated = false;
 let celebrating = false;
 
