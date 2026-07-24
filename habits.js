@@ -665,3 +665,10 @@ document.addEventListener("DOMContentLoaded",()=>{
     renderHabits();
 
 });
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("addHabitBtn");
+
+    if (btn) {
+        btn.addEventListener("click", openHabitModal);
+    }
+});
