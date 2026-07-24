@@ -252,9 +252,119 @@
       </div>
 
       <div id="goals" class="page">
-        <h2>🎯 Goals</h2>
-        <p>Goal tracker coming soon 🌷</p>
-      </div>
+
+    <div class="page-header">
+        <h1>🎯 Goals</h1>
+
+        <button id="addGoalBtn" onclick="openGoalModal()">
+            + New Goal
+        </button>
+    </div>
+
+    <div class="goal-stats">
+
+        <div class="goal-stat-card">
+            <h3 id="goalTotal">0</h3>
+            <p>Total Goals</p>
+        </div>
+
+        <div class="goal-stat-card">
+            <h3 id="goalActive">0</h3>
+            <p>Active</p>
+        </div>
+
+        <div class="goal-stat-card">
+            <h3 id="goalCompleted">0</h3>
+            <p>Completed</p>
+        </div>
+
+        <div class="goal-stat-card">
+            <h3 id="goalOverdue">0</h3>
+            <p>Overdue</p>
+        </div>
+
+    </div>
+
+    <div class="goal-filters">
+
+        <button onclick="filterGoals('all')">All</button>
+
+        <button onclick="filterGoals('active')">Active</button>
+
+        <button onclick="filterGoals('completed')">Completed</button>
+
+        <button onclick="filterGoals('high')">High Priority</button>
+
+    </div>
+
+    <div id="goalContainer"></div>
+
+</div>
+
+
+
+<div class="modal" id="goalModal">
+
+    <div class="modal-content">
+
+        <span class="close" onclick="closeGoalModal()">&times;</span>
+
+        <h2>🎯 New Goal</h2>
+
+        <input
+            id="goalTitle"
+            type="text"
+            placeholder="Goal title"
+        >
+
+        <select id="goalCategory">
+
+            <option>📚 School</option>
+
+            <option>💪 Fitness</option>
+
+            <option>🌸 Personal</option>
+
+            <option>💰 Finance</option>
+
+            <option>🎨 Creative</option>
+
+        </select>
+
+        <select id="goalPriority">
+
+            <option>High</option>
+
+            <option>Medium</option>
+
+            <option>Low</option>
+
+        </select>
+
+        <input
+            id="goalDate"
+            type="date"
+        >
+
+        <textarea
+            id="goalMilestones"
+            placeholder="Milestones (one per line)"
+        ></textarea>
+
+        <textarea
+            id="goalNotes"
+            placeholder="Notes..."
+        ></textarea>
+
+        <button onclick="saveGoal()">
+
+            Save Goal
+
+        </button>
+
+    </div>
+
+</div>
 
       <div id="settingsPage" class="page">
         <h2 class="settings-title">⚙️ Settings</h2>
