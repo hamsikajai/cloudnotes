@@ -178,28 +178,27 @@ function toggleTheme() {
 }
 
 function showPage(pageId) {
-    const pages = document.querySelectorAll(".page");
-    const buttons = document.querySelectorAll(".nav-btn");
+  // Normalize settings page ID
+  if (pageId === 'settings') pageId = 'settingsPage';
 
-    pages.forEach(page => {
-        page.style.display = "none";
-        page.classList.remove("active");
-    });
+  const pages = document.querySelectorAll('.page');
+  const navBtns = document.querySelectorAll('.nav-btn');
 
-    buttons.forEach(btn => {
-        btn.classList.remove("active");
-    });
+  pages.forEach(page => {
+    page.classList.remove('active');
+    page.style.display = 'none';
+  });
 
-    const targetPage = document.getElementById(pageId);
-    if (targetPage) {
-        targetPage.style.display = "block";
-        targetPage.classList.add("active");
-    }
+  navBtns.forEach(btn => btn.classList.remove('active'));
 
-    const activeBtn = document.querySelector(`.nav-btn[onclick*="${pageId}"]`);
-    if (activeBtn) {
-        activeBtn.classList.add("active");
-    }
+  const activePage = document.getElementById(pageId);
+  if (activePage) {
+    activePage.classList.add('active');
+    activePage.style.display = 'block';
+  }
+}
+
+window.showPage = showPage;
 
     if (pageId === "calendar") {
         renderCalendar();
