@@ -1,92 +1,68 @@
 /* =====================================================
    Cloud Notes - habits.js
-   Part 1/3
    ===================================================== */
 
 let habits = JSON.parse(localStorage.getItem("cloudHabits")) || [];
-
 const todayKey = new Date().toISOString().split("T")[0];
-
-const habitsContainer = document.getElementById("habitsContainer");
-const modal = document.getElementById("habitModal");
-
-const addBtn = document.getElementById("addHabitBtn");
-const saveBtn = document.getElementById("saveHabit");
-const cancelBtn = document.getElementById("cancelHabit");
-
-const nameInput = document.getElementById("habitName");
-const emojiInput = document.getElementById("habitEmoji");
-const typeInput = document.getElementById("habitType");
-const goalInput = document.getElementById("habitGoal");
 
 let editingHabit = null;
 
-/* ---------------------------- */
-
-function saveHabits(){
-
-    localStorage.setItem(
-        "cloudHabits",
-        JSON.stringify(habits)
-    );
-
+function saveHabits() {
+    localStorage.setItem("cloudHabits", JSON.stringify(habits));
 }
 
-/* ---------------------------- */
+function createHabitObject() {
+    const nameInput = document.getElementById("habitName");
+    const emojiInput = document.getElementById("habitEmoji");
+    const typeInput = document.getElementById("habitType");
+    const goalInput = document.getElementById("habitGoal");
 
-function createHabitObject(){
-
-    return{
-
-        id:Date.now(),
-
-        name:nameInput.value.trim(),
-
-        emoji:emojiInput.value.trim() || "🌸",
-
-        type:typeInput.value,
-
-        goal:Number(goalInput.value)||1,
-
-        value:0,
-
-        completed:false,
-
-        streak:0,
-
-        bestStreak:0,
-
-        lastCompleted:"",
-
-        created:Date.now()
-
+    return {
+        id: Date.now(),
+        name: nameInput ? nameInput.value.trim() : "",
+        emoji: (emojiInput && emojiInput.value.trim()) || "🌸",
+        type: typeInput ? typeInput.value : "check",
+        goal: goalInput ? Number(goalInput.value) || 1 : 1,
+        value: 0,
+        completed: false,
+        streak: 0,
+        bestStreak: 0,
+        lastCompleted: "",
+        created: Date.now()
     };
-
 }
 
-/* ---------------------------- */
+function openHabitModal() {
+    editingHabit = null;
 
-function openHabitModal(){
+    const modal = document.getElementById("habitModal");
+    const nameInput = document.getElementById("habitName");
+    const emojiInput = document.getElementById("habitEmoji");
+    const typeInput = document.getElementById("habitType");
+    const goalInput = document.getElementById("habitGoal");
 
-    editingHabit=null;
+    if (nameInput) nameInput.value = "";
+    if (emojiInput) emojiInput.value = "";
+    if (goalInput) goalInput.value = 1;
+    if (typeInput) typeInput.value = "check";
 
-    nameInput.value="";
-    emojiInput.value="";
-    goalInput.value=1;
-    typeInput.value="check";
-
-    modal.classList.add("show");
-
+    if (modal) {
+        modal.style.display = "flex";
+        modal.classList.add("show");
+    }
 }
 
-/* ---------------------------- */
-
-function closeHabitModal(){
-
-    modal.classList.remove("show");
-
+function closeHabitModal() {
+    const modal = document.getElementById("habitModal");
+    if (modal) {
+        modal.style.display = "none";
+        modal.classList.remove("show");
+    }
 }
 
+// Make functions accessible globally for HTML onclick handlers
+window.openHabitModal = openHabitModal;
+window.closeHabitModal = closeHabitModal;
 /* ---------------------------- */
 
 addBtn.onclick=openHabitModal;
