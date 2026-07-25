@@ -282,29 +282,37 @@
         <div id="goalContainer"></div>
 
         <div class="modal" id="goalModal" style="display: none;">
-          <div class="modal-content">
-            <span class="close" onclick="closeGoalModal()">&times;</span>
-            <h2>🎯 New Goal</h2>
-            <input id="goalTitle" type="text" placeholder="Goal title">
-            <select id="goalCategory">
-              <option>📚 School</option>
-              <option>💪 Fitness</option>
-              <option>🌸 Personal</option>
-              <option>💰 Finance</option>
-              <option>🎨 Creative</option>
-            </select>
-            <select id="goalPriority">
-              <option>High</option>
-              <option>Medium</option>
-              <option>Low</option>
-            </select>
-            <input id="goalDate" type="date">
-            <textarea id="goalMilestones" placeholder="Milestones (one per line)"></textarea>
-            <textarea id="goalNotes" placeholder="Notes..."></textarea>
-            <button onclick="saveGoal()">Save Goal</button>
-          </div>
-        </div>
-      </div>
+  <div class="modal-content">
+    <span class="close" onclick="closeGoalModal()">&times;</span>
+    <h2>🎯 Create New Goal</h2>
+    
+    <input id="goalTitle" type="text" placeholder="Goal title (e.g., Read 10 Books)">
+
+    <div class="modal-form-row">
+      <select id="goalCategory">
+        <option value="" disabled selected>Category</option>
+        <option>📚 School</option>
+        <option>💪 Fitness</option>
+        <option>🌸 Personal</option>
+        <option>💰 Finance</option>
+        <option>🎨 Creative</option>
+      </select>
+
+      <select id="goalPriority">
+        <option value="" disabled selected>Priority</option>
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+      </select>
+    </div>
+
+    <input id="goalDate" type="date">
+    <textarea id="goalMilestones" placeholder="Milestones (one per line)..."></textarea>
+    <textarea id="goalNotes" placeholder="Notes & details..."></textarea>
+    
+    <button class="save-goal-btn" onclick="saveGoal()">✨ Save Goal</button>
+  </div>
+</div>
 
       <div id="settingsPage" class="page">
         <h2 class="settings-title">⚙️ Settings</h2>
