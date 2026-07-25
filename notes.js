@@ -1,12 +1,12 @@
 /* =====================================================
-   Cloud Notes - notes.js (Apple Notes Style)
+   Cloud Notes - notes.js
    ===================================================== */
 
 let notes = JSON.parse(localStorage.getItem("cloudNotes")) || [
     {
         id: Date.now(),
-        title: "Welcome to Notes 📝",
-        content: "Start typing your notes here! You can format text, pin important notes, and search through them quickly.",
+        title: "Welcome to Notes 🌸",
+        content: "Start typing here! You can format your text, pin important notes, and search through them.",
         pinned: false,
         updatedAt: new Date().toISOString()
     }
@@ -14,12 +14,10 @@ let notes = JSON.parse(localStorage.getItem("cloudNotes")) || [
 
 let activeNoteId = notes.length > 0 ? notes[0].id : null;
 
-/* ---------- STORAGE ---------- */
 function saveNotes() {
     localStorage.setItem("cloudNotes", JSON.stringify(notes));
 }
 
-/* ---------- RENDER NOTES LIST ---------- */
 function renderNotesList(filterText = "") {
     const listEl = document.getElementById("notesList");
     if (!listEl) return;
@@ -32,11 +30,10 @@ function renderNotesList(filterText = "") {
         n.content.toLowerCase().includes(query)
     );
 
-    // Sort: Pinned notes first, then by newest update
     filtered.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.updatedAt) - new Date(a.updatedAt));
 
     if (filtered.length === 0) {
-        listEl.innerHTML = `<div class="notes-empty-msg">No Notes Found</div>`;
+        listEl.innerHTML = `<div style="text-align:center; color:#999; margin-top:20px; font-size:13px;">No Notes Found</div>`;
         return;
     }
 
@@ -50,8 +47,8 @@ function renderNotesList(filterText = "") {
 
         item.innerHTML = `
             <div class="note-item-header">
-                <span class="note-item-title">${note.title || "New Note"}</span>
-                ${note.pinned ? '<span class="pin-icon">📌</span>' : ''}
+                <span class="note-item-title">${note.title || "Untitled Note"}</span>
+                ${note.pinned ? '📌' : ''}
             </div>
             <div class="note-item-meta">
                 <span class="note-item-date">${dateStr}</span>
@@ -63,7 +60,6 @@ function renderNotesList(filterText = "") {
     });
 }
 
-/* ---------- SELECT / OPEN NOTE ---------- */
 function selectNote(id) {
     activeNoteId = id;
     const note = notes.find(n => n.id === id);
@@ -82,7 +78,6 @@ function selectNote(id) {
     renderNotesList(document.getElementById("noteSearch")?.value || "");
 }
 
-/* ---------- CREATE NEW NOTE ---------- */
 function createNote() {
     const newNote = {
         id: Date.now(),
@@ -96,12 +91,10 @@ function createNote() {
     saveNotes();
     selectNote(newNote.id);
     
-    // Focus title input
     const titleEl = document.getElementById("noteTitle");
     if (titleEl) titleEl.focus();
 }
 
-/* ---------- AUTO-SAVE CURRENT NOTE ---------- */
 function autoSaveNote() {
     if (!activeNoteId) return;
 
@@ -122,14 +115,11 @@ function autoSaveNote() {
 
     if (statusEl) {
         statusEl.innerText = "Saved";
-        statusEl.style.opacity = "1";
-        setTimeout(() => { statusEl.style.opacity = "0.6"; }, 1000);
     }
 
     renderNotesList(document.getElementById("noteSearch")?.value || "");
 }
 
-/* ---------- DELETE CURRENT NOTE ---------- */
 function deleteCurrentNote() {
     if (!activeNoteId) return;
     if (!confirm("Are you sure you want to delete this note?")) return;
@@ -147,7 +137,6 @@ function deleteCurrentNote() {
     }
 }
 
-/* ---------- TOGGLE PIN ---------- */
 function togglePin() {
     if (!activeNoteId) return;
 
@@ -163,13 +152,11 @@ function togglePin() {
     renderNotesList(document.getElementById("noteSearch")?.value || "");
 }
 
-/* ---------- SEARCH NOTES ---------- */
 function searchNotes() {
     const searchVal = document.getElementById("noteSearch")?.value || "";
     renderNotesList(searchVal);
 }
 
-/* ---------- TEXT FORMATTING TOOLBAR ---------- */
 function formatText(command, value = null) {
     document.execCommand(command, false, value);
     autoSaveNote();
@@ -190,7 +177,6 @@ function formatHighlightColor(color) {
     autoSaveNote();
 }
 
-/* ---------- HELPER UTILITIES ---------- */
 function updateCharCount() {
     const boxEl = document.getElementById("notesBox");
     const countEl = document.getElementById("charCount");
@@ -221,10 +207,10 @@ function getSnippet(htmlContent) {
     const tmp = document.createElement("DIV");
     tmp.innerHTML = htmlContent;
     const text = tmp.textContent || tmp.innerText || "";
-    return text.trim().substring(0, 35) || "No additional text";
+    return text.trim().substring(0, 30) || "No additional text";
 }
 
-/* ---------- EXPOSE GLOBALS FOR INLINE HTML ATTRIBUTES ---------- */
+// Expose globals
 window.createNote = createNote;
 window.deleteCurrentNote = deleteCurrentNote;
 window.togglePin = togglePin;
@@ -235,7 +221,6 @@ window.formatFontFamily = formatFontFamily;
 window.formatTextColor = formatTextColor;
 window.formatHighlightColor = formatHighlightColor;
 
-/* ---------- INITIALIZE ON LOAD ---------- */
 document.addEventListener("DOMContentLoaded", () => {
     renderNotesList();
     if (activeNoteId) {
