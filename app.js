@@ -91,7 +91,7 @@ function renderTasks() {
         text.textContent = task.text;
 
         const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "✕";
+        deleteBtn.textContent = "â";
         deleteBtn.className = "delete-btn";
 
         deleteBtn.onclick = function (e) {
@@ -122,7 +122,7 @@ function updateProgress() {
 
     if (tasks.length === 0) {
         fill.style.width = "0%";
-        progressText.textContent = "🌸 Add your first task!";
+        progressText.textContent = "ð¸ Add your first task!";
         hasCelebrated = false;
         return;
     }
@@ -135,27 +135,27 @@ function updateProgress() {
     let message = "";
 
     if (percent === 100) {
-        message = "🏆 All tasks completed!";
+        message = "ð All tasks completed!";
         if (!hasCelebrated) {
             celebrateWithNimbus();
             hasCelebrated = true;
         }
     } else if (percent >= 75) {
-        message = "🌟 Almost there!";
+        message = "ð Almost there!";
         hasCelebrated = false;
     } else if (percent >= 50) {
-        message = "✨ Great progress!";
+        message = "â¨ Great progress!";
         hasCelebrated = false;
     } else if (percent >= 25) {
-        message = "🌸 Keep going!";
+        message = "ð¸ Keep going!";
         hasCelebrated = false;
     } else {
-        message = "☁️ You've got this!";
+        message = "âï¸ You've got this!";
         hasCelebrated = false;
     }
 
     progressText.textContent =
-        `${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
+        `${message} â¢ ${completed}/${tasks.length} tasks â¢ ${percent}%`;
 }
 
 // ===========================
@@ -178,27 +178,28 @@ function toggleTheme() {
 }
 
 function showPage(pageId) {
-  // Normalize settings page ID
-  if (pageId === 'settings') pageId = 'settingsPage';
+    const pages = document.querySelectorAll(".page");
+    const buttons = document.querySelectorAll(".nav-btn");
 
-  const pages = document.querySelectorAll('.page');
-  const navBtns = document.querySelectorAll('.nav-btn');
+    pages.forEach(page => {
+        page.style.display = "none";
+        page.classList.remove("active");
+    });
 
-  pages.forEach(page => {
-    page.classList.remove('active');
-    page.style.display = 'none';
-  });
+    buttons.forEach(btn => {
+        btn.classList.remove("active");
+    });
 
-  navBtns.forEach(btn => btn.classList.remove('active'));
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.style.display = "block";
+        targetPage.classList.add("active");
+    }
 
-  const activePage = document.getElementById(pageId);
-  if (activePage) {
-    activePage.classList.add('active');
-    activePage.style.display = 'block';
-  }
-}
-
-window.showPage = showPage;
+    const activeBtn = document.querySelector(`.nav-btn[onclick*="${pageId}"]`);
+    if (activeBtn) {
+        activeBtn.classList.add("active");
+    }
 
     if (pageId === "calendar") {
         renderCalendar();
@@ -254,7 +255,7 @@ function renderReminders() {
         text.textContent = reminder;
 
         const btn = document.createElement("button");
-        btn.textContent = "×";
+        btn.textContent = "Ã";
         btn.className = "rem-delete";
 
         btn.onclick = () => deleteReminder(index);
@@ -277,11 +278,11 @@ function updateGreeting() {
     const hour = new Date().getHours();
 
     if (hour < 12) {
-        greeting.textContent = "Good Morning 🌷";
+        greeting.textContent = "Good Morning ð·";
     } else if (hour < 17) {
-        greeting.textContent = "Good Afternoon ☀️";
+        greeting.textContent = "Good Afternoon âï¸";
     } else {
-        greeting.textContent = "Good Evening 🌙";
+        greeting.textContent = "Good Evening ð";
     }
 }
 
@@ -302,6 +303,228 @@ function updateQuote() {
 
     const random = Math.floor(Math.random() * quotes.length);
     quote.textContent = `"${quotes[random]}"`;
+}
+
+// =========================================
+// NOTES V2 (WITH RICH TEXT & METADATA)
+// =========================================
+
+let notes = JSON.parse(localStorage.getItem("cloudNotes")) || [];
+let currentNote = -1;
+
+function saveNotes() {
+    localStorage.setItem("cloudNotes", JSON.stringify(notes));
+}
+
+function renderNotes() {
+    const list = document.getElementById("notesList");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    notes.sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return (b.updated || 0) - (a.updated || 0);
+    });
+
+    notes.forEach((note, index) => {
+        const card = document.createElement("div");
+        card.className = "note-card";
+
+        if (index === currentNote) {
+            card.classList.add("active");
+        }
+
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = note.content || "";
+        const cleanText = tempDiv.textContent || tempDiv.innerText || "Empty note";
+        const preview = cleanText.substring(0, 40);
+
+        const date = note.updated ? new Date(note.updated).toLocaleDateString() : "";
+
+        card.innerHTML = `
+            <div class="note-title">${note.pinned ? "ð " : ""}${note.title || "Untitled Note"}</div>
+            <div class="note-preview">${preview}...</div>
+            <div class="note-date">${date}</div>
+        `;
+
+        card.onclick = () => openNote(index);
+        list.appendChild(card);
+    });
+}
+
+function createNote() {
+    notes.unshift({
+        title: "Untitled Note",
+        content: "",
+        pinned: false,
+        updated: Date.now()
+    });
+
+    currentNote = 0;
+    saveNotes();
+    renderNotes();
+    openNote(0);
+}
+
+function openNote(index) {
+    if (!notes[index]) return;
+    currentNote = index;
+
+    const titleEl = document.getElementById("noteTitle");
+    const boxEl = document.getElementById("notesBox");
+    const pinBtn = document.getElementById("pinBtn");
+
+    if (titleEl) titleEl.value = notes[index].title || "";
+    if (boxEl) boxEl.innerHTML = notes[index].content || "";
+
+    if (pinBtn) {
+        if (notes[index].pinned) {
+            pinBtn.style.background = "#ffd56b";
+            pinBtn.style.borderColor = "#f7c038";
+            pinBtn.textContent = "ð Pinned";
+        } else {
+            pinBtn.style.background = "#fff";
+            pinBtn.style.borderColor = "#ddd";
+            pinBtn.textContent = "ð Pin";
+        }
+    }
+
+    updateLastEditedTime(notes[index].updated);
+    updateCharacterCount();
+    renderNotes();
+}
+
+function togglePin() {
+    if (currentNote === -1 || !notes[currentNote]) return;
+
+    notes[currentNote].pinned = !notes[currentNote].pinned;
+    saveNotes();
+    renderNotes();
+
+    const pinBtn = document.getElementById("pinBtn");
+    if (pinBtn) {
+        if (notes[currentNote].pinned) {
+            pinBtn.style.background = "#ffd56b";
+            pinBtn.style.borderColor = "#f7c038";
+            pinBtn.textContent = "ð Pinned";
+        } else {
+            pinBtn.style.background = "#fff";
+            pinBtn.style.borderColor = "#ddd";
+            pinBtn.textContent = "ð Pin";
+        }
+    }
+}
+
+function autoSaveNote() {
+    if (currentNote === -1 || !notes[currentNote]) return;
+
+    const titleEl = document.getElementById("noteTitle");
+    const boxEl = document.getElementById("notesBox");
+
+    notes[currentNote].title = titleEl ? (titleEl.value || "Untitled Note") : "Untitled Note";
+    notes[currentNote].content = boxEl ? boxEl.innerHTML : "";
+    notes[currentNote].updated = Date.now();
+
+    saveNotes();
+    renderNotes();
+    updateCharacterCount();
+    updateLastEditedTime(notes[currentNote].updated);
+    showSavingStatus();
+}
+
+let saveTimeout;
+function showSavingStatus() {
+    const statusEl = document.getElementById("saveStatus");
+    if (!statusEl) return;
+
+    statusEl.textContent = "Saving...";
+    statusEl.style.color = "#ffa500";
+
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        statusEl.textContent = "Saved";
+        statusEl.style.color = "#6bc26b";
+    }, 500);
+}
+
+function updateLastEditedTime(timestamp) {
+    const lastEditedEl = document.getElementById("lastEdited");
+    if (!lastEditedEl || !timestamp) return;
+
+    const date = new Date(timestamp);
+    const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateString = date.toLocaleDateString();
+
+    lastEditedEl.textContent = `Last edited: ${dateString} at ${timeString}`;
+}
+
+function deleteCurrentNote() {
+    if (currentNote === -1) return;
+    if (!confirm("Delete this note?")) return;
+
+    notes.splice(currentNote, 1);
+    saveNotes();
+    currentNote = -1;
+
+    const titleEl = document.getElementById("noteTitle");
+    const boxEl = document.getElementById("notesBox");
+
+    if (titleEl) titleEl.value = "";
+    if (boxEl) boxEl.innerHTML = "";
+
+    renderNotes();
+    updateCharacterCount();
+}
+
+function searchNotes() {
+    const searchEl = document.getElementById("noteSearch");
+    if (!searchEl) return;
+    const search = searchEl.value.toLowerCase();
+    const cards = document.querySelectorAll(".note-card");
+
+    cards.forEach((card, index) => {
+        const note = notes[index];
+        if (!note) return;
+
+        const visible =
+            note.title.toLowerCase().includes(search) ||
+            note.content.toLowerCase().includes(search);
+
+        card.style.display = visible ? "block" : "none";
+    });
+}
+
+function updateCharacterCount() {
+    const boxEl = document.getElementById("notesBox");
+    const countEl = document.getElementById("charCount");
+
+    if (boxEl && countEl) {
+        countEl.textContent = `${boxEl.innerText.trim().length} characters`;
+    }
+}
+
+// FORMATTING CONTROLS
+function formatText(command, value = null) {
+    document.execCommand(command, false, value);
+    autoSaveNote();
+}
+
+function formatFontFamily(fontName) {
+    if (!fontName) return;
+    document.execCommand("fontName", false, fontName);
+    autoSaveNote();
+}
+
+function formatTextColor(color) {
+    document.execCommand("foreColor", false, color);
+    autoSaveNote();
+}
+
+function formatHighlightColor(color) {
+    document.execCommand("hiliteColor", false, color);
+    autoSaveNote();
 }
 
 // ===========================
@@ -347,7 +570,7 @@ if (togglePasswordFormBtn && passwordFormContainer) {
         const isHidden = passwordFormContainer.style.display === "none";
         passwordFormContainer.style.display = isHidden ? "block" : "none";
         if (toggleArrow) {
-            toggleArrow.textContent = isHidden ? "⌄" : "›";
+            toggleArrow.textContent = isHidden ? "â" : "âº";
         }
     });
 }
@@ -371,24 +594,24 @@ if (changePasswordBtn) {
 
         if (!passwordRegex.test(newPassword)) {
             alert(
-                "🔒 Password is too weak!\n\nYour password must include:\n" +
-                "• At least 8 characters\n" +
-                "• At least one uppercase letter (A-Z)\n" +
-                "• At least one lowercase letter (a-z)\n" +
-                "• At least one number (0-9)\n" +
-                "• At least one special character (@, $, !, %, *, ?, &)"
+                "ð Password is too weak!\n\nYour password must include:\n" +
+                "â¢ At least 8 characters\n" +
+                "â¢ At least one uppercase letter (A-Z)\n" +
+                "â¢ At least one lowercase letter (a-z)\n" +
+                "â¢ At least one number (0-9)\n" +
+                "â¢ At least one special character (@, $, !, %, *, ?, &)"
             );
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert("⚠️ Passwords do not match. Please try typing them again.");
+            alert("â ï¸ Passwords do not match. Please try typing them again.");
             return;
         }
 
         try {
             await updatePassword(user, newPassword);
-            alert("🎉 Password updated successfully!");
+            alert("ð Password updated successfully!");
             newPasswordInput.value = "";
             confirmPasswordInput.value = "";
         } catch (error) {
@@ -403,7 +626,7 @@ if (changePasswordBtn) {
                     const credential = EmailAuthProvider.credential(user.email, currentPassword);
                     await reauthenticateWithCredential(user, credential);
                     await updatePassword(user, newPassword);
-                    alert("🎉 Password updated successfully!");
+                    alert("ð Password updated successfully!");
                     newPasswordInput.value = "";
                     confirmPasswordInput.value = "";
                 } catch (reauthError) {
@@ -430,7 +653,7 @@ if (resetPasswordBtn) {
 
         try {
             await sendPasswordResetEmail(auth, user.email);
-            alert("📧 Password reset email sent!\n\nCheck your inbox (and spam folder if needed).");
+            alert("ð§ Password reset email sent!\n\nCheck your inbox (and spam folder if needed).");
         } catch (error) {
             alert("Couldn't send the password reset email. Please try again.");
             console.error(error);
@@ -450,7 +673,7 @@ if (deleteAccountBtn) {
         }
 
         const confirmDelete = confirm(
-            "⚠️ ARE YOU SURE?\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
+            "â ï¸ ARE YOU SURE?\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
         );
 
         if (!confirmDelete) return;
@@ -488,18 +711,18 @@ if (deleteAccountBtn) {
 }
 
 // =========================
-// ☁️ NIMBUS CLOUD BUDDY
+// âï¸ NIMBUS CLOUD BUDDY
 // =========================
 
 const cloudMessages = [
-    "You're doing amazing! 🌸",
-    "One task at a time! ☁️",
-    "Keep going, you've got this! 💖",
-    "Don't forget to drink water! 💙",
-    "I'm cheering for you! 🎉",
-    "Take a deep breath 🌿",
-    "Progress > Perfection ✨",
-    "Let's finish today's goals! 🌷"
+    "You're doing amazing! ð¸",
+    "One task at a time! âï¸",
+    "Keep going, you've got this! ð",
+    "Don't forget to drink water! ð",
+    "I'm cheering for you! ð",
+    "Take a deep breath ð¿",
+    "Progress > Perfection â¨",
+    "Let's finish today's goals! ð·"
 ];
 
 const cloud = document.getElementById("cloudFace");
@@ -520,11 +743,11 @@ function celebrateWithNimbus() {
     celebrating = true;
 
     if (cloud) cloud.classList.add("happy");
-    if (speech) speech.textContent = "🎉 YOU DID IT!! All tasks completed! 🌸";
+    if (speech) speech.textContent = "ð YOU DID IT!! All tasks completed! ð¸";
 
     setTimeout(() => {
         if (cloud) cloud.classList.remove("happy");
-        if (speech) speech.textContent = "You're doing amazing! 🌸";
+        if (speech) speech.textContent = "You're doing amazing! ð¸";
         celebrating = false;
     }, 3500);
 }
@@ -664,7 +887,7 @@ function renderCalendarTasks() {
 
         li.innerHTML = `
             <span>${taskText}</span>
-            <button onclick="deleteCalendarTask(${index})">✕</button>
+            <button onclick="deleteCalendarTask(${index})">â</button>
         `;
         list.appendChild(li);
     });
