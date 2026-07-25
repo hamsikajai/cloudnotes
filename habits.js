@@ -7,29 +7,8 @@ const todayKey = new Date().toISOString().split("T")[0];
 
 let editingHabit = null;
 
-function saveHabits() {
+function saveHabitsToStorage() {
     localStorage.setItem("cloudHabits", JSON.stringify(habits));
-}
-
-function createHabitObject() {
-    const nameInput = document.getElementById("habitName");
-    const emojiInput = document.getElementById("habitEmoji");
-    const typeInput = document.getElementById("habitType");
-    const goalInput = document.getElementById("habitGoal");
-
-    return {
-        id: Date.now(),
-        name: nameInput ? nameInput.value.trim() : "",
-        emoji: (emojiInput && emojiInput.value.trim()) || "🌸",
-        type: typeInput ? typeInput.value : "check",
-        goal: goalInput ? Number(goalInput.value) || 1 : 1,
-        value: 0,
-        completed: false,
-        streak: 0,
-        bestStreak: 0,
-        lastCompleted: "",
-        created: Date.now()
-    };
 }
 
 function openHabitModal() {
@@ -60,591 +39,193 @@ function closeHabitModal() {
     }
 }
 
-// Make functions accessible globally for HTML onclick handlers
-window.openHabitModal = openHabitModal;
-window.closeHabitModal = closeHabitModal;
-/* ---------------------------- */
+function submitHabit() {
+    const nameInput = document.getElementById("habitName");
+    const emojiInput = document.getElementById("habitEmoji");
+    const typeInput = document.getElementById("habitType");
+    const goalInput = document.getElementById("habitGoal");
 
-addBtn.onclick=openHabitModal;
-
-cancelBtn.onclick=closeHabitModal;
-
-/* ---------------------------- */
-
-saveBtn.onclick=function(){
-
-    if(nameInput.value.trim()===""){
-
-        alert("Give your habit a name 🌸");
-
+    const name = nameInput ? nameInput.value.trim() : "";
+    if (!name) {
+        alert("Please enter a habit name!");
         return;
-
     }
 
-    if(editingHabit===null){
+    const emoji = (emojiInput && emojiInput.value.trim()) ? emojiInput.value.trim() : "🌸";
+    const type = typeInput ? typeInput.value : "check";
+    const goal = goalInput ? (Number(goalInput.value) || 1) : 1;
 
-        habits.push(
-            createHabitObject()
-        );
-
-    }else{
-
-        habits[editingHabit].name=nameInput.value.trim();
-
-        habits[editingHabit].emoji=emojiInput.value.trim();
-
-        habits[editingHabit].goal=
-        Number(goalInput.value);
-
-        habits[editingHabit].type=
-        typeInput.value;
-
+    if (editingHabit !== null) {
+        // Edit existing habit
+        habits[editingHabit].name = name;
+        habits[editingHabit].emoji = emoji;
+        habits[editingHabit].type = type;
+        habits[editingHabit].goal = goal;
+    } else {
+        // Create new habit
+        const newHabit = {
+            id: Date.now(),
+            name: name,
+            emoji: emoji,
+            type: type,
+            goal: goal,
+            value: 0,
+            completed: false,
+            streak: 0,
+            bestStreak: 0,
+            lastCompleted: "",
+            created: Date.now()
+        };
+        habits.push(newHabit);
     }
 
-    saveHabits();
-
-    closeHabitModal();
-
+    saveHabitsToStorage();
     renderHabits();
-
-};
-
-/* ================================================= */
-
-function renderHabits(){
-
-    if(!habitsContainer)return;
-
-    habitsContainer.innerHTML="";
-
-    resetIfNeeded();
-
-    habits.forEach((habit,index)=>{
-
-        const card=document.createElement("div");
-
-        card.className="habit-card";
-
-        card.innerHTML=`
-
-        <div class="habit-header">
-
-            <div>
-
-                <div class="habit-title">
-
-                ${habit.emoji}
-                ${habit.name}
-
-                </div>
-
-                <small>
-
-                Best 🔥 ${habit.bestStreak}
-
-                </small>
-
-            </div>
-
-            <div class="habit-streak">
-
-                🔥 ${habit.streak}
-
-            </div>
-
-        </div>
-
-        <div id="habitContent${habit.id}">
-
-        </div>
-
-        <div class="habit-controls">
-
-            <button
-                class="habit-btn complete-btn"
-                onclick="completeHabit(${index})">
-
-                Complete
-
-            </button>
-
-            <button
-                class="habit-btn"
-                onclick="editHabit(${index})">
-
-                ✏ Edit
-
-            </button>
-
-            <button
-                class="habit-btn delete-btn"
-                onclick="deleteHabit(${index})">
-
-                🗑 Delete
-
-            </button>
-
-        </div>
-
-        `;
-
-        habitsContainer.appendChild(card);
-
-        renderHabitType(habit);
-
-    });
-
-    updateOverallProgress();
-
+    closeHabitModal();
 }
-/* =====================================================
-   Part 2/3
-   ===================================================== */
 
-function renderHabitType(habit){
-
-    const container =
-    document.getElementById(`habitContent${habit.id}`);
-
-    if(!container) return;
+function renderHabits() {
+    const container = document.getElementById("habitsContainer");
+    if (!container) return;
 
     container.innerHTML = "";
 
-    /* ---------- CHECKBOX ---------- */
+    if (habits.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:#888; margin-top:20px;">No habits added yet! Click <strong>+ New Habit</strong> to create one. 🌸</p>`;
+        updateOverallProgress();
+        return;
+    }
 
-    if(habit.type==="check"){
+    habits.forEach((habit, index) => {
+        const card = document.createElement("div");
+        card.className = "habit-card" + (habit.completed ? " completed" : "");
 
-        container.innerHTML=`
-
-        <div class="habit-progress">
-
-            <div class="progress-bar">
-
-                <div
-                    class="progress-fill"
-                    style="width:${habit.completed?100:0}%">
-
+        let actionHTML = "";
+        if (habit.type === "check") {
+            actionHTML = `<button onclick="completeHabit(${index})" class="habit-check-btn">${habit.completed ? '✅ Done' : '⭕ Mark Done'}</button>`;
+        } else {
+            actionHTML = `
+                <div class="habit-counter">
+                    <button onclick="changeCounter(${index}, -1)">-</button>
+                    <span>${habit.value} / ${habit.goal}</span>
+                    <button onclick="changeCounter(${index}, 1)">+</button>
                 </div>
-
-            </div>
-
-        </div>
-
-        `;
-
-    }
-
-    /* ---------- COUNTER ---------- */
-
-    else if(habit.type==="counter"){
-
-        const percent=
-        Math.min(
-            habit.value/habit.goal*100,
-            100
-        );
-
-        container.innerHTML=`
-
-        <div class="counter">
-
-            <button
-            onclick="changeCounter(${habit.id},-1)">
-            −
-            </button>
-
-            <strong>
-
-            ${habit.value} / ${habit.goal}
-
-            </strong>
-
-            <button
-            onclick="changeCounter(${habit.id},1)">
-            +
-            </button>
-
-        </div>
-
-        <div class="habit-progress">
-
-            <div class="progress-bar">
-
-                <div
-                class="progress-fill"
-                style="width:${percent}%">
-
-                </div>
-
-            </div>
-
-        </div>
-
-        `;
-
-    }
-
-    /* ---------- TIMER ---------- */
-
-    else if(habit.type==="timer"){
-
-        const percent=
-        Math.min(
-            habit.value/habit.goal*100,
-            100
-        );
-
-        container.innerHTML=`
-
-        <strong>
-
-        ${habit.value} / ${habit.goal} min
-
-        </strong>
-
-        <div class="counter">
-
-            <button
-            onclick="changeCounter(${habit.id},-5)">
-            -5
-            </button>
-
-            <button
-            onclick="changeCounter(${habit.id},5)">
-            +5
-            </button>
-
-        </div>
-
-        <div class="habit-progress">
-
-            <div class="progress-bar">
-
-                <div
-                class="progress-fill"
-                style="width:${percent}%">
-
-                </div>
-
-            </div>
-
-        </div>
-
-        `;
-
-    }
-
-    /* ---------- NUMBER ---------- */
-
-    else{
-
-        const percent=
-        Math.min(
-            habit.value/habit.goal*100,
-            100
-        );
-
-        container.innerHTML=`
-
-        <strong>
-
-        ${habit.value} / ${habit.goal}
-
-        </strong>
-
-        <div class="counter">
-
-            <button
-            onclick="changeCounter(${habit.id},-1)">
-            −
-            </button>
-
-            <button
-            onclick="changeCounter(${habit.id},1)">
-            +
-            </button>
-
-        </div>
-
-        <div class="habit-progress">
-
-            <div class="progress-bar">
-
-                <div
-                class="progress-fill"
-                style="width:${percent}%">
-
-                </div>
-
-            </div>
-
-        </div>
-
-        `;
-
-    }
-
-}
-
-/* ========================================== */
-
-function completeHabit(index){
-
-    const habit=habits[index];
-
-    if(habit.type==="check"){
-
-        habit.completed=!habit.completed;
-
-    }
-
-    if(habit.completed){
-
-        if(habit.lastCompleted!==todayKey){
-
-            habit.streak++;
-
-            habit.bestStreak=
-            Math.max(
-                habit.bestStreak,
-                habit.streak
-            );
-
-            habit.lastCompleted=todayKey;
-
+            `;
         }
 
-    }
+        card.innerHTML = `
+            <div class="habit-info">
+                <span class="habit-emoji">${habit.emoji}</span>
+                <div>
+                    <h4>${habit.name}</h4>
+                    <span class="habit-streak">🔥 ${habit.streak} day streak</span>
+                </div>
+            </div>
+            <div class="habit-actions">
+                ${actionHTML}
+                <button onclick="editHabit(${index})" class="icon-btn">✏️</button>
+                <button onclick="deleteHabit(${index})" class="icon-btn">🗑️</button>
+            </div>
+        `;
 
-    saveHabits();
+        container.appendChild(card);
+    });
 
-    renderHabits();
-
+    updateOverallProgress();
 }
 
-/* ========================================== */
+function completeHabit(index) {
+    if (!habits[index]) return;
+    habits[index].completed = !habits[index].completed;
+    if (habits[index].completed) {
+        habits[index].streak += 1;
+    } else {
+        habits[index].streak = Math.max(0, habits[index].streak - 1);
+    }
+    saveHabitsToStorage();
+    renderHabits();
+}
 
-function changeCounter(id,amount){
-
-    const habit=
-    habits.find(h=>h.id===id);
-
-    if(!habit)return;
-
-    habit.value+=amount;
-
-    if(habit.value<0)
-        habit.value=0;
-
-    if(habit.value>=habit.goal){
-
-        habit.value=habit.goal;
-
-        if(habit.lastCompleted!==todayKey){
-
-            habit.completed=true;
-
-            habit.lastCompleted=todayKey;
-
-            habit.streak++;
-
-            habit.bestStreak=
-            Math.max(
-                habit.bestStreak,
-                habit.streak
-            );
-
+function changeCounter(index, delta) {
+    if (!habits[index]) return;
+    habits[index].value = Math.max(0, habits[index].value + delta);
+    if (habits[index].value >= habits[index].goal) {
+        if (!habits[index].completed) {
+            habits[index].completed = true;
+            habits[index].streak += 1;
         }
-
-    }else{
-
-        habit.completed=false;
-
+    } else {
+        if (habits[index].completed) {
+            habits[index].completed = false;
+            habits[index].streak = Math.max(0, habits[index].streak - 1);
+        }
     }
-
-    saveHabits();
-
+    saveHabitsToStorage();
     renderHabits();
-
 }
 
-/* ========================================== */
+function editHabit(index) {
+    const habit = habits[index];
+    if (!habit) return;
 
-function editHabit(index){
+    editingHabit = index;
 
-    editingHabit=index;
+    const modal = document.getElementById("habitModal");
+    const nameInput = document.getElementById("habitName");
+    const emojiInput = document.getElementById("habitEmoji");
+    const typeInput = document.getElementById("habitType");
+    const goalInput = document.getElementById("habitGoal");
 
-    const habit=habits[index];
+    if (nameInput) nameInput.value = habit.name;
+    if (emojiInput) emojiInput.value = habit.emoji;
+    if (typeInput) typeInput.value = habit.type;
+    if (goalInput) goalInput.value = habit.goal;
 
-    nameInput.value=habit.name;
-
-    emojiInput.value=habit.emoji;
-
-    goalInput.value=habit.goal;
-
-    typeInput.value=habit.type;
-
-    openHabitModal();
-
+    if (modal) {
+        modal.style.display = "flex";
+        modal.classList.add("show");
+    }
 }
 
-/* ========================================== */
-
-function deleteHabit(index){
-
-    if(!confirm("Delete this habit?"))
-        return;
-
-    habits.splice(index,1);
-
-    saveHabits();
-
+function deleteHabit(index) {
+    if (!confirm("Are you sure you want to delete this habit?")) return;
+    habits.splice(index, 1);
+    saveHabitsToStorage();
     renderHabits();
-
 }
-/* =====================================================
-   Part 3/3
-   ===================================================== */
 
-/* ---------- Overall Progress ---------- */
-
-function updateOverallProgress(){
-
-    const fill =
-    document.getElementById("overallProgressFill");
-
-    const text =
-    document.getElementById("overallProgressText");
-
-    const streak =
-    document.getElementById("overallStreak");
-
-    if(!fill || !text || !streak) return;
+function updateOverallProgress() {
+    const fill = document.getElementById("overallProgressFill");
+    const text = document.getElementById("overallProgressText");
+    const streakEl = document.getElementById("overallStreak");
 
     const total = habits.length;
+    const completed = habits.filter(h => h.completed).length;
 
-    let completed = 0;
-
-    habits.forEach(h=>{
-
-        if(h.completed)
-            completed++;
-
-    });
-
-    const percent =
-    total===0
-    ? 0
-    : Math.round((completed/total)*100);
-
-    fill.style.width = percent + "%";
-
-    text.textContent =
-    `${completed} / ${total} Habits`;
-
-    streak.textContent =
-    `${calculateOverallStreak()} Day Streak`;
-
-}
-
-/* ---------- Overall Streak ---------- */
-
-function calculateOverallStreak(){
-
-    if(habits.length===0)
-        return 0;
-
-    return Math.min(
-        ...habits.map(h=>h.streak)
-    );
-
-}
-
-/* ---------- Daily Reset ---------- */
-
-function resetIfNeeded(){
-
-    const lastReset =
-    localStorage.getItem("habitResetDate");
-
-    if(lastReset===todayKey)
-        return;
-
-    habits.forEach(h=>{
-
-        h.completed=false;
-
-        if(h.type!=="check")
-            h.value=0;
-
-    });
-
-    localStorage.setItem(
-        "habitResetDate",
-        todayKey
-    );
-
-    saveHabits();
-
-}
-
-/* ---------- Celebration ---------- */
-
-function celebrate(){
-
-    const total = habits.length;
-
-    const done =
-    habits.filter(h=>h.completed).length;
-
-    if(total===0) return;
-
-    if(done===total){
-
-        alert("🎉 Amazing!\nYou completed every habit today!");
-
+    if (fill) fill.style.width = total > 0 ? `${(completed / total) * 100}%` : "0%";
+    if (text) text.innerText = `${completed} / ${total} Habits`;
+    if (streakEl) {
+        const minStreak = total > 0 ? Math.min(...habits.map(h => h.streak)) : 0;
+        streakEl.innerText = `${minStreak} Day Streak`;
     }
-
 }
 
-/* ---------- Auto Celebration ---------- */
+// Expose functions globally for onclick attributes
+window.openHabitModal = openHabitModal;
+window.closeHabitModal = closeHabitModal;
+window.submitHabit = submitHabit;
+window.completeHabit = completeHabit;
+window.changeCounter = changeCounter;
+window.editHabit = editHabit;
+window.deleteHabit = deleteHabit;
 
-const oldUpdateOverallProgress =
-updateOverallProgress;
-
-updateOverallProgress=function(){
-
-    oldUpdateOverallProgress();
-
-    celebrate();
-
-}
-
-/* ---------- Make Buttons Work ---------- */
-
-window.completeHabit =
-completeHabit;
-
-window.changeCounter =
-changeCounter;
-
-window.editHabit =
-editHabit;
-
-window.deleteHabit =
-deleteHabit;
-
-/* ---------- Initialize ---------- */
-
-document.addEventListener("DOMContentLoaded",()=>{
-
-    renderHabits();
-
-});
+// Initialize event listeners when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById("addHabitBtn");
+    renderHabits();
 
-    if (btn) {
-        btn.addEventListener("click", openHabitModal);
-    }
+    const saveBtn = document.getElementById("saveHabit");
+    const cancelBtn = document.getElementById("cancelHabit");
+
+    if (saveBtn) saveBtn.addEventListener("click", submitHabit);
+    if (cancelBtn) cancelBtn.addEventListener("click", closeHabitModal);
 });
