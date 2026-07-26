@@ -91,7 +91,7 @@ function renderTasks() {
         text.textContent = task.text;
 
         const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "❌";
+        deleteBtn.textContent = "❌";
         deleteBtn.className = "delete-btn";
 
         deleteBtn.onclick = function (e) {
