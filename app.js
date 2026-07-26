@@ -18,9 +18,6 @@ import {
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-const input = document.getElementById("taskInput");
-const list = document.getElementById("taskList");
-
 // ---------- LOAD THEME ----------
 const savedTheme = localStorage.getItem("theme") || "pastel";
 document.body.setAttribute("data-theme", savedTheme);
