@@ -18,6 +18,9 @@ import {
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
+const input = document.getElementById("taskInput");
+const list = document.getElementById("taskList");
+
 // ---------- LOAD THEME ----------
 const savedTheme = localStorage.getItem("theme") || "pastel";
 document.body.setAttribute("data-theme", savedTheme);
@@ -170,7 +173,6 @@ function showPage(pageId) {
     const target = document.getElementById(pageId);
     if (target) target.classList.add("active");
 
-    // Update active state on sidebar button
     const activeBtn = Array.from(document.querySelectorAll(".nav-btn")).find(b => 
         b.getAttribute("onclick") && b.getAttribute("onclick").includes(pageId)
     );
@@ -178,15 +180,6 @@ function showPage(pageId) {
 
     if (pageId === "calendar") {
         renderCalendar();
-    }
-    if (pageId === "notes" && typeof window.renderNotesList === "function") {
-        window.renderNotesList();
-    }
-    if (pageId === "habits" && typeof window.renderHabits === "function") {
-        window.renderHabits();
-    }
-    if (pageId === "goals" && typeof window.renderGoals === "function") {
-        window.renderGoals();
     }
 }
 
