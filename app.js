@@ -18,9 +18,6 @@ import {
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-const input = document.getElementById("taskInput");
-const list = document.getElementById("taskList");
-
 // ---------- LOAD THEME ----------
 const savedTheme = localStorage.getItem("theme") || "pastel";
 document.body.setAttribute("data-theme", savedTheme);
@@ -58,54 +55,18 @@ function deleteTask(index) {
     const item = document.getElementById(`task-${index}`);
 
     if (item) {
-        item.classList.add("fade-out");
-    }
-
-    setTimeout(() => {
+        item.style.transform = "translateX(50px)";
+        item.style.opacity = "0";
+        setTimeout(() => {
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+        }, 200);
+    } else {
         tasks.splice(index, 1);
         saveTasks();
         renderTasks();
-    }, 200);
-}
-
-// ---------- RENDER TASKS ----------
-function renderTasks() {
-    const listEl = document.getElementById("taskList");
-    if (!listEl) return;
-    listEl.innerHTML = "";
-
-    tasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.id = `task-${index}`;
-
-        if (task.done) {
-            li.classList.add("done");
-        }
-
-        li.onclick = function (e) {
-            if (e.target.classList.contains("delete-btn")) return;
-            toggleTask(index);
-        };
-
-        const text = document.createElement("span");
-        text.textContent = task.text;
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "â";
-        deleteBtn.className = "delete-btn";
-
-        deleteBtn.onclick = function (e) {
-            e.stopPropagation();
-            deleteTask(index);
-        };
-
-        li.appendChild(text);
-        li.appendChild(deleteBtn);
-
-        listEl.appendChild(li);
-    });
-
-    updateProgress();
+    }
 }
 
 // ---------- SAVE TASKS ----------
@@ -113,127 +74,65 @@ function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-// ---------- PROGRESS BAR & CELEBRATION ----------
-function updateProgress() {
-    const fill = document.querySelector(".fill");
-    const progressText = document.getElementById("progressText");
+// ---------- RENDER TASKS ----------
+function renderTasks() {
+    const list = document.getElementById("taskList");
+    if (!list) return;
 
-    if (!fill || !progressText) return;
+    list.innerHTML = "";
 
-    if (tasks.length === 0) {
-        fill.style.width = "0%";
-        progressText.textContent = "ð¸ Add your first task!";
-        hasCelebrated = false;
-        return;
-    }
+    tasks.forEach((task, index) => {
+        const div = document.createElement("div");
+        div.id = `task-${index}`;
+        div.className = `task-item ${task.done ? "done" : ""}`;
 
+        div.innerHTML = `
+            <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTask(${index})">
+            <span>${task.text}</span>
+            <button onclick="deleteTask(${index})">✕</button>
+        `;
+
+        list.appendChild(div);
+    });
+
+    checkTasksCompletion();
+}
+
+// ---------- CHECK ALL TASKS COMPLETE ----------
+function checkTasksCompletion() {
+    const total = tasks.length;
     const completed = tasks.filter(t => t.done).length;
-    const percent = Math.round((completed / tasks.length) * 100);
 
-    fill.style.width = percent + "%";
-
-    let message = "";
-
-    if (percent === 100) {
-        message = "ð All tasks completed!";
-        if (!hasCelebrated) {
-            celebrateWithNimbus();
+    if (total > 0 && completed === total) {
+        if (!hasCelebrated && !celebrating) {
+            celebrationEffect();
             hasCelebrated = true;
         }
-    } else if (percent >= 75) {
-        message = "ð Almost there!";
-        hasCelebrated = false;
-    } else if (percent >= 50) {
-        message = "â¨ Great progress!";
-        hasCelebrated = false;
-    } else if (percent >= 25) {
-        message = "ð¸ Keep going!";
-        hasCelebrated = false;
     } else {
-        message = "âï¸ You've got this!";
         hasCelebrated = false;
     }
-
-    progressText.textContent =
-        `${message} â¢ ${completed}/${tasks.length} tasks â¢ ${percent}%`;
 }
 
-// ===========================
-// THEME SWITCHER & NAVIGATION
-// ===========================
-
-function toggleTheme() {
-    const current = document.body.getAttribute("data-theme");
-
-    if (current === "dark") {
-        document.body.setAttribute("data-theme", "pastel");
-        localStorage.setItem("theme", "pastel");
-    } else if (current === "pastel") {
-        document.body.setAttribute("data-theme", "lavender");
-        localStorage.setItem("theme", "lavender");
-    } else {
-        document.body.setAttribute("data-theme", "dark");
-        localStorage.setItem("theme", "dark");
-    }
-}
-
-function showPage(pageId) {
-    const pages = document.querySelectorAll(".page");
-    const buttons = document.querySelectorAll(".nav-btn");
-
-    pages.forEach(page => {
-        page.style.display = "none";
-        page.classList.remove("active");
-    });
-
-    buttons.forEach(btn => {
-        btn.classList.remove("active");
-    });
-
-    const targetPage = document.getElementById(pageId);
-    if (targetPage) {
-        targetPage.style.display = "block";
-        targetPage.classList.add("active");
-    }
-
-    const activeBtn = document.querySelector(`.nav-btn[onclick*="${pageId}"]`);
-    if (activeBtn) {
-        activeBtn.classList.add("active");
-    }
-
-    if (pageId === "calendar") {
-        renderCalendar();
-        renderCalendarTasks();
-    } else if (pageId === "dashboard") {
-        renderTasks();
-        renderReminders();
-    } else if (pageId === "notes") {
-        renderNotes();
-    }
-}
-
-// ===========================
-// REMINDERS
-// ===========================
-
+// ---------- REMINDERS LOGIC ----------
 let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
 
-function saveReminders() {
-    localStorage.setItem("reminders", JSON.stringify(reminders));
-}
-
 function addReminder() {
-    const input = document.getElementById("reminderInput");
-    if (!input) return;
-    const value = input.value.trim();
+    const textEl = document.getElementById("reminderText");
+    const timeEl = document.getElementById("reminderTime");
 
-    if (!value) return;
+    if (!textEl || !timeEl) return;
 
-    reminders.push(value);
-    input.value = "";
+    const text = textEl.value.trim();
+    const time = timeEl.value;
 
+    if (!text || !time) return;
+
+    reminders.push({ text, time });
     saveReminders();
     renderReminders();
+
+    textEl.value = "";
+    timeEl.value = "";
 }
 
 function deleteReminder(index) {
@@ -242,738 +141,434 @@ function deleteReminder(index) {
     renderReminders();
 }
 
+function saveReminders() {
+    localStorage.setItem("reminders", JSON.stringify(reminders));
+}
+
 function renderReminders() {
     const list = document.getElementById("reminderList");
     if (!list) return;
 
     list.innerHTML = "";
 
-    reminders.forEach((reminder, index) => {
-        const li = document.createElement("li");
-
-        const text = document.createElement("span");
-        text.textContent = reminder;
-
-        const btn = document.createElement("button");
-        btn.textContent = "Ã";
-        btn.className = "rem-delete";
-
-        btn.onclick = () => deleteReminder(index);
-
-        li.appendChild(text);
-        li.appendChild(btn);
-
-        list.appendChild(li);
+    reminders.forEach((r, i) => {
+        const div = document.createElement("div");
+        div.className = "task-item";
+        div.innerHTML = `
+            <span>⏰ ${r.text} (${r.time})</span>
+            <button onclick="deleteReminder(${i})">✕</button>
+        `;
+        list.appendChild(div);
     });
 }
 
-// ===========================
-// GREETING & QUOTES
-// ===========================
+// ---------- PAGE SWITCHING ----------
+function showPage(pageId) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
 
+    const target = document.getElementById(pageId);
+    if (target) target.classList.add("active");
+
+    // Update active state on sidebar button
+    const activeBtn = Array.from(document.querySelectorAll(".nav-btn")).find(b => 
+        b.getAttribute("onclick") && b.getAttribute("onclick").includes(pageId)
+    );
+    if (activeBtn) activeBtn.classList.add("active");
+
+    if (pageId === "calendar") {
+        renderCalendar();
+    }
+    if (pageId === "notes" && typeof window.renderNotesList === "function") {
+        window.renderNotesList();
+    }
+    if (pageId === "habits" && typeof window.renderHabits === "function") {
+        window.renderHabits();
+    }
+    if (pageId === "goals" && typeof window.renderGoals === "function") {
+        window.renderGoals();
+    }
+}
+
+// ---------- THEME TOGGLE ----------
+function toggleTheme(themeName) {
+    document.body.setAttribute("data-theme", themeName);
+    localStorage.setItem("theme", themeName);
+}
+
+// ---------- CELEBRATION EFFECT ----------
+function celebrationEffect() {
+    celebrating = true;
+    for (let i = 0; i < 30; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.animationDuration = Math.random() * 2 + 1 + "s";
+        confetti.style.backgroundColor = ["#ffb7b2", "#ffdac1", "#e2f0cb", "#b5ead7", "#c7ceea"][Math.floor(Math.random() * 5)];
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 3000);
+    }
+    setTimeout(() => { celebrating = false; }, 3000);
+}
+
+// ---------- DYNAMIC GREETING & QUOTE ----------
 function updateGreeting() {
-    const greeting = document.getElementById("greeting");
-    if (!greeting) return;
+    const greetingEl = document.getElementById("greetingText");
+    if (!greetingEl) return;
 
     const hour = new Date().getHours();
+    let message = "Welcome back! 🌸";
 
-    if (hour < 12) {
-        greeting.textContent = "Good Morning ð·";
-    } else if (hour < 17) {
-        greeting.textContent = "Good Afternoon âï¸";
-    } else {
-        greeting.textContent = "Good Evening ð";
-    }
+    if (hour < 12) message = "Good morning! ☀️";
+    else if (hour < 18) message = "Good afternoon! 🌸";
+    else message = "Good evening! 🌙";
+
+    greetingEl.innerText = message;
 }
-
-const quotes = [
-    "Small progress every day adds up.",
-    "You are capable of amazing things.",
-    "Progress, not perfection.",
-    "Every day is a fresh start.",
-    "Believe in yourself and keep going.",
-    "Little by little, a little becomes a lot.",
-    "Dream big. Start small.",
-    "Your future self will thank you."
-];
 
 function updateQuote() {
-    const quote = document.getElementById("quoteText");
-    if (!quote) return;
+    const quoteEl = document.getElementById("dailyQuote");
+    if (!quoteEl) return;
 
-    const random = Math.floor(Math.random() * quotes.length);
-    quote.textContent = `"${quotes[random]}"`;
+    const quotes = [
+        "Believe you can and you're halfway there. ✨",
+        "Small steps every day. 🌿",
+        "Your focus determines your reality. 💫",
+        "Make today amazing! 🌸",
+        "Progress over perfection. 🌷"
+    ];
+
+    const today = new Date().getDate();
+    quoteEl.innerText = quotes[today % quotes.length];
 }
 
-// =========================================
-// NOTES V2 (WITH RICH TEXT & METADATA)
-// =========================================
-
-let notes = JSON.parse(localStorage.getItem("cloudNotes")) || [];
-let currentNote = -1;
-
-function saveNotes() {
-    localStorage.setItem("cloudNotes", JSON.stringify(notes));
+// ---------- STREAK SYSTEM ----------
+function getStreakData() {
+    const saved = localStorage.getItem("streakData");
+    if (!saved) return { count: 0, lastDate: null };
+    return JSON.parse(saved);
 }
 
-function renderNotes() {
-    const list = document.getElementById("notesList");
-    if (!list) return;
-
-    list.innerHTML = "";
-
-    notes.sort((a, b) => {
-        if (a.pinned && !b.pinned) return -1;
-        if (!a.pinned && b.pinned) return 1;
-        return (b.updated || 0) - (a.updated || 0);
-    });
-
-    notes.forEach((note, index) => {
-        const card = document.createElement("div");
-        card.className = "note-card";
-
-        if (index === currentNote) {
-            card.classList.add("active");
-        }
-
-        const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = note.content || "";
-        const cleanText = tempDiv.textContent || tempDiv.innerText || "Empty note";
-        const preview = cleanText.substring(0, 40);
-
-        const date = note.updated ? new Date(note.updated).toLocaleDateString() : "";
-
-        card.innerHTML = `
-            <div class="note-title">${note.pinned ? "ð " : ""}${note.title || "Untitled Note"}</div>
-            <div class="note-preview">${preview}...</div>
-            <div class="note-date">${date}</div>
-        `;
-
-        card.onclick = () => openNote(index);
-        list.appendChild(card);
-    });
+function saveStreakData(data) {
+    localStorage.setItem("streakData", JSON.stringify(data));
 }
-
-function createNote() {
-    notes.unshift({
-        title: "Untitled Note",
-        content: "",
-        pinned: false,
-        updated: Date.now()
-    });
-
-    currentNote = 0;
-    saveNotes();
-    renderNotes();
-    openNote(0);
-}
-
-function openNote(index) {
-    if (!notes[index]) return;
-    currentNote = index;
-
-    const titleEl = document.getElementById("noteTitle");
-    const boxEl = document.getElementById("notesBox");
-    const pinBtn = document.getElementById("pinBtn");
-
-    if (titleEl) titleEl.value = notes[index].title || "";
-    if (boxEl) boxEl.innerHTML = notes[index].content || "";
-
-    if (pinBtn) {
-        if (notes[index].pinned) {
-            pinBtn.style.background = "#ffd56b";
-            pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "ð Pinned";
-        } else {
-            pinBtn.style.background = "#fff";
-            pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "ð Pin";
-        }
-    }
-
-    updateLastEditedTime(notes[index].updated);
-    updateCharacterCount();
-    renderNotes();
-}
-
-function togglePin() {
-    if (currentNote === -1 || !notes[currentNote]) return;
-
-    notes[currentNote].pinned = !notes[currentNote].pinned;
-    saveNotes();
-    renderNotes();
-
-    const pinBtn = document.getElementById("pinBtn");
-    if (pinBtn) {
-        if (notes[currentNote].pinned) {
-            pinBtn.style.background = "#ffd56b";
-            pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "ð Pinned";
-        } else {
-            pinBtn.style.background = "#fff";
-            pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "ð Pin";
-        }
-    }
-}
-
-function autoSaveNote() {
-    if (currentNote === -1 || !notes[currentNote]) return;
-
-    const titleEl = document.getElementById("noteTitle");
-    const boxEl = document.getElementById("notesBox");
-
-    notes[currentNote].title = titleEl ? (titleEl.value || "Untitled Note") : "Untitled Note";
-    notes[currentNote].content = boxEl ? boxEl.innerHTML : "";
-    notes[currentNote].updated = Date.now();
-
-    saveNotes();
-    renderNotes();
-    updateCharacterCount();
-    updateLastEditedTime(notes[currentNote].updated);
-    showSavingStatus();
-}
-
-let saveTimeout;
-function showSavingStatus() {
-    const statusEl = document.getElementById("saveStatus");
-    if (!statusEl) return;
-
-    statusEl.textContent = "Saving...";
-    statusEl.style.color = "#ffa500";
-
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-        statusEl.textContent = "Saved";
-        statusEl.style.color = "#6bc26b";
-    }, 500);
-}
-
-function updateLastEditedTime(timestamp) {
-    const lastEditedEl = document.getElementById("lastEdited");
-    if (!lastEditedEl || !timestamp) return;
-
-    const date = new Date(timestamp);
-    const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const dateString = date.toLocaleDateString();
-
-    lastEditedEl.textContent = `Last edited: ${dateString} at ${timeString}`;
-}
-
-function deleteCurrentNote() {
-    if (currentNote === -1) return;
-    if (!confirm("Delete this note?")) return;
-
-    notes.splice(currentNote, 1);
-    saveNotes();
-    currentNote = -1;
-
-    const titleEl = document.getElementById("noteTitle");
-    const boxEl = document.getElementById("notesBox");
-
-    if (titleEl) titleEl.value = "";
-    if (boxEl) boxEl.innerHTML = "";
-
-    renderNotes();
-    updateCharacterCount();
-}
-
-function searchNotes() {
-    const searchEl = document.getElementById("noteSearch");
-    if (!searchEl) return;
-    const search = searchEl.value.toLowerCase();
-    const cards = document.querySelectorAll(".note-card");
-
-    cards.forEach((card, index) => {
-        const note = notes[index];
-        if (!note) return;
-
-        const visible =
-            note.title.toLowerCase().includes(search) ||
-            note.content.toLowerCase().includes(search);
-
-        card.style.display = visible ? "block" : "none";
-    });
-}
-
-function updateCharacterCount() {
-    const boxEl = document.getElementById("notesBox");
-    const countEl = document.getElementById("charCount");
-
-    if (boxEl && countEl) {
-        countEl.textContent = `${boxEl.innerText.trim().length} characters`;
-    }
-}
-
-// FORMATTING CONTROLS
-function formatText(command, value = null) {
-    document.execCommand(command, false, value);
-    autoSaveNote();
-}
-
-function formatFontFamily(fontName) {
-    if (!fontName) return;
-    document.execCommand("fontName", false, fontName);
-    autoSaveNote();
-}
-
-function formatTextColor(color) {
-    document.execCommand("foreColor", false, color);
-    autoSaveNote();
-}
-
-function formatHighlightColor(color) {
-    document.execCommand("hiliteColor", false, color);
-    autoSaveNote();
-}
-
-// ===========================
-// AUTHENTICATION & SETTINGS
-// ===========================
-
-onAuthStateChanged(auth, (user) => {
-    const emailElement = document.getElementById("userEmail");
-    const nameElement = document.getElementById("userName");
-
-    if (user) {
-        if (emailElement) emailElement.textContent = user.email || "No email provided";
-        if (nameElement) {
-            const displayName = user.displayName || user.email.split("@")[0];
-            nameElement.textContent = displayName;
-        }
-    } else {
-        if (emailElement) emailElement.textContent = "Not signed in";
-        if (nameElement) nameElement.textContent = "Guest";
-    }
-});
-
-// LOG OUT
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-    logoutBtn.addEventListener("click", async () => {
-        try {
-            await signOut(auth);
-            window.location.href = "index.html";
-        } catch (error) {
-            alert("Couldn't log out.");
-        }
-    });
-}
-
-// TOGGLE PASSWORD INPUT FIELDS
-const togglePasswordFormBtn = document.getElementById("togglePasswordFormBtn");
-const passwordFormContainer = document.getElementById("passwordFormContainer");
-const toggleArrow = document.getElementById("toggleArrow");
-
-if (togglePasswordFormBtn && passwordFormContainer) {
-    togglePasswordFormBtn.addEventListener("click", () => {
-        const isHidden = passwordFormContainer.style.display === "none";
-        passwordFormContainer.style.display = isHidden ? "block" : "none";
-        if (toggleArrow) {
-            toggleArrow.textContent = isHidden ? "â" : "âº";
-        }
-    });
-}
-
-const changePasswordBtn = document.getElementById("changePasswordBtn");
-if (changePasswordBtn) {
-    changePasswordBtn.addEventListener("click", async () => {
-        const user = auth.currentUser;
-        const newPasswordInput = document.getElementById("newPasswordInput");
-        const confirmPasswordInput = document.getElementById("confirmPasswordInput");
-
-        const newPassword = newPasswordInput ? newPasswordInput.value : "";
-        const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : "";
-
-        if (!user) {
-            alert("Please sign in first.");
-            return;
-        }
-
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-        if (!passwordRegex.test(newPassword)) {
-            alert(
-                "ð Password is too weak!\n\nYour password must include:\n" +
-                "â¢ At least 8 characters\n" +
-                "â¢ At least one uppercase letter (A-Z)\n" +
-                "â¢ At least one lowercase letter (a-z)\n" +
-                "â¢ At least one number (0-9)\n" +
-                "â¢ At least one special character (@, $, !, %, *, ?, &)"
-            );
-            return;
-        }
-
-        if (newPassword !== confirmPassword) {
-            alert("â ï¸ Passwords do not match. Please try typing them again.");
-            return;
-        }
-
-        try {
-            await updatePassword(user, newPassword);
-            alert("ð Password updated successfully!");
-            newPasswordInput.value = "";
-            confirmPasswordInput.value = "";
-        } catch (error) {
-            console.error(error);
-
-            if (error.code === "auth/requires-recent-login") {
-                const currentPassword = prompt("For security reasons, please enter your CURRENT password to confirm:");
-
-                if (!currentPassword) return;
-
-                try {
-                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
-                    await reauthenticateWithCredential(user, credential);
-                    await updatePassword(user, newPassword);
-                    alert("ð Password updated successfully!");
-                    newPasswordInput.value = "";
-                    confirmPasswordInput.value = "";
-                } catch (reauthError) {
-                    alert("Incorrect current password or re-authentication failed.");
-                    console.error(reauthError);
-                }
-            } else {
-                alert("Failed to update password: " + error.message);
-            }
-        }
-    });
-}
-
-// PASSWORD RESET EMAIL
-const resetPasswordBtn = document.getElementById("resetPasswordBtn");
-if (resetPasswordBtn) {
-    resetPasswordBtn.addEventListener("click", async () => {
-        const user = auth.currentUser;
-
-        if (!user || !user.email) {
-            alert("Please sign in first.");
-            return;
-        }
-
-        try {
-            await sendPasswordResetEmail(auth, user.email);
-            alert("ð§ Password reset email sent!\n\nCheck your inbox (and spam folder if needed).");
-        } catch (error) {
-            alert("Couldn't send the password reset email. Please try again.");
-            console.error(error);
-        }
-    });
-}
-
-// DELETE ACCOUNT FOREVER
-const deleteAccountBtn = document.getElementById("deleteAccountBtn");
-if (deleteAccountBtn) {
-    deleteAccountBtn.addEventListener("click", async () => {
-        const user = auth.currentUser;
-
-        if (!user) {
-            alert("Please sign in first.");
-            return;
-        }
-
-        const confirmDelete = confirm(
-            "â ï¸ ARE YOU SURE?\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
-        );
-
-        if (!confirmDelete) return;
-
-        try {
-            await deleteUser(user);
-            alert("Your account has been permanently deleted.");
-            window.location.href = "index.html";
-        } catch (error) {
-            console.error(error);
-
-            if (error.code === "auth/requires-recent-login") {
-                const currentPassword = prompt(
-                    "For security reasons, please enter your CURRENT password to finalize account deletion:"
-                );
-
-                if (!currentPassword) return;
-
-                try {
-                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
-                    await reauthenticateWithCredential(user, credential);
-                    await deleteUser(user);
-
-                    alert("Your account has been permanently deleted.");
-                    window.location.href = "index.html";
-                } catch (reauthError) {
-                    alert("Incorrect password. Account was not deleted.");
-                    console.error(reauthError);
-                }
-            } else {
-                alert("Failed to delete account: " + error.message);
-            }
-        }
-    });
-}
-
-// =========================
-// âï¸ NIMBUS CLOUD BUDDY
-// =========================
-
-const cloudMessages = [
-    "You're doing amazing! ð¸",
-    "One task at a time! âï¸",
-    "Keep going, you've got this! ð",
-    "Don't forget to drink water! ð",
-    "I'm cheering for you! ð",
-    "Take a deep breath ð¿",
-    "Progress > Perfection â¨",
-    "Let's finish today's goals! ð·"
-];
-
-const cloud = document.getElementById("cloudFace");
-const speech = document.getElementById("cloudSpeech");
-
-function randomCloudMessage() {
-    if (!speech) return;
-    const random = Math.floor(Math.random() * cloudMessages.length);
-    speech.textContent = cloudMessages[random];
-}
-
-if (cloud) {
-    cloud.addEventListener("click", randomCloudMessage);
-}
-
-function celebrateWithNimbus() {
-    if (celebrating) return;
-    celebrating = true;
-
-    if (cloud) cloud.classList.add("happy");
-    if (speech) speech.textContent = "ð YOU DID IT!! All tasks completed! ð¸";
-
-    setTimeout(() => {
-        if (cloud) cloud.classList.remove("happy");
-        if (speech) speech.textContent = "You're doing amazing! ð¸";
-        celebrating = false;
-    }, 3500);
-}
-
-// ==========================
-// DAILY STREAK
-// ==========================
-
-let streak = Number(localStorage.getItem("streak")) || 0;
-let lastCompleted = localStorage.getItem("lastCompletedDate");
 
 function updateStreakDisplay() {
-    const streakText = document.getElementById("streakCount");
-    if (streakText) {
-        streakText.textContent = streak;
+    const streakEl = document.getElementById("streakCount");
+    if (!streakEl) return;
+
+    const data = getStreakData();
+    const today = new Date().toISOString().split("T")[0];
+
+    if (data.lastDate) {
+        const last = new Date(data.lastDate);
+        const now = new Date(today);
+        const diffDays = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 1) {
+            data.count = 0;
+            saveStreakData(data);
+        }
     }
+
+    streakEl.innerText = `${data.count} Day Streak 🔥`;
 }
 
 function completeToday() {
-    const today = new Date().toDateString();
+    const data = getStreakData();
+    const today = new Date().toISOString().split("T")[0];
 
-    if (lastCompleted === today) return;
+    if (data.lastDate === today) return;
 
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
+    if (data.lastDate) {
+        const last = new Date(data.lastDate);
+        const now = new Date(today);
+        const diffDays = Math.floor((now - last) / (1000 * 60 * 60 * 24));
 
-    if (lastCompleted === yesterday.toDateString()) {
-        streak++;
+        if (diffDays === 1) {
+            data.count += 1;
+        } else {
+            data.count = 1;
+        }
     } else {
-        streak = 1;
+        data.count = 1;
     }
 
-    lastCompleted = today;
-
-    localStorage.setItem("streak", streak);
-    localStorage.setItem("lastCompletedDate", today);
-
+    data.lastDate = today;
+    saveStreakData(data);
     updateStreakDisplay();
 }
 
-// =========================
-// CALENDAR (ROBUST RENDER)
-// =========================
+// ===========================
+// CALENDAR LOGIC
+// ===========================
 
-let currentDate = new Date();
-let selectedCalendarDate = null;
+let calendarDate = new Date();
 let calendarTasks = JSON.parse(localStorage.getItem("calendarTasks")) || {};
+let selectedCalendarDateKey = null;
 
 function renderCalendar() {
-    const monthYear = document.getElementById("monthYear");
-    const grid = document.getElementById("calendarGrid");
+    const monthEl = document.getElementById("calendarMonth");
+    const gridEl = document.getElementById("calendarDays");
+    if (!monthEl || !gridEl) return;
 
-    if (!monthYear || !grid) return;
+    gridEl.innerHTML = "";
 
-    grid.innerHTML = "";
+    const year = calendarDate.getFullYear();
+    const month = calendarDate.getMonth();
 
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
 
-    monthYear.textContent = currentDate.toLocaleString("default", {
-        month: "long",
-        year: "numeric"
-    });
+    monthEl.innerText = `${monthNames[month]} ${year}`;
 
     const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const totalDays = new Date(year, month + 1, 0).getDate();
 
     for (let i = 0; i < firstDay; i++) {
         const empty = document.createElement("div");
-        empty.className = "day empty";
-        grid.appendChild(empty);
+        empty.className = "calendar-day empty";
+        gridEl.appendChild(empty);
     }
 
-    for (let day = 1; day <= daysInMonth; day++) {
-        const cell = document.createElement("div");
-        cell.className = "day";
-        cell.textContent = day;
+    const todayStr = new Date().toISOString().split("T")[0];
 
-        const key = `${year}-${month}-${day}`;
+    for (let day = 1; day <= totalDays; day++) {
+        const dayDiv = document.createElement("div");
+        dayDiv.className = "calendar-day";
 
-        cell.onclick = () => {
-            selectedCalendarDate = key;
+        const formattedDay = String(day).padStart(2, "0");
+        const formattedMonth = String(month + 1).padStart(2, "0");
+        const dateKey = `${year}-${formattedMonth}-${formattedDay}`;
 
-            const selectedDateEl = document.getElementById("selectedDate");
-            if (selectedDateEl) {
-                selectedDateEl.textContent = `${currentDate.toLocaleString("default", { month: "long" })} ${day}`;
-            }
-
-            renderCalendar();
-            renderCalendarTasks();
-        };
-
-        if (selectedCalendarDate === key) {
-            cell.classList.add("calendar-selected");
+        if (dateKey === todayStr) {
+            dayDiv.classList.add("today");
         }
 
-        const today = new Date();
-        if (
-            day === today.getDate() &&
-            month === today.getMonth() &&
-            year === today.getFullYear()
-        ) {
-            cell.classList.add("today");
+        if (selectedCalendarDateKey === dateKey) {
+            dayDiv.classList.add("selected");
         }
 
-        if (calendarTasks[key] && calendarTasks[key].length > 0) {
-            const dotsContainer = document.createElement("div");
-            dotsContainer.className = "day-dots";
-
-            calendarTasks[key].forEach(t => {
-                const categoryClass = typeof t === "object" ? (t.category || "work") : "work";
-                const dot = document.createElement("span");
-                dot.className = `dot ${categoryClass}`;
-                dotsContainer.appendChild(dot);
-            });
-
-            cell.appendChild(dotsContainer);
+        let taskBadge = "";
+        if (calendarTasks[dateKey] && calendarTasks[dateKey].length > 0) {
+            taskBadge = `<span class="day-badge">${calendarTasks[dateKey].length}</span>`;
         }
 
-        grid.appendChild(cell);
+        dayDiv.innerHTML = `
+            <span class="day-num">${day}</span>
+            ${taskBadge}
+        `;
+
+        dayDiv.onclick = () => selectCalendarDate(dateKey);
+
+        gridEl.appendChild(dayDiv);
     }
 }
 
-function renderCalendarTasks() {
-    const list = document.getElementById("calendarTaskList");
-    if (!list) return;
-
-    list.innerHTML = "";
-
-    const tasksForDate = calendarTasks[selectedCalendarDate] || [];
-
-    tasksForDate.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.className = "calendar-event";
-
-        const taskText = typeof task === "object" ? task.text : task;
-
-        li.innerHTML = `
-            <span>${taskText}</span>
-            <button onclick="deleteCalendarTask(${index})">â</button>
-        `;
-        list.appendChild(li);
-    });
+function selectCalendarDate(dateKey) {
+    selectedCalendarDateKey = dateKey;
+    renderCalendar();
+    renderCalendarTasks();
 }
 
 function previousMonth() {
-    currentDate.setMonth(currentDate.getMonth() - 1);
+    calendarDate.setMonth(calendarDate.getMonth() - 1);
     renderCalendar();
 }
 
 function nextMonth() {
-    currentDate.setMonth(currentDate.getMonth() + 1);
+    calendarDate.setMonth(calendarDate.getMonth() + 1);
     renderCalendar();
 }
 
+function goToToday() {
+    calendarDate = new Date();
+    selectedCalendarDateKey = calendarDate.toISOString().split("T")[0];
+    renderCalendar();
+    renderCalendarTasks();
+}
+
 function addCalendarTask() {
-    if (!selectedCalendarDate) {
-        alert("Select a date first!");
-        return;
+    const inputEl = document.getElementById("calendarTaskInput");
+    if (!inputEl || !selectedCalendarDateKey) return;
+
+    const val = inputEl.value.trim();
+    if (!val) return;
+
+    if (!calendarTasks[selectedCalendarDateKey]) {
+        calendarTasks[selectedCalendarDateKey] = [];
     }
 
-    const input = document.getElementById("calendarTaskInput");
-    const category = document.getElementById("eventCategory");
-
-    if (!input) return;
-
-    const value = input.value.trim();
-    if (!value) return;
-
-    if (!calendarTasks[selectedCalendarDate]) {
-        calendarTasks[selectedCalendarDate] = [];
-    }
-
-    calendarTasks[selectedCalendarDate].push({
-        text: value,
-        category: category ? category.value : "work"
-    });
-
+    calendarTasks[selectedCalendarDateKey].push(val);
     localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
 
-    input.value = "";
+    inputEl.value = "";
     renderCalendar();
     renderCalendarTasks();
 }
 
 function deleteCalendarTask(index) {
-    if (!selectedCalendarDate || !calendarTasks[selectedCalendarDate]) return;
+    if (!selectedCalendarDateKey || !calendarTasks[selectedCalendarDateKey]) return;
 
-    calendarTasks[selectedCalendarDate].splice(index, 1);
-
-    if (calendarTasks[selectedCalendarDate].length === 0) {
-        delete calendarTasks[selectedCalendarDate];
+    calendarTasks[selectedCalendarDateKey].splice(index, 1);
+    if (calendarTasks[selectedCalendarDateKey].length === 0) {
+        delete calendarTasks[selectedCalendarDateKey];
     }
 
     localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
-
     renderCalendar();
     renderCalendarTasks();
 }
 
-function goToToday() {
-    currentDate = new Date();
-    renderCalendar();
+function renderCalendarTasks() {
+    const container = document.getElementById("selectedDateTasks");
+    const title = document.getElementById("selectedDateTitle");
+
+    if (!container || !title) return;
+
+    if (!selectedCalendarDateKey) {
+        title.innerText = "Select a date to view tasks";
+        container.innerHTML = "";
+        return;
+    }
+
+    title.innerText = `Tasks for ${selectedCalendarDateKey}`;
+    container.innerHTML = "";
+
+    const dayTasks = calendarTasks[selectedCalendarDateKey] || [];
+
+    if (dayTasks.length === 0) {
+        container.innerHTML = "<p style='color:#888; font-size:14px;'>No tasks for this date.</p>";
+        return;
+    }
+
+    dayTasks.forEach((t, i) => {
+        const div = document.createElement("div");
+        div.className = "task-item";
+        div.innerHTML = `
+            <span>• ${t}</span>
+            <button onclick="deleteCalendarTask(${i})">✕</button>
+        `;
+        container.appendChild(div);
+    });
 }
+
+// ===========================
+// FIREBASE AUTH & SETTINGS
+// ===========================
+
+onAuthStateChanged(auth, (user) => {
+    const userEmailDisplay = document.getElementById("userEmailDisplay");
+    if (userEmailDisplay) {
+        if (user) {
+            userEmailDisplay.innerText = user.email || "Signed In";
+        } else {
+            userEmailDisplay.innerText = "Not Signed In";
+        }
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logoutBtn");
+    const resetPasswordBtn = document.getElementById("resetPasswordBtn");
+    const changePasswordBtn = document.getElementById("changePasswordBtn");
+    const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async () => {
+            try {
+                await signOut(auth);
+                window.location.href = "index.html";
+            } catch (err) {
+                alert("Error logging out: " + err.message);
+            }
+        });
+    }
+
+    if (resetPasswordBtn) {
+        resetPasswordBtn.addEventListener("click", async () => {
+            const user = auth.currentUser;
+            if (!user || !user.email) {
+                alert("No logged in user found.");
+                return;
+            }
+            try {
+                await sendPasswordResetEmail(auth, user.email);
+                alert(`Password reset email sent to ${user.email}!`);
+            } catch (err) {
+                alert("Error sending reset email: " + err.message);
+            }
+        });
+    }
+
+    if (changePasswordBtn) {
+        changePasswordBtn.addEventListener("click", async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("No user signed in.");
+                return;
+            }
+
+            const currentPassword = document.getElementById("currentPassword")?.value;
+            const newPassword = document.getElementById("newPassword")?.value;
+
+            if (!currentPassword || !newPassword) {
+                alert("Please fill in both current and new password fields.");
+                return;
+            }
+
+            try {
+                const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                await reauthenticateWithCredential(user, credential);
+                await updatePassword(user, newPassword);
+
+                alert("Password updated successfully!");
+                document.getElementById("currentPassword").value = "";
+                document.getElementById("newPassword").value = "";
+            } catch (err) {
+                alert("Failed to update password: " + err.message);
+            }
+        });
+    }
+
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener("click", async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("No user signed in.");
+                return;
+            }
+
+            const confirmDelete = confirm("Are you sure you want to delete your account? This action cannot be undone.");
+            if (!confirmDelete) return;
+
+            try {
+                await deleteUser(user);
+                alert("Account deleted successfully.");
+                window.location.href = "index.html";
+            } catch (err) {
+                alert("Please re-authenticate and try again: " + err.message);
+            }
+        });
+    }
+});
 
 // EXPOSE GLOBAL FUNCTIONS FOR INLINE HTML ATTRIBUTES
 window.showPage = showPage;
 window.addTask = addTask;
+window.toggleTask = toggleTask;
+window.deleteTask = deleteTask;
 window.addReminder = addReminder;
+window.deleteReminder = deleteReminder;
 window.toggleTheme = toggleTheme;
 window.previousMonth = previousMonth;
 window.nextMonth = nextMonth;
 window.addCalendarTask = addCalendarTask;
 window.deleteCalendarTask = deleteCalendarTask;
-window.createNote = createNote;
-window.deleteCurrentNote = deleteCurrentNote;
-window.togglePin = togglePin;
-window.searchNotes = searchNotes;
 window.goToToday = goToToday;
-window.createNote = createNote;
-window.openNote = openNote;
-window.autoSaveNote = autoSaveNote;
-window.formatText = formatText;
-window.formatFontFamily = formatFontFamily;
-window.formatTextColor = formatTextColor;
-window.formatHighlightColor = formatHighlightColor;
 
 // ---------- INITIALIZATION ----------
 window.addEventListener("DOMContentLoaded", () => {
@@ -983,25 +578,6 @@ window.addEventListener("DOMContentLoaded", () => {
     renderReminders();
     updateGreeting();
     updateQuote();
-    renderNotes();
     updateStreakDisplay();
     renderCalendar();
-
-    const noteTitleInput = document.getElementById("noteTitle");
-    const notesBoxInput = document.getElementById("notesBox");
-
-    if (noteTitleInput) {
-        noteTitleInput.addEventListener("input", autoSaveNote);
-    }
-
-    if (notesBoxInput) {
-        notesBoxInput.addEventListener("input", () => {
-            autoSaveNote();
-            updateCharacterCount();
-        });
-    }
-
-    if (notes.length > 0) {
-        openNote(0);
-    }
 });
