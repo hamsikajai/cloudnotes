@@ -627,7 +627,7 @@ if (changePasswordBtn) {
                     const credential = EmailAuthProvider.credential(user.email, currentPassword);
                     await reauthenticateWithCredential(user, credential);
                     await updatePassword(user, newPassword);
-                    alert("ð Password updated successfully!");
+                    alert("🎉 Password updated successfully!");
                     newPasswordInput.value = "";
                     confirmPasswordInput.value = "";
                 } catch (reauthError) {
@@ -744,11 +744,11 @@ function celebrateWithNimbus() {
     celebrating = true;
 
     if (cloud) cloud.classList.add("happy");
-    if (speech) speech.textContent = "🎉 YOU DID IT!! All tasks completed! 🌸";
+    if (speech) speech.textContent = "🎉 YOU DID IT!! All tasks completed!🌸";
 
     setTimeout(() => {
         if (cloud) cloud.classList.remove("happy");
-        if (speech) speech.textContent = "You're doing amazing! 🌸";
+        if (speech) speech.textContent = "You're doing amazing!🌸";
         celebrating = false;
     }, 3500);
 }
