@@ -121,41 +121,41 @@ function updateProgress() {
     if (!fill || !progressText) return;
 
     if (tasks.length === 0) {
-    fill.style.width = "0%";
-    progressText.textContent = "🌸 Add your first task!";
-    hasCelebrated = false;
-    return;
-}
-
-const completed = tasks.filter(t => t.done).length;
-const percent = Math.round((completed / tasks.length) * 100);
-
-fill.style.width = percent + "%";
-
-let message = "";
-
-if (percent === 100) {
-    message = "🏆 All tasks completed!";
-    if (!hasCelebrated) {
-        celebrateWithNimbus();
-        hasCelebrated = true;
+        fill.style.width = "0%";
+        progressText.textContent = "🌸 Add your first task!";
+        hasCelebrated = false;
+        return;
     }
-} else if (percent >= 75) {
-    message = "🌟 Almost there!";
-    hasCelebrated = false;
-} else if (percent >= 50) {
-    message = "✨ Great progress!";
-    hasCelebrated = false;
-} else if (percent >= 25) {
-    message = "🌸 Keep going!";
-    hasCelebrated = false;
-} else {
-    message = "☁️ You've got this!";
-    hasCelebrated = false;
-}
 
-progressText.textContent =
-`${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
+    const completed = tasks.filter(t => t.done).length;
+    const percent = Math.round((completed / tasks.length) * 100);
+
+    fill.style.width = percent + "%";
+
+    let message = "";
+
+    if (percent === 100) {
+        message = "🏆 All tasks completed!";
+        if (!hasCelebrated) {
+            celebrateWithNimbus();
+            hasCelebrated = true;
+        }
+    } else if (percent >= 75) {
+        message = "🌟 Almost there!";
+        hasCelebrated = false;
+    } else if (percent >= 50) {
+        message = "✨ Great progress!";
+        hasCelebrated = false;
+    } else if (percent >= 25) {
+        message = "🌸 Keep going!";
+        hasCelebrated = false;
+    } else {
+        message = "☁️ You've got this!";
+        hasCelebrated = false;
+    }
+
+    progressText.textContent =
+        `${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
 }
 
 // ===========================
@@ -255,7 +255,7 @@ function renderReminders() {
         text.textContent = reminder;
 
         const btn = document.createElement("button");
-        btn.textContent = "Ã";
+        btn.textContent = "✕";
         btn.className = "rem-delete";
 
         btn.onclick = () => deleteReminder(index);
@@ -345,7 +345,7 @@ function renderNotes() {
         const date = note.updated ? new Date(note.updated).toLocaleDateString() : "";
 
         card.innerHTML = `
-            <div class="note-title">${note.pinned ? "ð " : ""}${note.title || "Untitled Note"}</div>
+            <div class="note-title">${note.pinned ? "📌 " : ""}${note.title || "Untitled Note"}</div>
             <div class="note-preview">${preview}...</div>
             <div class="note-date">${date}</div>
         `;
@@ -409,11 +409,11 @@ function togglePin() {
         if (notes[currentNote].pinned) {
             pinBtn.style.background = "#ffd56b";
             pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "ð Pinned";
+            pinBtn.textContent = "📌 Pinned";
         } else {
             pinBtn.style.background = "#fff";
             pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "ð Pin";
+            pinBtn.textContent = "📌 Pin";
         }
     }
 }
@@ -559,9 +559,7 @@ if (logoutBtn) {
             alert("Couldn't log out.");
         }
     });
-}
-
-// TOGGLE PASSWORD INPUT FIELDS
+    // TOGGLE PASSWORD INPUT FIELDS
 const togglePasswordFormBtn = document.getElementById("togglePasswordFormBtn");
 const passwordFormContainer = document.getElementById("passwordFormContainer");
 const toggleArrow = document.getElementById("toggleArrow");
@@ -571,7 +569,7 @@ if (togglePasswordFormBtn && passwordFormContainer) {
         const isHidden = passwordFormContainer.style.display === "none";
         passwordFormContainer.style.display = isHidden ? "block" : "none";
         if (toggleArrow) {
-            toggleArrow.textContent = isHidden ? "â" : "âº";
+            toggleArrow.textContent = isHidden ? "⌄" : "›";
         }
     });
 }
@@ -674,7 +672,7 @@ if (deleteAccountBtn) {
         }
 
         const confirmDelete = confirm(
-           "⚠️ ARE YOU SURE?"\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
+            "⚠️ ARE YOU SURE?\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
         );
 
         if (!confirmDelete) return;
@@ -712,7 +710,7 @@ if (deleteAccountBtn) {
 }
 
 // =========================
-// âï¸ NIMBUS CLOUD BUDDY
+// ☁️ NIMBUS CLOUD BUDDY
 // =========================
 
 const cloudMessages = [
@@ -888,7 +886,7 @@ function renderCalendarTasks() {
 
         li.innerHTML = `
             <span>${taskText}</span>
-            <button onclick="deleteCalendarTask(${index})">â</button>
+            <button onclick="deleteCalendarTask(${index})">✕</button>
         `;
         list.appendChild(li);
     });
@@ -1006,3 +1004,4 @@ window.addEventListener("DOMContentLoaded", () => {
         openNote(0);
     }
 });
+}
