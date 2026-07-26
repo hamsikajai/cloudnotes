@@ -121,41 +121,41 @@ function updateProgress() {
     if (!fill || !progressText) return;
 
     if (tasks.length === 0) {
-        fill.style.width = "0%";
-        progressText.textContent = "🌸 Add your first task!";
-        hasCelebrated = false;
-        return;
+    fill.style.width = "0%";
+    progressText.textContent = "🌸 Add your first task!";
+    hasCelebrated = false;
+    return;
+}
+
+const completed = tasks.filter(t => t.done).length;
+const percent = Math.round((completed / tasks.length) * 100);
+
+fill.style.width = percent + "%";
+
+let message = "";
+
+if (percent === 100) {
+    message = "🏆 All tasks completed!";
+    if (!hasCelebrated) {
+        celebrateWithNimbus();
+        hasCelebrated = true;
     }
+} else if (percent >= 75) {
+    message = "🌟 Almost there!";
+    hasCelebrated = false;
+} else if (percent >= 50) {
+    message = "✨ Great progress!";
+    hasCelebrated = false;
+} else if (percent >= 25) {
+    message = "🌸 Keep going!";
+    hasCelebrated = false;
+} else {
+    message = "☁️ You've got this!";
+    hasCelebrated = false;
+}
 
-    const completed = tasks.filter(t => t.done).length;
-    const percent = Math.round((completed / tasks.length) * 100);
-
-    fill.style.width = percent + "%";
-
-    let message = "";
-
-    if (percent === 100) {
-        message = "🏆All tasks completed!";
-        if (!hasCelebrated) {
-            celebrateWithNimbus();
-            hasCelebrated = true;
-        }
-    } else if (percent >= 75) {
-        message = "🌟 Almost there!";
-        hasCelebrated = false;
-    } else if (percent >= 50) {
-        message = "✨ Great progress!";
-        hasCelebrated = false;
-    } else if (percent >= 25) {
-        message = "🌸 Keep going!";
-        hasCelebrated = false;
-    } else {
-        message = "☁️ You've got this!";
-        hasCelebrated = false;
-    }
-
-    progressText.textContent =
-    `${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
+progressText.textContent =
+`${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
 }
 
 // ===========================
@@ -272,6 +272,7 @@ function renderReminders() {
 // ===========================
 
 function updateGreeting() {
+
     const greeting = document.getElementById("greeting");
     if (!greeting) return;
 
@@ -282,7 +283,7 @@ function updateGreeting() {
     } else if (hour < 17) {
         greeting.textContent = "Good Afternoon ☀️";
     } else {
-        greeting.textContent = "Good Evening 🌙 ";
+        greeting.textContent = "Good Evening 🌙";
     }
 }
 
@@ -383,11 +384,11 @@ function openNote(index) {
         if (notes[index].pinned) {
             pinBtn.style.background = "#ffd56b";
             pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "ð Pinned";
+            pinBtn.textContent = "📌 Pinned";
         } else {
             pinBtn.style.background = "#fff";
             pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "ð Pin";
+            pinBtn.textContent = "📌 Pin";
         }
     }
 
@@ -594,24 +595,24 @@ if (changePasswordBtn) {
 
         if (!passwordRegex.test(newPassword)) {
             alert(
-                "ð Password is too weak!\n\nYour password must include:\n" +
-                "â¢ At least 8 characters\n" +
-                "â¢ At least one uppercase letter (A-Z)\n" +
-                "â¢ At least one lowercase letter (a-z)\n" +
-                "â¢ At least one number (0-9)\n" +
-                "â¢ At least one special character (@, $, !, %, *, ?, &)"
+                "🔒 Password is too weak!\n\nYour password must include:\n" +
+                "• At least 8 characters\n" +
+                "• At least one uppercase letter (A-Z)\n" +
+                "• At least one lowercase letter (a-z)\n" +
+                "• At least one number (0-9)\n" +
+                "• At least one special character (@, $, !, %, *, ?, &)"
             );
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert("â ï¸ Passwords do not match. Please try typing them again.");
+            alert("⚠️ Passwords do not match. Please try typing them again.");
             return;
         }
 
         try {
             await updatePassword(user, newPassword);
-            alert("ð Password updated successfully!");
+            alert("🎉 Password updated successfully!");
             newPasswordInput.value = "";
             confirmPasswordInput.value = "";
         } catch (error) {
@@ -653,7 +654,7 @@ if (resetPasswordBtn) {
 
         try {
             await sendPasswordResetEmail(auth, user.email);
-            alert("ð§ Password reset email sent!\n\nCheck your inbox (and spam folder if needed).");
+            alert("📧 Password reset email sent!\n\nCheck your inbox (and spam folder if needed).");
         } catch (error) {
             alert("Couldn't send the password reset email. Please try again.");
             console.error(error);
@@ -673,7 +674,7 @@ if (deleteAccountBtn) {
         }
 
         const confirmDelete = confirm(
-            "â ï¸ ARE YOU SURE?\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
+           "⚠️ ARE YOU SURE?"\n\nThis will permanently delete your Cloud Notes account. This action cannot be undone!"
         );
 
         if (!confirmDelete) return;
@@ -715,14 +716,14 @@ if (deleteAccountBtn) {
 // =========================
 
 const cloudMessages = [
-    "You're doing amazing! ð¸",
-    "One task at a time! âï¸",
-    "Keep going, you've got this! ð",
-    "Don't forget to drink water! ð",
-    "I'm cheering for you! ð",
-    "Take a deep breath ð¿",
-    "Progress > Perfection â¨",
-    "Let's finish today's goals! ð·"
+    "You're doing amazing! 🌸",
+    "One task at a time! ☁️",
+    "Keep going, you've got this! 💖",
+    "Don't forget to drink water! 💙",
+    "I'm cheering for you! 🎉",
+    "Take a deep breath 🌿",
+    "Progress > Perfection ✨",
+    "Let's finish today's goals! 🌷"
 ];
 
 const cloud = document.getElementById("cloudFace");
@@ -743,11 +744,11 @@ function celebrateWithNimbus() {
     celebrating = true;
 
     if (cloud) cloud.classList.add("happy");
-    if (speech) speech.textContent = "ð YOU DID IT!! All tasks completed! ð¸";
+    if (speech) speech.textContent = "🎉 YOU DID IT!! All tasks completed! 🌸";
 
     setTimeout(() => {
         if (cloud) cloud.classList.remove("happy");
-        if (speech) speech.textContent = "You're doing amazing! ð¸";
+        if (speech) speech.textContent = "You're doing amazing! 🌸";
         celebrating = false;
     }, 3500);
 }
