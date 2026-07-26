@@ -91,7 +91,7 @@ function renderTasks() {
         text.textContent = task.text;
 
         const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "â";
+        deleteBtn.textContent = "❌";
         deleteBtn.className = "delete-btn";
 
         deleteBtn.onclick = function (e) {
@@ -122,7 +122,7 @@ function updateProgress() {
 
     if (tasks.length === 0) {
         fill.style.width = "0%";
-        progressText.textContent = "ð¸ Add your first task!";
+        progressText.textContent = "🌸 Add your first task!";
         hasCelebrated = false;
         return;
     }
@@ -135,27 +135,27 @@ function updateProgress() {
     let message = "";
 
     if (percent === 100) {
-        message = "ð All tasks completed!";
+        message = "🏆All tasks completed!";
         if (!hasCelebrated) {
             celebrateWithNimbus();
             hasCelebrated = true;
         }
     } else if (percent >= 75) {
-        message = "ð Almost there!";
+        message = "🌟 Almost there!";
         hasCelebrated = false;
     } else if (percent >= 50) {
-        message = "â¨ Great progress!";
+        message = "✨ Great progress!";
         hasCelebrated = false;
     } else if (percent >= 25) {
-        message = "ð¸ Keep going!";
+        message = "🌸 Keep going!";
         hasCelebrated = false;
     } else {
-        message = "âï¸ You've got this!";
+        message = "☁️ You've got this!";
         hasCelebrated = false;
     }
 
     progressText.textContent =
-        `${message} â¢ ${completed}/${tasks.length} tasks â¢ ${percent}%`;
+    `${message} • ${completed}/${tasks.length} tasks • ${percent}%`;
 }
 
 // ===========================
@@ -278,11 +278,11 @@ function updateGreeting() {
     const hour = new Date().getHours();
 
     if (hour < 12) {
-        greeting.textContent = "Good Morning ð·";
+        greeting.textContent = "Good Morning 🌷";
     } else if (hour < 17) {
-        greeting.textContent = "Good Afternoon âï¸";
+        greeting.textContent = "Good Afternoon ☀️";
     } else {
-        greeting.textContent = "Good Evening ð";
+        greeting.textContent = "Good Evening 🌙 ";
     }
 }
 
