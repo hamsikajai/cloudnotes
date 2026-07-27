@@ -319,15 +319,40 @@ function updateQuote() {
 
 let notes = JSON.parse(localStorage.getItem("cloudNotes")) || [];
 let currentNote = -1;
+let saveTimeout;
+
+function getFontSelect() {
+    return document.getElementById("fontFamilySelect");
+}
+
+function getNotesBox() {
+    return document.getElementById("notesBox");
+}
+
+function focusNotesBox() {
+    const boxEl = getNotesBox();
+    if (boxEl) boxEl.focus();
+}
 
 function saveNotes() {
     localStorage.setItem("cloudNotes", JSON.stringify(notes));
+}
+
+function getNotePlainText(note) {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = note.content || "";
+    return tempDiv.textContent || tempDiv.innerText || "";
+}
+
+function noteMatchesSearch(note, search) {
+    return `${note.title || ""} ${getNotePlainText(note)}`.toLowerCase().includes(search);
 }
 
 function renderNotes() {
     const list = document.getElementById("notesList");
     if (!list) return;
 
+    const search = (document.getElementById("noteSearch")?.value || "").trim().toLowerCase();
     list.innerHTML = "";
 
     notes.sort((a, b) => {
@@ -337,24 +362,21 @@ function renderNotes() {
     });
 
     notes.forEach((note, index) => {
-        const card = document.createElement("div");
+        if (search && !noteMatchesSearch(note, search)) return;
+
+        const card = document.createElement("button");
+        card.type = "button";
         card.className = "note-card";
+        if (index === currentNote) card.classList.add("active");
 
-        if (index === currentNote) {
-            card.classList.add("active");
-        }
-
-        const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = note.content || "";
-        const cleanText = tempDiv.textContent || tempDiv.innerText || "Empty note";
-        const preview = cleanText.substring(0, 40);
-
+        const cleanText = getNotePlainText(note) || "Empty note";
+        const preview = cleanText.substring(0, 52);
         const date = note.updated ? new Date(note.updated).toLocaleDateString() : "";
 
         card.innerHTML = `
-            <div class="note-title">${note.pinned ? "📌 " : ""}${note.title || "Untitled Note"}</div>
-            <div class="note-preview">${preview}...</div>
-            <div class="note-date">${date}</div>
+            <span class="note-title">${note.pinned ? "📌 " : ""}${note.title || "Untitled Note"}</span>
+            <span class="note-preview">${preview}${cleanText.length > 52 ? "..." : ""}</span>
+            <span class="note-date">${date}</span>
         `;
 
         card.onclick = () => openNote(index);
@@ -362,19 +384,39 @@ function renderNotes() {
     });
 }
 
+function toggleNotesSidebar(forceOpen = null) {
+    const shouldOpen = forceOpen === null ? !document.body.classList.contains("notes-sidebar-open") : forceOpen;
+    document.body.classList.toggle("notes-sidebar-open", shouldOpen);
+    document.getElementById("notesSidebarToggle")?.setAttribute("aria-expanded", String(shouldOpen));
+}
+
+function closeNotesSidebar() {
+    toggleNotesSidebar(false);
+}
+
 function createNote() {
     notes.unshift({
-    title: "Untitled Note",
-    content: "",
-    pinned: false,
-    font: "Nunito",
-    updated: Date.now()
-});
+        title: "Untitled Note",
+        content: "",
+        pinned: false,
+        font: "Nunito",
+        updated: Date.now()
+    });
 
     currentNote = 0;
     saveNotes();
     renderNotes();
     openNote(0);
+    focusNotesBox();
+}
+
+function updatePinButton() {
+    const pinBtn = document.getElementById("pinBtn");
+    if (!pinBtn) return;
+
+    const isPinned = currentNote !== -1 && !!notes[currentNote]?.pinned;
+    pinBtn.classList.toggle("is-pinned", isPinned);
+    pinBtn.textContent = isPinned ? "📌 Pinned" : "📌 Pin";
 }
 
 function openNote(index) {
@@ -382,64 +424,48 @@ function openNote(index) {
     currentNote = index;
 
     const titleEl = document.getElementById("noteTitle");
-    const boxEl = document.getElementById("notesBox");
-    const pinBtn = document.getElementById("pinBtn");
+    const boxEl = getNotesBox();
+    const fontSelect = getFontSelect();
+    const noteFont = notes[index].font || "Nunito";
 
     if (titleEl) titleEl.value = notes[index].title || "";
     if (boxEl) {
-    boxEl.style.fontFamily = notes[index].font || "Nunito";
-}
-
-if (fontSelect) {
-    fontSelect.value = notes[index].font || "Nunito";
-}
-
-    if (pinBtn) {
-        if (notes[index].pinned) {
-            pinBtn.style.background = "#ffd56b";
-            pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "📌 Pinned";
-        } else {
-            pinBtn.style.background = "#fff";
-            pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "📌 Pin";
-        }
+        boxEl.innerHTML = notes[index].content || "";
+        boxEl.style.fontFamily = noteFont;
+    }
+    if (fontSelect) {
+        fontSelect.value = noteFont;
+        fontSelect.style.fontFamily = noteFont;
     }
 
+    updatePinButton();
     updateLastEditedTime(notes[index].updated);
     updateCharacterCount();
     renderNotes();
+
+    if (window.matchMedia("(max-width: 1024px)").matches) {
+        closeNotesSidebar();
+    }
 }
 
 function togglePin() {
     if (currentNote === -1 || !notes[currentNote]) return;
 
-    notes[currentNote].font = fontSelect ? fontSelect.value : "Nunito";
-    saveNotes();
-    renderNotes();
-
-    const pinBtn = document.getElementById("pinBtn");
-    if (pinBtn) {
-        if (notes[currentNote].pinned) {
-            pinBtn.style.background = "#ffd56b";
-            pinBtn.style.borderColor = "#f7c038";
-            pinBtn.textContent = "📌 Pinned";
-        } else {
-            pinBtn.style.background = "#fff";
-            pinBtn.style.borderColor = "#ddd";
-            pinBtn.textContent = "📌 Pin";
-        }
-    }
+    notes[currentNote].pinned = !notes[currentNote].pinned;
+    autoSaveNote();
+    updatePinButton();
 }
 
 function autoSaveNote() {
     if (currentNote === -1 || !notes[currentNote]) return;
 
     const titleEl = document.getElementById("noteTitle");
-    const boxEl = document.getElementById("notesBox");
+    const boxEl = getNotesBox();
+    const fontSelect = getFontSelect();
 
     notes[currentNote].title = titleEl ? (titleEl.value || "Untitled Note") : "Untitled Note";
     notes[currentNote].content = boxEl ? boxEl.innerHTML : "";
+    notes[currentNote].font = fontSelect ? fontSelect.value : (notes[currentNote].font || "Nunito");
     notes[currentNote].updated = Date.now();
 
     saveNotes();
@@ -449,29 +475,31 @@ function autoSaveNote() {
     showSavingStatus();
 }
 
-let saveTimeout;
 function showSavingStatus() {
     const statusEl = document.getElementById("saveStatus");
     if (!statusEl) return;
 
     statusEl.textContent = "Saving...";
-    statusEl.style.color = "#ffa500";
+    statusEl.style.color = "#c99035";
 
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
         statusEl.textContent = "Saved";
         statusEl.style.color = "#6bc26b";
-    }, 500);
+    }, 450);
 }
 
 function updateLastEditedTime(timestamp) {
     const lastEditedEl = document.getElementById("lastEdited");
-    if (!lastEditedEl || !timestamp) return;
+    if (!lastEditedEl) return;
+    if (!timestamp) {
+        lastEditedEl.textContent = "Last edited: Never";
+        return;
+    }
 
     const date = new Date(timestamp);
-    const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const timeString = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const dateString = date.toLocaleDateString();
-
     lastEditedEl.textContent = `Last edited: ${dateString} at ${timeString}`;
 }
 
@@ -484,80 +512,61 @@ function deleteCurrentNote() {
     currentNote = -1;
 
     const titleEl = document.getElementById("noteTitle");
-    const boxEl = document.getElementById("notesBox");
-
+    const boxEl = getNotesBox();
     if (titleEl) titleEl.value = "";
     if (boxEl) boxEl.innerHTML = "";
 
     renderNotes();
     updateCharacterCount();
+    updateLastEditedTime(null);
+    updatePinButton();
 }
 
 function searchNotes() {
-    const searchEl = document.getElementById("noteSearch");
-    if (!searchEl) return;
-    const search = searchEl.value.toLowerCase();
-    const cards = document.querySelectorAll(".note-card");
-
-    cards.forEach((card, index) => {
-        const note = notes[index];
-        if (!note) return;
-
-        const visible =
-            note.title.toLowerCase().includes(search) ||
-            note.content.toLowerCase().includes(search);
-
-        card.style.display = visible ? "block" : "none";
-    });
+    renderNotes();
 }
 
 function updateCharacterCount() {
-    const boxEl = document.getElementById("notesBox");
+    const boxEl = getNotesBox();
     const countEl = document.getElementById("charCount");
-
-    if (boxEl && countEl) {
-        countEl.textContent = `${boxEl.innerText.trim().length} characters`;
-    }
+    if (boxEl && countEl) countEl.textContent = `${boxEl.innerText.trim().length} characters`;
 }
 
-// FORMATTING CONTROLS
-function formatText(command, value = null) {
+function runEditorCommand(command, value = null) {
+    focusNotesBox();
     document.execCommand(command, false, value);
     autoSaveNote();
 }
 
+function formatText(command) {
+    runEditorCommand(command);
+}
+
 function formatFontFamily(fontName) {
     if (!fontName) return;
+
+    const boxEl = getNotesBox();
+    const fontSelect = getFontSelect();
+    if (boxEl) boxEl.style.fontFamily = fontName;
+    if (fontSelect) fontSelect.style.fontFamily = fontName;
+
+    if (currentNote !== -1 && notes[currentNote]) {
+        notes[currentNote].font = fontName;
+    }
+
+    focusNotesBox();
     document.execCommand("fontName", false, fontName);
     autoSaveNote();
 }
 
 function formatTextColor(color) {
-    document.execCommand("foreColor", false, color);
-    autoSaveNote();
+    runEditorCommand("foreColor", color);
 }
 
 function formatHighlightColor(color) {
-    document.execCommand("hiliteColor", false, color);
-    autoSaveNote();
+    runEditorCommand("hiliteColor", color);
 }
-// ===========================
-// LIVE FONT PREVIEW
-// ===========================
 
-const fontSelect = document.getElementById("fontSelect");
-const noteEditor = document.getElementById("notesBox");
-
-if (fontSelect && noteEditor) {
-    fontSelect.addEventListener("change", () => {
-        noteEditor.style.fontFamily = fontSelect.value;
-
-        if (currentNote !== -1 && notes[currentNote]) {
-            notes[currentNote].font = fontSelect.value;
-            saveNotes();
-        }
-    });
-}
 // ===========================
 // AUTHENTICATION & SETTINGS
 // ===========================
@@ -1005,6 +1014,8 @@ window.createNote = createNote;
 window.deleteCurrentNote = deleteCurrentNote;
 window.togglePin = togglePin;
 window.searchNotes = searchNotes;
+window.toggleNotesSidebar = toggleNotesSidebar;
+window.closeNotesSidebar = closeNotesSidebar;
 window.goToToday = goToToday;
 window.createNote = createNote;
 window.openNote = openNote;
@@ -1037,6 +1048,13 @@ window.addEventListener("DOMContentLoaded", () => {
         notesBoxInput.addEventListener("input", () => {
             autoSaveNote();
             updateCharacterCount();
+        });
+    }
+
+    const fontFamilySelect = document.getElementById("fontFamilySelect");
+    if (fontFamilySelect) {
+        fontFamilySelect.addEventListener("change", () => {
+            fontFamilySelect.style.fontFamily = fontFamilySelect.value;
         });
     }
 
