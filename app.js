@@ -33,7 +33,7 @@ function addTask() {
     if (!value) return;
 
     tasks.push({
-        text: value,
+        text: taskInput.value,
         done: false
     });
 
