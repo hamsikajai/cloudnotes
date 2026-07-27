@@ -534,7 +534,12 @@ function formatHighlightColor(color) {
     document.execCommand("hiliteColor", false, color);
     autoSaveNote();
 }
+const fontSelect = document.getElementById("fontSelect");
+const noteEditor = document.getElementById("noteEditor");
 
+fontSelect.addEventListener("change", () => {
+    noteEditor.style.fontFamily = fontSelect.value;
+});
 // ===========================
 // AUTHENTICATION & SETTINGS
 // ===========================
