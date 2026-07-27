@@ -419,6 +419,14 @@ function updatePinButton() {
     pinBtn.textContent = isPinned ? "📌 Pinned" : "📌 Pin";
 }
 
+function updatePinButton() {
+    const pinBtn = document.getElementById("pinBtn");
+    if (!pinBtn || currentNote === -1 || !notes[currentNote]) return;
+
+    pinBtn.classList.toggle("is-pinned", !!notes[currentNote].pinned);
+    pinBtn.textContent = notes[currentNote].pinned ? "📌 Pinned" : "📌 Pin";
+}
+
 function openNote(index) {
     if (!notes[index]) return;
     currentNote = index;
