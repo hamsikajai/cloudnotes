@@ -769,26 +769,36 @@ function updateStreakDisplay() {
 }
 
 function completeToday() {
-    const today = new Date().toDateString();
 
-    if (lastCompleted === today) return;
+    const today = new Date();
+    const todayKey = today.toISOString().split("T")[0];
 
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
+    if (lastCompleted === todayKey) return;
 
-    if (lastCompleted === yesterday.toDateString()) {
-        streak++;
+    if (lastCompleted) {
+
+        const previous = new Date(lastCompleted);
+        const diffDays = Math.floor((today - previous) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+            streak++;
+        } else {
+            streak = 1;
+        }
+
     } else {
         streak = 1;
     }
 
-    lastCompleted = today;
+    lastCompleted = todayKey;
 
     localStorage.setItem("streak", streak);
-    localStorage.setItem("lastCompletedDate", today);
+    localStorage.setItem("lastCompletedDate", todayKey);
 
     updateStreakDisplay();
 }
+
+updateStreakDisplay();
 
 // =========================
 // CALENDAR (ROBUST RENDER)
