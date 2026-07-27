@@ -136,10 +136,13 @@ function updateProgress() {
 
     if (percent === 100) {
         message = "🏆 All tasks completed!";
+
         if (!hasCelebrated) {
             celebrateWithNimbus();
+            completeToday();   // <-- Add this line
             hasCelebrated = true;
         }
+    }
     } else if (percent >= 75) {
         message = "🌟 Almost there!";
         hasCelebrated = false;
