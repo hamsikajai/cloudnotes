@@ -364,11 +364,12 @@ function renderNotes() {
 
 function createNote() {
     notes.unshift({
-        title: "Untitled Note",
-        content: "",
-        pinned: false,
-        updated: Date.now()
-    });
+    title: "Untitled Note",
+    content: "",
+    pinned: false,
+    font: "Nunito",
+    updated: Date.now()
+});
 
     currentNote = 0;
     saveNotes();
@@ -385,7 +386,13 @@ function openNote(index) {
     const pinBtn = document.getElementById("pinBtn");
 
     if (titleEl) titleEl.value = notes[index].title || "";
-    if (boxEl) boxEl.innerHTML = notes[index].content || "";
+    if (boxEl) {
+    boxEl.style.fontFamily = notes[index].font || "Nunito";
+}
+
+if (fontSelect) {
+    fontSelect.value = notes[index].font || "Nunito";
+}
 
     if (pinBtn) {
         if (notes[index].pinned) {
@@ -407,7 +414,7 @@ function openNote(index) {
 function togglePin() {
     if (currentNote === -1 || !notes[currentNote]) return;
 
-    notes[currentNote].pinned = !notes[currentNote].pinned;
+    notes[currentNote].font = fontSelect ? fontSelect.value : "Nunito";
     saveNotes();
     renderNotes();
 
@@ -534,12 +541,23 @@ function formatHighlightColor(color) {
     document.execCommand("hiliteColor", false, color);
     autoSaveNote();
 }
-const fontSelect = document.getElementById("fontSelect");
-const noteEditor = document.getElementById("noteEditor");
+// ===========================
+// LIVE FONT PREVIEW
+// ===========================
 
-fontSelect.addEventListener("change", () => {
-    noteEditor.style.fontFamily = fontSelect.value;
-});
+const fontSelect = document.getElementById("fontSelect");
+const noteEditor = document.getElementById("notesBox");
+
+if (fontSelect && noteEditor) {
+    fontSelect.addEventListener("change", () => {
+        noteEditor.style.fontFamily = fontSelect.value;
+
+        if (currentNote !== -1 && notes[currentNote]) {
+            notes[currentNote].font = fontSelect.value;
+            saveNotes();
+        }
+    });
+}
 // ===========================
 // AUTHENTICATION & SETTINGS
 // ===========================
