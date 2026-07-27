@@ -90,6 +90,11 @@ function renderTasks() {
         const text = document.createElement("span");
         text.textContent = task.text;
 
+        if (task.done) {
+            text.style.textDecoration = "line-through";
+            text.style.opacity = "0.6";
+}
+
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "❌";
         deleteBtn.className = "delete-btn";
