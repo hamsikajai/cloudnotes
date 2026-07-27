@@ -98,11 +98,11 @@
 
       <div id="notes" class="page">
         <div class="notes-page-header">
-          <button id="notesSidebarToggle" class="notes-menu-btn" type="button" aria-controls="notesSidebar" aria-expanded="false" onclick="toggleNotesSidebar()">☰</button>
           <div>
             <h2>📝 Notes</h2>
-            <p class="notes-subtitle">A calm, cloud-soft space for every thought.</p>
+            <p class="notes-subtitle">Cozy thoughts, saved softly with Nimbus.</p>
           </div>
+          <button id="notesSidebarToggle" class="notes-menu-btn" type="button" aria-controls="notesSidebar" aria-expanded="false" onclick="toggleNotesSidebar()">☰ Notes</button>
         </div>
 
         <div class="notes-wrapper">
@@ -110,10 +110,10 @@
 
           <aside id="notesSidebar" class="notes-sidebar" aria-label="Notes list">
             <div class="notes-sidebar-header">
-              <h3>Your notes</h3>
+              <span class="notes-sidebar-kicker">☁️ Library</span>
               <button class="notes-sidebar-close" type="button" onclick="closeNotesSidebar()" aria-label="Close notes sidebar">×</button>
             </div>
-            <input type="text" id="noteSearch" placeholder="🔍 Search every note..." oninput="searchNotes()">
+            <input type="text" id="noteSearch" placeholder="Search notes..." oninput="searchNotes()">
             <div id="notesList" class="notes-list"></div>
             <button id="newNoteBtn" class="add-note-btn" onclick="createNote()" aria-label="Create new note">+</button>
           </aside>
@@ -126,26 +126,25 @@
             <div class="editor-toolbar" aria-label="Formatting toolbar">
               <select id="fontFamilySelect" onchange="formatFontFamily(this.value)" aria-label="Font family">
                 <option value="Nunito" style="font-family: Nunito, sans-serif;">Nunito</option>
+                <option value="Poppins" style="font-family: Poppins, sans-serif;">Poppins</option>
                 <option value="Arial" style="font-family: Arial, sans-serif;">Arial</option>
-                <option value="cursive" style="font-family: cursive;">Cursive</option>
-                <option value="Oswald" style="font-family: Oswald, sans-serif;">Oswald</option>
                 <option value="Georgia" style="font-family: Georgia, serif;">Georgia</option>
                 <option value="'Courier New', monospace" style="font-family: 'Courier New', monospace;">Courier New</option>
-                <option value="Poppins" style="font-family: Poppins, sans-serif;">Poppins</option>
+                <option value="cursive" style="font-family: cursive;">Cursive</option>
               </select>
 
-              <button type="button" onclick="formatText('bold')" class="toolbar-btn toolbar-bold" aria-label="Bold">B</button>
-              <button type="button" onclick="formatText('italic')" class="toolbar-btn toolbar-italic" aria-label="Italic">I</button>
-              <button type="button" onclick="formatText('underline')" class="toolbar-btn toolbar-underline" aria-label="Underline">U</button>
+              <button type="button" onclick="formatText('bold')" class="toolbar-btn toolbar-bold" title="Bold" aria-label="Bold">B</button>
+              <button type="button" onclick="formatText('italic')" class="toolbar-btn toolbar-italic" title="Italic" aria-label="Italic">I</button>
+              <button type="button" onclick="formatText('underline')" class="toolbar-btn toolbar-underline" title="Underline" aria-label="Underline">U</button>
 
-              <label class="toolbar-color" title="Text color">🎨<input type="color" onchange="formatTextColor(this.value)" value="#333333" aria-label="Text color"></label>
-              <label class="toolbar-color" title="Highlight">🖍️<input type="color" onchange="formatHighlightColor(this.value)" value="#fff0a8" aria-label="Highlight color"></label>
+              <label class="toolbar-color" title="Text color">🎨<input type="color" onchange="formatTextColor(this.value)" value="#55536A" aria-label="Text color"></label>
+              <label class="toolbar-color" title="Highlight">🧁<input type="color" onchange="formatHighlightColor(this.value)" value="#FFF0B8" aria-label="Highlight color"></label>
 
-              <button type="button" onclick="formatText('insertUnorderedList')" class="toolbar-btn" aria-label="Bulleted list">• List</button>
-              <button type="button" onclick="formatText('insertOrderedList')" class="toolbar-btn" aria-label="Numbered list">1. List</button>
-              <button type="button" onclick="formatText('justifyLeft')" class="toolbar-btn" aria-label="Align left">↤</button>
-              <button type="button" onclick="formatText('justifyCenter')" class="toolbar-btn" aria-label="Align center">↔</button>
-              <button type="button" onclick="formatText('justifyRight')" class="toolbar-btn" aria-label="Align right">↦</button>
+              <button type="button" onclick="formatText('insertUnorderedList')" class="toolbar-btn" title="Bulleted list" aria-label="Bulleted list">•</button>
+              <button type="button" onclick="formatText('insertOrderedList')" class="toolbar-btn" title="Numbered list" aria-label="Numbered list">1.</button>
+              <button type="button" onclick="formatText('justifyLeft')" class="toolbar-btn" title="Align left" aria-label="Align left">↤</button>
+              <button type="button" onclick="formatText('justifyCenter')" class="toolbar-btn" title="Align center" aria-label="Align center">↔</button>
+              <button type="button" onclick="formatText('justifyRight')" class="toolbar-btn" title="Align right" aria-label="Align right">↦</button>
               <button id="pinBtn" type="button" class="toolbar-btn pin-btn" onclick="togglePin()">📌 Pin</button>
             </div>
 
@@ -155,7 +154,7 @@
               <span id="lastEdited">Last edited: Never</span>
               <span id="charCount">0 characters</span>
               <span id="saveStatus">Saved</span>
-              <span id="nimbusStatus">☁️ Nimbus ready</span>
+              <span id="nimbusStatus">☁️ Nimbus is keeping your notes cozy</span>
               <button class="save-btn" onclick="autoSaveNote()" title="Save Note">💾 Save</button>
               <button class="delete-btn" onclick="deleteCurrentNote()">🗑 Delete</button>
             </div>
