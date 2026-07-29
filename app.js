@@ -412,15 +412,6 @@ function createNote() {
 
 function updatePinButton() {
     const pinBtn = document.getElementById("pinBtn");
-    if (!pinBtn) return;
-
-    const isPinned = currentNote !== -1 && !!notes[currentNote]?.pinned;
-    pinBtn.classList.toggle("is-pinned", isPinned);
-    pinBtn.textContent = isPinned ? "📌 Pinned" : "📌 Pin";
-}
-
-function updatePinButton() {
-    const pinBtn = document.getElementById("pinBtn");
     if (!pinBtn || currentNote === -1 || !notes[currentNote]) return;
 
     pinBtn.classList.toggle("is-pinned", !!notes[currentNote].pinned);
@@ -606,7 +597,9 @@ if (logoutBtn) {
             alert("Couldn't log out.");
         }
     });
-    // TOGGLE PASSWORD INPUT FIELDS
+}
+
+// TOGGLE PASSWORD INPUT FIELDS
 const togglePasswordFormBtn = document.getElementById("togglePasswordFormBtn");
 const passwordFormContainer = document.getElementById("passwordFormContainer");
 const toggleArrow = document.getElementById("toggleArrow");
@@ -1070,4 +1063,3 @@ window.addEventListener("DOMContentLoaded", () => {
         openNote(0);
     }
 });
-}
