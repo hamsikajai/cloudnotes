@@ -1286,298 +1286,747 @@ grid-template-columns:1fr;
 }
 
 }
-/* ===========================
-   LEFT-RIGHT NOTES LAYOUT
-=========================== */
+/* =====================================================
+   CLOUD NOTES — POLISHED NOTES WORKSPACE
+===================================================== */
 
-.notes-container {
-  display: flex;
-  gap: 20px;
-  height: auto;
+
+/* NOTES PAGE */
+
+#notes.page {
+    padding: 0;
 }
 
-/* LEFT SIDEBAR */
-.notes-sidebar {
-  width:20%;
-  min-width:260px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: white;
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
-}
 
-.notes-sidebar-header {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
 
-#noteSearch {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid #e1eef8;
-  background: #f8fbff;
-  outline: none;
-  font-size: 14px;
-}
+/* MAIN LAYOUT */
 
-.add-note-btn {
-  width: 100%;
-  background: #9ad9ff;
-  color: white;
-  border: none;
-  padding: 11px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.add-note-btn:hover {
-  background: #72c8ff;
-}
-
-.notes-list {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.note-card {
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: #f8fbff;
-  cursor: pointer;
-  transition: 0.2s;
-  border: 2px solid transparent;
-}
-
-.note-card:hover {
-  background: #eef6fc;
-}
-
-.note-card.active {
-  border-color: #9ad9ff;
-  background: #e2f1ff;
-}
-
-/* RIGHT NOTE EDITOR */
-.notes-editor {
-  width:80%;
-  display: flex;
-  flex-direction: column;
-  background: white;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
-}
-
-.editor-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-#noteTitle {
-  flex: 1;
-  border: none;
-  font-size: 24px;
-  font-weight: 700;
-  outline: none;
-  color: #333;
-}
-
-.editor-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.editor-actions button {
-  background: #f4f8fb;
-  border: 1px solid #e1eef8;
-  padding: 8px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.editor-actions button:hover {
-  background: #e2f1ff;
-}
-
-.pin-btn.pinned {
-  background: #ffd56b !important;
-  border-color: #f7c038 !important;
-}
-
-.editor-toolbar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 8px 12px;
-  background: #f8fbff;
-  border: 1px solid #e1eef8;
-  border-radius: 12px;
-  margin-bottom: 14px;
-}
-
-.font-select {
-  padding: 5px 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: white;
-  font-size: 13px;
-  font-weight: 600;
-  color: #444;
-  cursor: pointer;
-  outline: none;
-}
-
-.toolbar-divider {
-  width: 1px;
-  height: 20px;
-  background: #ddd;
-  margin: 0 4px;
-}
-
-.color-picker-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #555;
-  cursor: pointer;
-}
-
-.color-picker-label input[type="color"] {
-  border: none;
-  background: none;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-}
-
-#notesBox {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #333;
-  overflow-y: auto;
-  padding: 8px;
-}
-
-#notesBox[placeholder]:empty:before {
-  content: attr(placeholder);
-  color: #aaa;
-}
-
-.editor-footer {
-  display: flex;
-  justify-content: space-between;
-  padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
-  font-size: 12px;
-  color: #888;
-}
-
-.save-status {
-  color: #6bc26b;
-  font-weight: 600;
-}
-/* ===========================
-   FONT SELECTOR & TOOLBAR
-=========================== */
-
-.font-select {
-  padding: 5px 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: white;
-  font-size: 13px;
-  font-weight: 600;
-  color: #444;
-  cursor: pointer;
-  outline: none;
-  transition: 0.2s;
-}
-
-.font-select:hover {
-  background: #eef6fc;
-}
-
-/* Font Options Preview Styles */
-.font-select option[value="Arial"] { font-family: Arial, sans-serif; }
-.font-select option[value="cursive"] { font-family: cursive; }
-.font-select option[value="Oswald"] { font-family: 'Oswald', sans-serif; }
-.font-select option[value="Georgia"] { font-family: Georgia, serif; }
-.font-select option[value="'Courier New', monospace"] { font-family: 'Courier New', monospace; }
-.font-select option[value="Poppins"] { font-family: 'Poppins', sans-serif; }
-/* Floating add button */
-
-.add-note-btn {
-    width:55px;
-    height:55px;
-
-    border-radius:50%;
-
-    position:absolute;
-    bottom:25px;
-    right:25px;
-
-    font-size:28px;
+.notes-wrapper {
 
     display:flex;
-    align-items:center;
-    justify-content:center;
 
-    background:#9ad9ff;
-    box-shadow:0 8px 20px rgba(0,0,0,.12);
-}
-@media(max-width:1024px){
-
-.notes-sidebar {
-
-    position:fixed;
-
-    top:80px;
-    left:-100%;
-
-    height:calc(100vh - 80px);
-
-    width:80%;
-
-    z-index:1000;
-
-    transition:.3s ease;
-}
-
-
-body.notes-sidebar-open .notes-sidebar {
-
-    left:0;
-
-}
-
-
-.notes-editor {
+    gap:18px;
 
     width:100%;
 
+    min-height:calc(100vh - 120px);
+
 }
+
+
+
+/* =====================================================
+   SIDEBAR
+===================================================== */
+
+
+.notes-sidebar {
+
+    width:20%;
+
+    min-width:260px;
+
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+
+    padding:18px;
+
+
+    background:linear-gradient(
+        180deg,
+        #ffffff,
+        #FFF8FC
+    );
+
+
+    border:1px solid #f0eaf8;
+
+    border-radius:24px;
+
+
+    box-shadow:
+    0 12px 28px rgba(170,150,190,.10);
+
+
+    position:relative;
+
+}
+
+
+
+
+/* SEARCH */
+
+#noteSearch {
+
+    width:100%;
+
+
+    padding:11px 14px;
+
+
+    border-radius:16px;
+
+
+    border:1px solid #efe6f5;
+
+
+    background:white;
+
+
+    outline:none;
+
+
+    font-family:"Nunito", sans-serif;
+
+    font-size:14px;
+
+}
+
+
+#noteSearch:focus {
+
+    border-color:#E4D7FF;
+
+
+    box-shadow:
+    0 0 0 4px rgba(228,215,255,.25);
+
+}
+
+
+
+
+/* NOTE LIST */
+
+#notesList {
+
+    display:flex;
+
+    flex-direction:column;
+
+
+    gap:10px;
+
+
+    overflow-y:auto;
+
+
+    flex:1;
+
+
+    padding-bottom:60px;
+
+}
+
+
+
+
+/* NOTE CARDS */
+
+.note-card {
+
+    width:100%;
+
+
+    padding:13px;
+
+
+    text-align:left;
+
+
+    border-radius:18px;
+
+
+    border:1px solid transparent;
+
+
+    background:#F8FBFF;
+
+
+    cursor:pointer;
+
+
+    transition:.2s ease;
+
+}
+
+
+
+.note-card:hover {
+
+    background:#FFF8FC;
+
+    transform:translateY(-2px);
+
+}
+
+
+
+.note-card.active {
+
+    background:
+    linear-gradient(
+        135deg,
+        #FFF8FC,
+        #F4EEFF
+    );
+
+
+    border-color:#E4D7FF;
+
+}
+
+
+
+
+.note-title {
+
+    display:block;
+
+
+    color:#4b5d6e;
+
+
+    font-weight:800;
+
+
+    overflow:hidden;
+
+
+    white-space:nowrap;
+
+
+    text-overflow:ellipsis;
+
+}
+
+
+
+.note-preview {
+
+    display:block;
+
+
+    margin-top:4px;
+
+
+    color:#91899d;
+
+
+    font-size:12px;
+
+}
+
+
+
+.note-date {
+
+    display:block;
+
+
+    margin-top:7px;
+
+
+    color:#b0a8bb;
+
+
+    font-size:11px;
+
+}
+
+
+
+
+/* FLOATING ADD BUTTON */
+
+
+#newNoteBtn {
+
+    position:absolute;
+
+
+    bottom:18px;
+
+    right:18px;
+
+
+
+    width:52px;
+
+    height:52px;
+
+
+
+    border:none;
+
+    border-radius:50%;
+
+
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+
+
+    font-size:26px;
+
+    font-weight:bold;
+
+
+
+    background:
+    linear-gradient(
+        135deg,
+        #F8D4E3,
+        #BFE8FF
+    );
+
+
+    color:#55536A;
+
+
+
+    cursor:pointer;
+
+
+    box-shadow:
+    0 10px 20px rgba(170,150,190,.22);
+
+}
+
+
+
+
+/* =====================================================
+   EDITOR
+===================================================== */
+
+
+.notes-editor {
+
+
+    width:80%;
+
+
+    display:flex;
+
+    flex-direction:column;
+
+
+
+    padding:26px;
+
+
+
+    background:
+    linear-gradient(
+        180deg,
+        white,
+        #FFF8FC
+    );
+
+
+    border-radius:28px;
+
+
+    border:1px solid #f1ecf7;
+
+
+
+    box-shadow:
+    0 14px 34px rgba(170,150,190,.10);
+
+}
+
+
+
+
+
+/* TITLE */
+
+#noteTitle {
+
+    width:100%;
+
+
+    margin-bottom:14px;
+
+
+    border:none;
+
+
+    outline:none;
+
+
+    background:transparent;
+
+
+
+    font-family:"Poppins",sans-serif;
+
+
+    font-size:32px;
+
+
+    font-weight:800;
+
+
+    color:#4b5d6e;
+
+}
+
+
+
+
+/* TOOLBAR */
+
+
+.editor-toolbar {
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    gap:8px;
+
+
+    flex-wrap:nowrap;
+
+
+
+    padding:8px;
+
+
+
+    margin-bottom:14px;
+
+
+
+    overflow-x:auto;
+
+
+
+    background:#F8FBFF;
+
+
+    border-radius:16px;
+
+
+    border:1px solid #efe8f6;
+
+}
+
+
+
+
+/* FONT DROPDOWN */
+
+
+#fontFamilySelect {
+
+
+    padding:6px 12px;
+
+
+    border-radius:999px;
+
+
+    border:1px solid #eadff4;
+
+
+    background:white;
+
+
+    cursor:pointer;
+
+
+    font-size:13px;
+
+}
+
+
+/* FONT PREVIEWS */
+
+
+#fontFamilySelect option[value="Nunito"] {
+    font-family:"Nunito", sans-serif;
+}
+
+#fontFamilySelect option[value="Poppins"] {
+    font-family:"Poppins", sans-serif;
+}
+
+#fontFamilySelect option[value="Georgia"] {
+    font-family:Georgia, serif;
+}
+
+#fontFamilySelect option[value="cursive"] {
+    font-family:cursive;
+}
+
+#fontFamilySelect option[value="Arial"] {
+    font-family:Arial, sans-serif;
+}
+
+#fontFamilySelect option[value="Courier New"] {
+    font-family:"Courier New", monospace;
+}
+
+
+
+
+/* WRITING AREA */
+
+
+#notesBox {
+
+
+    flex:1;
+
+
+    min-height:430px;
+
+
+
+    padding:15px;
+
+
+
+    overflow-y:auto;
+
+
+
+    border:none;
+
+
+    outline:none;
+
+
+
+    font-family:"Nunito",sans-serif;
+
+
+    font-size:17px;
+
+
+    line-height:1.75;
+
+
+
+    color:#55536A;
+
+}
+
+
+
+
+/* FOOTER */
+
+
+.notes-footer {
+
+
+    display:flex;
+
+
+    justify-content:space-between;
+
+
+    align-items:center;
+
+
+    gap:12px;
+
+
+
+    margin-top:12px;
+
+
+
+    padding-top:12px;
+
+
+
+    border-top:1px solid #f0eaf8;
+
+
+
+    font-size:12px;
+
+
+    color:#8e879b;
+
+}
+
+
+
+
+#saveStatus {
+
+    color:#6bc26b;
+
+    font-weight:700;
+
+}
+
+
+
+
+.pin-btn,
+.notes-footer .delete-btn {
+
+
+    border:none;
+
+
+    padding:8px 14px;
+
+
+    border-radius:999px;
+
+
+    cursor:pointer;
+
+
+    font-weight:700;
+
+}
+
+
+
+.pin-btn {
+
+    background:#FFE7A6;
+
+}
+
+
+.notes-footer .delete-btn {
+
+    background:#FFF0F3;
+
+
+    color:#d76b7b;
+
+}
+
+
+
+
+/* =====================================================
+   MOBILE RESPONSIVE
+===================================================== */
+
+
+@media(max-width:1024px){
+
+
+    .notes-wrapper {
+
+        display:block;
+
+    }
+
+
+
+    .notes-sidebar {
+
+
+        position:fixed;
+
+
+        top:0;
+
+
+        left:-100%;
+
+
+        width:80%;
+
+
+        max-width:300px;
+
+
+        height:100vh;
+
+
+
+        z-index:100;
+
+
+
+        transition:.3s ease;
+
+    }
+
+
+
+    body.notes-sidebar-open .notes-sidebar {
+
+        left:0;
+
+    }
+
+
+
+
+    .notes-editor {
+
+        width:100%;
+
+    }
+
+}
+
+
+
+
+@media(max-width:600px){
+
+
+    .notes-editor {
+
+        padding:18px;
+
+    }
+
+
+
+    #noteTitle {
+
+        font-size:26px;
+
+    }
+
+
+
+    #notesBox {
+
+        min-height:350px;
+
+        font-size:16px;
+
+    }
+
+
+
+    .notes-footer {
+
+        flex-wrap:wrap;
+
+    }
 
 }
 /* ==========================================
