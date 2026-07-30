@@ -128,170 +128,6 @@ body {
     );
 }
 
-/* ===========================
-   CLOUD NOTES V2 LAYOUT
-=========================== */
-
-.notes-wrapper {
-    display: flex;
-    gap: 20px;
-    width: 100%;
-    height: calc(100vh - 100px);
-}
-
-
-/* Sidebar */
-
-.notes-sidebar {
-    width: 20%;
-    min-width: 260px;
-
-    background: var(--card);
-    border-radius: 22px;
-    padding: 20px;
-
-    box-shadow: 0 10px 25px rgba(0,0,0,.05);
-
-    display: flex;
-    flex-direction: column;
-}
-
-
-#notesList {
-    flex: 1;
-    overflow-y: auto;
-}
-
-
-/* Floating + button */
-
-#newNoteBtn {
-    width:55px;
-    height:55px;
-
-    border-radius:50%;
-    border:none;
-
-    position:absolute;
-
-    bottom:30px;
-    right:30px;
-
-    font-size:28px;
-
-    background:#E4D7FF;
-    cursor:pointer;
-
-    box-shadow:0 8px 20px rgba(0,0,0,.12);
-}
-
-
-/* Editor */
-
-.notes-editor {
-
-    width:80%;
-
-    background:var(--card);
-
-    border-radius:22px;
-
-    padding:30px;
-
-    box-shadow:0 10px 25px rgba(0,0,0,.05);
-
-    display:flex;
-    flex-direction:column;
-}
-
-
-/* Large title */
-
-#noteTitle {
-
-    font-family:"Poppins",sans-serif;
-
-    font-size:32px;
-
-    background:transparent;
-
-}
-
-
-/* Writing area */
-
-#notesBox {
-
-    flex:1;
-
-    min-height:0;
-
-    overflow-y:auto;
-
-    font-family:"Nunito",sans-serif;
-
-    font-size:17px;
-
-    line-height:1.8;
-
-}
-
-
-/* Bottom status bar */
-
-.notes-footer {
-
-    margin-top:15px;
-
-    padding-top:15px;
-
-    border-top:1px solid rgba(0,0,0,.08);
-
-}
-
-
-/* Mobile */
-
-@media(max-width:1024px){
-
-    .notes-wrapper {
-        position:relative;
-    }
-
-
-    .notes-sidebar {
-
-        position:fixed;
-
-        top:0;
-        left:-100%;
-
-        height:100vh;
-
-        width:80%;
-
-        z-index:100;
-
-        transition:.3s ease;
-
-    }
-
-
-    body.notes-sidebar-open .notes-sidebar {
-
-        left:0;
-
-    }
-
-
-    .notes-editor {
-
-        width:100%;
-
-    }
-
-
-}
 
 /* ---------- TASK INPUT ---------- */
 
@@ -1462,7 +1298,8 @@ grid-template-columns:1fr;
 
 /* LEFT SIDEBAR */
 .notes-sidebar {
-  width: 300px;
+  width:20%;
+  min-width:260px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1532,7 +1369,7 @@ grid-template-columns:1fr;
 
 /* RIGHT NOTE EDITOR */
 .notes-editor {
-  flex: 1;
+  width:80%;
   display: flex;
   flex-direction: column;
   background: white;
@@ -1689,6 +1526,60 @@ grid-template-columns:1fr;
 .font-select option[value="Georgia"] { font-family: Georgia, serif; }
 .font-select option[value="'Courier New', monospace"] { font-family: 'Courier New', monospace; }
 .font-select option[value="Poppins"] { font-family: 'Poppins', sans-serif; }
+/* Floating add button */
+
+.add-note-btn {
+    width:55px;
+    height:55px;
+
+    border-radius:50%;
+
+    position:absolute;
+    bottom:25px;
+    right:25px;
+
+    font-size:28px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#9ad9ff;
+    box-shadow:0 8px 20px rgba(0,0,0,.12);
+}
+@media(max-width:1024px){
+
+.notes-sidebar {
+
+    position:fixed;
+
+    top:80px;
+    left:-100%;
+
+    height:calc(100vh - 80px);
+
+    width:80%;
+
+    z-index:1000;
+
+    transition:.3s ease;
+}
+
+
+body.notes-sidebar-open .notes-sidebar {
+
+    left:0;
+
+}
+
+
+.notes-editor {
+
+    width:100%;
+
+}
+
+}
 /* ==========================================
               HABITS FINAL
 ========================================== */
