@@ -2029,6 +2029,174 @@ grid-template-columns:1fr;
     }
 
 }
+/* =====================================================
+   NOTES MOBILE MENU BUTTON
+===================================================== */
+
+.notes-menu-btn {
+
+    display:none;
+
+    position:absolute;
+
+    top:20px;
+
+    left:20px;
+
+
+    width:55px;
+
+    height:55px;
+
+
+    border:none;
+
+    border-radius:18px;
+
+
+    background:
+    linear-gradient(
+        135deg,
+        #A1C4FD,
+        #C2E9FB,
+        #CDB4FF
+    );
+
+
+    color:#4b5d6e;
+
+
+    font-size:28px;
+
+    font-weight:800;
+
+
+    cursor:pointer;
+
+
+    box-shadow:
+    0 8px 20px rgba(120,140,220,.25);
+
+
+    z-index:20;
+
+
+    transition:.2s ease;
+
+}
+
+
+.notes-menu-btn:hover {
+
+    transform:translateY(-3px);
+
+
+    box-shadow:
+    0 12px 25px rgba(120,140,220,.35);
+
+}
+
+
+
+/* =========================
+   SIDEBAR CLOSE BUTTON
+========================= */
+
+
+.notes-sidebar-close {
+
+
+    display:none;
+
+
+    position:absolute;
+
+
+    top:18px;
+
+
+    right:18px;
+
+
+
+    width:45px;
+
+    height:45px;
+
+
+
+    border:none;
+
+
+    border-radius:50%;
+
+
+
+    background:
+    linear-gradient(
+        135deg,
+        #F8D4E3,
+        #E4D7FF
+    );
+
+
+
+    color:#55536A;
+
+
+
+    font-size:28px;
+
+
+    font-weight:700;
+
+
+
+    cursor:pointer;
+
+
+
+    box-shadow:
+    0 6px 15px rgba(170,150,190,.2);
+
+}
+
+
+.notes-sidebar-close:hover {
+
+    transform:scale(1.08);
+
+}
+
+
+
+/* Mobile only */
+
+@media(max-width:1024px){
+
+
+    .notes-menu-btn {
+
+        display:flex;
+
+        align-items:center;
+
+        justify-content:center;
+
+    }
+
+
+    .notes-sidebar-close {
+
+        display:flex;
+
+        align-items:center;
+
+        justify-content:center;
+
+    }
+
+}
 /* ==========================================
               HABITS FINAL
 ========================================== */
