@@ -1687,73 +1687,56 @@ grid-template-columns:1fr;
 
 
 
-/* TOOLBAR */
-
-
-.editor-toolbar {
-
+.editor-toolbar{
 
     display:flex;
 
-
     align-items:center;
 
-
-    gap:8px;
-
+    gap:6px;
 
     flex-wrap:nowrap;
 
-
+    overflow-x:auto;
 
     padding:8px;
 
-
-
     margin-bottom:14px;
-
-
-
-    overflow-x:auto;
-
-
 
     background:#F8FBFF;
 
+    border-radius:18px;
 
-    border-radius:16px;
+    border:1px solid #EFE8F6;
 
+    scrollbar-width:none;
+}
 
-    border:1px solid #efe8f6;
-
+.editor-toolbar::-webkit-scrollbar{
+    display:none;
 }
 
 
 
+#fontFamilySelect{
 
-/* FONT DROPDOWN */
+    width:145px;
 
-
-#fontFamilySelect {
-
-
-    padding:6px 12px;
-
+    padding:8px 12px;
 
     border-radius:999px;
 
-
     border:1px solid #eadff4;
-
 
     background:white;
 
+    font-family:"Poppins",sans-serif;
+
+    font-weight:600;
+
+    color:#55536A;
 
     cursor:pointer;
-
-
-    font-size:13px;
-
 }
 
 
@@ -1790,19 +1773,20 @@ grid-template-columns:1fr;
 /* WRITING AREA */
 
 
-#notesBox {
-
+#notesBox{
 
     flex:1;
 
+    height:100%;
 
-    min-height:430px;
+    min-height:0;
+    
 
+    padding-right:24px;
 
+    caret-color:#7C6EE6;
 
-    padding:15px;
-
-
+    scroll-behavior:smooth;
 
     overflow-y:auto;
 
@@ -1924,334 +1908,22 @@ grid-template-columns:1fr;
 
 
 
+/* ==========================================
+   LIBRARY BUTTON
+========================================== */
 
-/* =====================================================
-   MOBILE RESPONSIVE
-===================================================== */
-
-
-@media(max-width:1024px){
-
-
-    .notes-wrapper {
-
-        display:block;
-
-    }
-
-
-
-    .notes-sidebar {
-
-
-        position:fixed;
-
-
-        top:0;
-
-
-        left:-100%;
-
-
-        width:80%;
-
-
-        max-width:300px;
-
-
-        height:100vh;
-
-
-
-        z-index:100;
-
-
-
-        transition:.3s ease;
-
-    }
-
-
-
-    body.notes-sidebar-open .notes-sidebar {
-
-        left:0;
-
-    }
-
-
-
-
-    .notes-editor {
-
-        width:100%;
-
-    }
-
-}
-
-
-
-
-@media(max-width:600px){
-
-
-    .notes-editor {
-
-        padding:18px;
-
-    }
-
-
-
-    #noteTitle {
-
-        font-size:26px;
-
-    }
-
-
-
-    #notesBox {
-
-        min-height:350px;
-
-        font-size:16px;
-
-    }
-
-
-
-    .notes-footer {
-
-        flex-wrap:wrap;
-
-    }
-
-}
-/* =====================================================
-   NOTES MOBILE MENU BUTTON
-===================================================== */
-
-.notes-menu-btn {
-
-    display:none;
-
-    position:absolute;
-
-    top:20px;
-
-    left:20px;
-
-
-    width:55px;
-
-    height:55px;
-
-
-    border:none;
-
-    border-radius:18px;
-
-
-    background:
-    linear-gradient(
-        135deg,
-        #A1C4FD,
-        #C2E9FB,
-        #CDB4FF
-    );
-
-
-    color:#4b5d6e;
-
-
-    font-size:28px;
-
-    font-weight:800;
-
-
-    cursor:pointer;
-
-
-    box-shadow:
-    0 8px 20px rgba(120,140,220,.25);
-
-
-    z-index:20;
-
-
-    transition:.2s ease;
-
-}
-
-
-.notes-menu-btn:hover {
-
-    transform:translateY(-3px);
-
-
-    box-shadow:
-    0 12px 25px rgba(120,140,220,.35);
-
-}
-
-
-/* =========================
-   NOTES PAGE MENU BUTTON
-========================= */
-
-.notes-menu-btn {
-
-    position: fixed;
-
-    top: 90px;
-    left: 24px;
-
-
-    width: 60px;
-    height: 60px;
-
-
-    display:flex;
-
-    align-items:center;
-    justify-content:center;
-
-
-    border:none;
-
-    border-radius:20px;
-
-
-    background:
-    linear-gradient(
-        135deg,
-        #A1C4FD,
-        #CDB4FF
-    );
-
-
-    color:#55536A;
-
-
-    font-size:30px;
-
-    font-weight:800;
-
-
-    cursor:pointer;
-
-
-    z-index:50;
-
-
-    box-shadow:
-    0 10px 25px rgba(150,150,220,.25);
-
-
-    transition:.2s ease;
-
-}
-
-
-.notes-menu-btn:hover {
-
-    transform:translateY(-3px);
-
-
-    box-shadow:
-    0 14px 30px rgba(150,150,220,.35);
-
-}
-
-
-
-/* =========================
-   SIDEBAR CLOSE X
-========================= */
-
-
-.notes-sidebar-close {
-
-
-    position:absolute;
-
-
-    top:18px;
-
-    right:18px;
-
-
-
-    width:42px;
-
-    height:42px;
-
-
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-
-
-    border:none;
-
-    border-radius:50%;
-
-
-
-    background:
-    linear-gradient(
-        135deg,
-        #F8D4E3,
-        #E4D7FF
-    );
-
-
-
-    color:#55536A;
-
-
-    font-size:26px;
-
-    font-weight:700;
-
-
-
-    cursor:pointer;
-
-
-    z-index:5;
-
-}
-
-
-
-.notes-sidebar-close:hover {
-
-    transform:scale(1.08);
-
-}
 #notesSidebarToggle,
 .notes-menu-btn{
 
     display:flex;
     align-items:center;
     justify-content:center;
+    gap:8px;
 
-    width:64px;
-    height:64px;
-
-    margin:14px 0 18px 0;
-
-    position:static;   /* <-- important */
+    padding:12px 22px;
 
     border:none;
-    border-radius:22px;
+    border-radius:999px;
 
     background:linear-gradient(
         135deg,
@@ -2259,14 +1931,93 @@ grid-template-columns:1fr;
         #CDB4FF
     );
 
-    color:#4b5d6e;
+    color:#55536A;
 
-    font-size:30px;
+    font-family:"Poppins",sans-serif;
+    font-size:15px;
     font-weight:700;
 
-    box-shadow:0 10px 20px rgba(150,160,230,.25);
+    cursor:pointer;
+
+    box-shadow:0 8px 20px rgba(150,160,230,.22);
+
+    transition:.25s;
+}
+
+#notesSidebarToggle:hover,
+.notes-menu-btn:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 12px 26px rgba(150,160,230,.30);
+
+}
+
+/* ==========================================
+   SIDEBAR CLOSE BUTTON
+========================================== */
+
+.notes-sidebar-close{
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    position:absolute;
+
+    top:18px;
+    right:18px;
+
+    width:40px;
+    height:40px;
+
+    border:none;
+    border-radius:50%;
+
+    background:linear-gradient(
+        135deg,
+        #F8D4E3,
+        #E4D7FF
+    );
+
+    color:#55536A;
+
+    font-size:24px;
+    font-weight:700;
 
     cursor:pointer;
+
+    box-shadow:0 6px 16px rgba(170,150,190,.18);
+
+    transition:.2s;
+}
+
+.notes-sidebar-close:hover{
+
+    transform:scale(1.08);
+
+    box-shadow:0 10px 22px rgba(170,150,190,.28);
+
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media(max-width:1024px){
+
+    .notes-sidebar-close{
+        display:flex;
+    }
+
+}
+
+@media(min-width:1025px){
+
+    .notes-sidebar-close{
+        display:none;
+    }
+
 }
 /* ==========================================
               HABITS FINAL
