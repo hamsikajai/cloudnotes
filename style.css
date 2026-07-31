@@ -2236,6 +2236,68 @@ grid-template-columns:1fr;
     transform:scale(1.08);
 
 }
+/* ============================
+   NOTES MENU BUTTON
+============================ */
+
+.notes-menu-btn,
+#notesSidebarToggle{
+
+    position:absolute;
+    top:18px;
+    left:18px;
+
+    width:58px;
+    height:58px;
+
+    padding:0;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    border:none;
+    border-radius:18px;
+
+    background:linear-gradient(
+        135deg,
+        #A1C4FD,
+        #CDB4FF
+    );
+
+    color:#4b5d6e;
+
+    font-size:30px;
+    font-weight:700;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-indent:-9999px;
+
+    cursor:pointer;
+
+    box-shadow:0 10px 24px rgba(120,140,220,.25);
+}
+
+/* Put only the hamburger back */
+
+.notes-menu-btn::before,
+#notesSidebarToggle::before{
+    content:"☰";
+    position:absolute;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    text-indent:0;
+
+    font-size:28px;
+
+    color:#4b5d6e;
+}
 /* ==========================================
               HABITS FINAL
 ========================================== */
