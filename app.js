@@ -1,7 +1,7 @@
 let hasCelebrated = false;
 let celebrating = false;
 
-import { auth } from "./firebase.js";
+import { auth, database } from "./firebase.js";
 import {
     onAuthStateChanged,
     signOut,
@@ -11,7 +11,13 @@ import {
     reauthenticateWithCredential,
     deleteUser
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-
+import {
+    ref,
+    set,
+    get,
+    onValue,
+    remove
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 // ===========================
 // TASKS & BOARD LOGIC
 // ===========================
