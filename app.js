@@ -18,11 +18,122 @@ import {
     onValue,
     remove
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+const USER_DATA_DEFAULTS = {
+    tasks: [],
+    reminders: [],
+    notes: [],
+    streak: { count: 0, lastCompletedDate: null },
+    calendarEvents: {}
+};
+let currentUid = null;
+let firebaseUnsubscribe = null;
+let isLoadingUserData = false;
+let firebaseReady = false;
+
+function getUserPath(path = "") {
+    return currentUid ? `users/${currentUid}${path ? `/${path}` : ""}` : null;
+}
+
+function parseStoredJSON(key, fallback) {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+    } catch (error) {
+        console.warn(`Could not parse ${key} from localStorage`, error);
+        return fallback;
+    }
+}
+
+function saveUserData(path, value, successMessage = null) {
+    if (isLoadingUserData || !currentUid) return Promise.resolve();
+
+    const firebasePath = getUserPath(path);
+    if (!firebasePath) return Promise.resolve();
+
+    return set(ref(database, firebasePath), value)
+        .then(() => {
+            firebaseReady = true;
+            if (successMessage) notifyNimbus(successMessage);
+        })
+        .catch((error) => {
+            console.error(`Firebase save failed for ${path}`, error);
+            notifyNimbus("☁️ Nimbus: I couldn't save that. Please try again.", "error");
+        });
+}
+
+function applyUserData(data = {}) {
+    isLoadingUserData = true;
+    tasks = Array.isArray(data.tasks) ? data.tasks : [];
+    reminders = Array.isArray(data.reminders) ? data.reminders : [];
+    notes = Array.isArray(data.notes) ? data.notes : [];
+    const streakData = data.streak || {};
+    streak = Number(streakData.count || 0);
+    lastCompleted = streakData.lastCompletedDate || null;
+    calendarTasks = data.calendarEvents || {};
+
+    if (window.loadHabitsFromFirebase) window.loadHabitsFromFirebase(Array.isArray(data.habits) ? data.habits : []);
+    if (window.loadGoalsFromFirebase) window.loadGoalsFromFirebase(Array.isArray(data.goals) ? data.goals : []);
+
+    currentNote = notes.length ? Math.min(Math.max(currentNote, 0), notes.length - 1) : -1;
+    renderTasks();
+    renderReminders();
+    renderNotes();
+    updateStreakDisplay();
+    renderCalendar();
+    renderCalendarTasks();
+    if (currentNote !== -1) openNote(currentNote);
+    isLoadingUserData = false;
+}
+
+async function migrateLocalStorageIfNeeded(user) {
+    const migrationRef = ref(database, `users/${user.uid}/migration/localStorageV1`);
+    const snapshot = await get(migrationRef);
+    if (snapshot.exists()) return;
+
+    const payload = {
+        tasks: parseStoredJSON("tasks", []),
+        reminders: parseStoredJSON("reminders", []),
+        notes: parseStoredJSON("cloudNotes", []),
+        habits: parseStoredJSON("cloudHabits", []),
+        goals: parseStoredJSON("goals", []),
+        calendarEvents: parseStoredJSON("calendarTasks", {}),
+        streak: {
+            count: Number(localStorage.getItem("streak")) || 0,
+            lastCompletedDate: localStorage.getItem("lastCompletedDate") || null
+        }
+    };
+
+    const hasLocalData = payload.tasks.length || payload.reminders.length || payload.notes.length ||
+        payload.habits.length || payload.goals.length || Object.keys(payload.calendarEvents).length ||
+        payload.streak.count || payload.streak.lastCompletedDate;
+
+    if (hasLocalData) {
+        const userSnap = await get(ref(database, `users/${user.uid}`));
+        const existing = userSnap.val() || {};
+        await set(ref(database, `users/${user.uid}`), {
+            ...existing,
+            tasks: existing.tasks || payload.tasks,
+            reminders: existing.reminders || payload.reminders,
+            notes: existing.notes || payload.notes,
+            habits: existing.habits || payload.habits,
+            goals: existing.goals || payload.goals,
+            calendarEvents: existing.calendarEvents || payload.calendarEvents,
+            streak: existing.streak || payload.streak,
+            migration: { ...(existing.migration || {}), localStorageV1: Date.now() }
+        });
+    } else {
+        await set(migrationRef, Date.now());
+    }
+}
+
+window.cloudNotesSave = saveUserData;
+window.getCloudNotesContext = () => ({ tasks, reminders, notes, habits: window.getHabitsData?.() || [], goals: window.getGoalsData?.() || [], calendarEvents: calendarTasks });
 // ===========================
 // TASKS & BOARD LOGIC
 // ===========================
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let tasks = [];
 
 const input = document.getElementById("taskInput");
 const list = document.getElementById("taskList");
@@ -44,7 +155,7 @@ function addTask() {
     });
 
     inputEl.value = "";
-    saveTasks();
+    saveTasks("☁️ Nimbus: Task added!");
     renderTasks();
 }
 
@@ -55,7 +166,7 @@ function toggleTask(index) {
     if (tasks[index].done) {
         completeToday();
     }
-    saveTasks();
+    saveTasks(tasks[index]?.done ? "☁️ Nimbus: Nice! Task completed." : null);
     renderTasks();
 }
 
@@ -120,8 +231,8 @@ function renderTasks() {
 }
 
 // ---------- SAVE TASKS ----------
-function saveTasks() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+function saveTasks(message = null) {
+    saveUserData("tasks", tasks, message);
 }
 
 // ---------- PROGRESS BAR & CELEBRATION ----------
@@ -229,10 +340,10 @@ function showPage(pageId) {
 // REMINDERS
 // ===========================
 
-let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+let reminders = [];
 
 function saveReminders() {
-    localStorage.setItem("reminders", JSON.stringify(reminders));
+    saveUserData("reminders", reminders);
 }
 
 function addReminder() {
@@ -323,7 +434,7 @@ function updateQuote() {
 // NOTES V2 (WITH RICH TEXT & METADATA)
 // =========================================
 
-let notes = JSON.parse(localStorage.getItem("cloudNotes")) || [];
+let notes = [];
 let currentNote = -1;
 let saveTimeout;
 
@@ -340,8 +451,8 @@ function focusNotesBox() {
     if (boxEl) boxEl.focus();
 }
 
-function saveNotes() {
-    localStorage.setItem("cloudNotes", JSON.stringify(notes));
+function saveNotes(message = null) {
+    saveUserData("notes", notes, message);
 }
 
 function getNotePlainText(note) {
@@ -410,7 +521,7 @@ function createNote() {
     });
 
     currentNote = 0;
-    saveNotes();
+    saveNotes("☁️ Nimbus: New note ready!");
     renderNotes();
     openNote(0);
     focusNotesBox();
@@ -461,7 +572,7 @@ function togglePin() {
     updatePinButton();
 }
 
-function autoSaveNote() {
+function autoSaveNote(shouldNotify = false) {
     if (currentNote === -1 || !notes[currentNote]) return;
 
     const titleEl = document.getElementById("noteTitle");
@@ -473,7 +584,7 @@ function autoSaveNote() {
     notes[currentNote].font = fontSelect ? fontSelect.value : (notes[currentNote].font || "Nunito");
     notes[currentNote].updated = Date.now();
 
-    saveNotes();
+    saveNotes(shouldNotify ? "☁️ Nimbus: Note saved!" : null);
     renderNotes();
     updateCharacterCount();
     updateLastEditedTime(notes[currentNote].updated);
@@ -513,7 +624,7 @@ function deleteCurrentNote() {
     if (!confirm("Delete this note?")) return;
 
     notes.splice(currentNote, 1);
-    saveNotes();
+    saveNotes("☁️ Nimbus: Note deleted.");
     currentNote = -1;
 
     const titleEl = document.getElementById("noteTitle");
@@ -580,13 +691,38 @@ onAuthStateChanged(auth, (user) => {
     const emailElement = document.getElementById("userEmail");
     const nameElement = document.getElementById("userName");
 
+    if (firebaseUnsubscribe) {
+        firebaseUnsubscribe();
+        firebaseUnsubscribe = null;
+    }
+
     if (user) {
+        currentUid = user.uid;
+        notifyNimbus("☁️ Nimbus: Loading your Cloud Notes…");
         if (emailElement) emailElement.textContent = user.email || "No email provided";
         if (nameElement) {
-            const displayName = user.displayName || user.email.split("@")[0];
+            const displayName = user.displayName || (user.email ? user.email.split("@")[0] : "Cloud Notes user");
             nameElement.textContent = displayName;
         }
+
+        migrateLocalStorageIfNeeded(user).catch((error) => {
+            console.error("Local data migration failed", error);
+            notifyNimbus("☁️ Nimbus: I couldn't save that. Please try again.", "error");
+        });
+
+        const userRef = ref(database, `users/${user.uid}`);
+        const unsubscribeValue = onValue(userRef, (snapshot) => {
+            firebaseReady = true;
+            applyUserData(snapshot.val() || USER_DATA_DEFAULTS);
+        }, (error) => {
+            console.error("Firebase load failed", error);
+            notifyNimbus("☁️ Nimbus: I couldn't load your Cloud Notes. Please try again.", "error");
+        });
+        firebaseUnsubscribe = unsubscribeValue;
     } else {
+        currentUid = null;
+        firebaseReady = false;
+        applyUserData(USER_DATA_DEFAULTS);
         if (emailElement) emailElement.textContent = "Not signed in";
         if (nameElement) nameElement.textContent = "Guest";
     }
@@ -724,6 +860,7 @@ if (deleteAccountBtn) {
         if (!confirmDelete) return;
 
         try {
+            await remove(ref(database, `users/${user.uid}`));
             await deleteUser(user);
             alert("Your account has been permanently deleted.");
             window.location.href = "index.html";
@@ -740,6 +877,7 @@ if (deleteAccountBtn) {
                 try {
                     const credential = EmailAuthProvider.credential(user.email, currentPassword);
                     await reauthenticateWithCredential(user, credential);
+                    await remove(ref(database, `users/${user.uid}`));
                     await deleteUser(user);
 
                     alert("Your account has been permanently deleted.");
@@ -773,6 +911,24 @@ const cloudMessages = [
 const cloud = document.getElementById("cloudFace");
 const speech = document.getElementById("cloudSpeech");
 
+function notifyNimbus(message, type = "info") {
+    if (!message) return;
+    if (speech) {
+        speech.textContent = message;
+        speech.dataset.type = type;
+    }
+
+    const toast = document.createElement("div");
+    toast.className = `nimbus-toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add("show"));
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 250);
+    }, 2600);
+}
+
 function randomCloudMessage() {
     if (!speech) return;
     const random = Math.floor(Math.random() * cloudMessages.length);
@@ -801,8 +957,8 @@ function celebrateWithNimbus() {
 // DAILY STREAK
 // ==========================
 
-let streak = Number(localStorage.getItem("streak")) || 0;
-let lastCompleted = localStorage.getItem("lastCompletedDate");
+let streak = 0;
+let lastCompleted = null;
 
 function updateStreakDisplay() {
     const streakText = document.getElementById("streakCount");
@@ -835,8 +991,7 @@ function completeToday() {
 
     lastCompleted = todayKey;
 
-    localStorage.setItem("streak", streak);
-    localStorage.setItem("lastCompletedDate", todayKey);
+    saveUserData("streak", { count: streak, lastCompletedDate: lastCompleted });
 
     updateStreakDisplay();
 }
@@ -849,7 +1004,7 @@ updateStreakDisplay();
 
 let currentDate = new Date();
 let selectedCalendarDate = null;
-let calendarTasks = JSON.parse(localStorage.getItem("calendarTasks")) || {};
+let calendarTasks = {};
 
 function renderCalendar() {
     const monthYear = document.getElementById("monthYear");
@@ -939,10 +1094,11 @@ function renderCalendarTasks() {
         li.className = "calendar-event";
 
         const taskText = typeof task === "object" ? task.text : task;
+        const categoryClass = typeof task === "object" ? (task.category || "work") : "work";
 
         li.innerHTML = `
-            <span>${taskText}</span>
-            <button onclick="deleteCalendarTask(${index})">✕</button>
+            <span class="calendar-event-text"><span class="calendar-label-dot ${categoryClass}"></span>${taskText}</span>
+            <button class="calendar-delete" onclick="deleteCalendarTask(${index})">✕</button>
         `;
         list.appendChild(li);
     });
@@ -981,7 +1137,7 @@ function addCalendarTask() {
         category: category ? category.value : "work"
     });
 
-    localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
+    saveUserData("calendarEvents", calendarTasks, "☁️ Nimbus: Calendar event saved!");
 
     input.value = "";
     renderCalendar();
@@ -997,7 +1153,7 @@ function deleteCalendarTask(index) {
         delete calendarTasks[selectedCalendarDate];
     }
 
-    localStorage.setItem("calendarTasks", JSON.stringify(calendarTasks));
+    saveUserData("calendarEvents", calendarTasks);
 
     renderCalendar();
     renderCalendarTasks();
@@ -1007,6 +1163,72 @@ function goToToday() {
     currentDate = new Date();
     renderCalendar();
 }
+
+function toggleNimbusChat(forceOpen = null) {
+    const panel = document.getElementById("nimbusChatPanel");
+    if (!panel) return;
+    const shouldOpen = forceOpen === null ? panel.hidden : forceOpen;
+    panel.hidden = !shouldOpen;
+    if (shouldOpen) document.getElementById("nimbusChatInput")?.focus();
+}
+
+function addNimbusChatMessage(text, sender = "nimbus") {
+    const messages = document.getElementById("nimbusChatMessages");
+    if (!messages) return;
+    const bubble = document.createElement("div");
+    bubble.className = `nimbus-message ${sender}`;
+    bubble.textContent = text;
+    messages.appendChild(bubble);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+function getRelevantNimbusContext(prompt) {
+    const lower = prompt.toLowerCase();
+    const context = {};
+    if (/task|today|plan|todo/.test(lower)) context.tasks = tasks.slice(0, 20);
+    if (/habit|routine|streak/.test(lower)) context.habits = (window.getHabitsData?.() || []).slice(0, 20);
+    if (/goal|milestone|priority/.test(lower)) context.goals = (window.getGoalsData?.() || []).slice(0, 10);
+    if (/calendar|event|schedule/.test(lower)) context.calendarEvents = calendarTasks;
+    if (/note|summarize|rewrite|organize/.test(lower)) {
+        const current = currentNote !== -1 ? notes[currentNote] : null;
+        context.currentNote = current ? { title: current.title, content: getNotePlainText(current).slice(0, 4000) } : null;
+    }
+    return context;
+}
+
+async function sendNimbusChat() {
+    const input = document.getElementById("nimbusChatInput");
+    const sendBtn = document.getElementById("nimbusSendBtn");
+    const typing = document.getElementById("nimbusTyping");
+    if (!input) return;
+
+    const message = input.value.trim();
+    if (!message) return;
+
+    input.value = "";
+    addNimbusChatMessage(message, "user");
+    if (typing) typing.hidden = false;
+    if (sendBtn) sendBtn.disabled = true;
+
+    try {
+        const response = await fetch("/api/nimbus-chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message, context: getRelevantNimbusContext(message) })
+        });
+
+        if (!response.ok) throw new Error(`Nimbus endpoint returned ${response.status}`);
+        const data = await response.json();
+        addNimbusChatMessage(data.reply || "I'm here to help. ☁️");
+    } catch (error) {
+        console.warn("Nimbus AI backend is not configured", error);
+        addNimbusChatMessage("I’m ready to help, but my secure AI backend isn’t configured yet. Please deploy /api/nimbus-chat with a server-side AI key.");
+    } finally {
+        if (typing) typing.hidden = true;
+        if (sendBtn) sendBtn.disabled = false;
+    }
+}
+
 
 // EXPOSE GLOBAL FUNCTIONS FOR INLINE HTML ATTRIBUTES
 window.showPage = showPage;
@@ -1024,6 +1246,8 @@ window.searchNotes = searchNotes;
 window.toggleNotesSidebar = toggleNotesSidebar;
 window.closeNotesSidebar = closeNotesSidebar;
 window.goToToday = goToToday;
+window.toggleNimbusChat = toggleNimbusChat;
+window.sendNimbusChat = sendNimbusChat;
 window.createNote = createNote;
 window.openNote = openNote;
 window.autoSaveNote = autoSaveNote;
@@ -1064,6 +1288,11 @@ window.addEventListener("DOMContentLoaded", () => {
             fontFamilySelect.style.fontFamily = fontFamilySelect.value;
         });
     }
+
+    document.getElementById("nimbusChatForm")?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        sendNimbusChat();
+    });
 
     if (notes.length > 0) {
         openNote(0);
