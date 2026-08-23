@@ -2780,3 +2780,61 @@ background:#ffe3e3;
 
 /* ==========================================
    NOTES REDESIGN: COZY CLOUD NOTES WORKSPACE
+========================================== */
+
+/* Nimbus notifications + chat */
+.nimbus-toast{
+  position:fixed; right:22px; bottom:92px; z-index:2000;
+  max-width:min(340px,calc(100vw - 32px)); padding:10px 14px;
+  border-radius:999px; background:rgba(255,255,255,.94); color:#55536A;
+  box-shadow:0 12px 30px rgba(170,150,190,.20); font-family:"Nunito",sans-serif;
+  font-weight:800; font-size:14px; opacity:0; transform:translateY(10px);
+  transition:opacity .22s ease, transform .22s ease;
+}
+.nimbus-toast.show{opacity:1; transform:translateY(0);}
+.nimbus-toast.error{background:#FFF0F3; color:#b94d63;}
+.nimbus-chat-button{
+  position:fixed; right:22px; bottom:24px; z-index:1900; width:52px; height:52px;
+  border:0; border-radius:50%; background:linear-gradient(135deg,#BFE8FF,#E4D7FF);
+  box-shadow:0 12px 28px rgba(150,160,230,.28); cursor:pointer; font-size:24px;
+}
+.nimbus-chat-panel{
+  position:fixed; right:22px; bottom:88px; z-index:1900; width:min(360px,calc(100vw - 32px));
+  max-height:min(560px,calc(100dvh - 120px)); display:flex; flex-direction:column;
+  background:linear-gradient(180deg,#FFFFFF 0%,#FFF8FC 100%); border:1px solid #efe8f6;
+  border-radius:24px; box-shadow:0 18px 42px rgba(170,150,190,.24); overflow:hidden;
+}
+.nimbus-chat-panel[hidden]{display:none;}
+.nimbus-chat-header{display:flex; justify-content:space-between; align-items:center; padding:14px 16px; background:#F8FBFF; color:#55536A;}
+.nimbus-chat-header strong{display:block; font-family:"Poppins",sans-serif;}
+.nimbus-chat-header span{display:block; font-size:12px; color:#8e879b;}
+.nimbus-chat-header button{width:34px; height:34px; border:0; border-radius:50%; background:#F8D4E3; color:#55536A; font-size:22px; cursor:pointer;}
+.nimbus-chat-messages{display:flex; flex-direction:column; gap:9px; padding:14px; overflow-y:auto; min-height:220px;}
+.nimbus-message{max-width:86%; padding:10px 12px; border-radius:16px; font-family:"Nunito",sans-serif; font-size:14px; line-height:1.35; color:#55536A;}
+.nimbus-message.nimbus{align-self:flex-start; background:#F4EEFF;}
+.nimbus-message.user{align-self:flex-end; background:#DFF5FF;}
+.nimbus-typing{padding:0 14px 8px; color:#8e879b; font-size:12px; font-weight:800;}
+.nimbus-chat-form{display:flex; gap:8px; padding:12px; border-top:1px solid #f0eaf8;}
+.nimbus-chat-form input{flex:1; min-width:0; border:1px solid #eadff4; border-radius:999px; padding:10px 12px; font-family:"Nunito",sans-serif;}
+.nimbus-chat-form button{border:0; border-radius:999px; padding:10px 14px; background:#9ad9ff; color:#fff; font-weight:800; cursor:pointer;}
+
+.day-dots{position:absolute; bottom:7px; left:50%; transform:translateX(-50%); display:flex; gap:3px; max-width:80%; overflow:hidden;}
+.dot,.calendar-label-dot{width:7px; height:7px; flex:0 0 7px; border-radius:50%; display:inline-block; background:#BFE8FF;}
+.dot.school,.calendar-label-dot.school{background:#8FCBFF;}
+.dot.personal,.calendar-label-dot.personal{background:#F8AFCB;}
+.dot.birthday,.calendar-label-dot.birthday{background:#FFE08A;}
+.dot.work,.calendar-label-dot.work{background:#C7B8FF;}
+.calendar-event-text{display:flex; align-items:center; gap:9px; min-width:0;}
+
+@media(max-width:760px){
+  .nimbus-chat-button{right:16px; bottom:16px; width:50px; height:50px;}
+  .nimbus-chat-panel{right:10px; left:10px; bottom:76px; width:auto; max-height:calc(100dvh - 92px);}
+  .nimbus-toast{right:12px; bottom:78px;}
+}
+
+/* Compact Apple Notes-style library control */
+#notes .notes-page-header{flex-direction:row; align-items:center; justify-content:space-between; gap:12px;}
+#notesSidebarToggle,.notes-menu-btn{width:auto; min-width:44px; height:38px; margin:0; padding:0 12px; border-radius:14px; font-size:18px; box-shadow:0 8px 18px rgba(150,160,230,.20);}
+#notesSidebarToggle::after{content:" Library"; font-size:13px; margin-left:4px;}
+#notes .notes-sidebar-close{width:36px; height:36px; font-size:24px;}
+@media(max-width:760px){#notesSidebarToggle,.notes-menu-btn{min-width:44px; height:40px; font-size:18px;} #notesSidebarToggle::after{content:"";}}

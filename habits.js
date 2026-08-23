@@ -2,13 +2,15 @@
    Cloud Notes - habits.js
    ===================================================== */
 
-let habits = JSON.parse(localStorage.getItem("cloudHabits")) || [];
+let habits = [];
 const todayKey = new Date().toISOString().split("T")[0];
 
 let editingHabit = null;
 
-function saveHabitsToStorage() {
-    localStorage.setItem("cloudHabits", JSON.stringify(habits));
+function saveHabitsToStorage(message = null) {
+    if (window.cloudNotesSave) {
+        window.cloudNotesSave("habits", habits, message);
+    }
 }
 
 function openHabitModal() {
@@ -79,7 +81,7 @@ function submitHabit() {
         habits.push(newHabit);
     }
 
-    saveHabitsToStorage();
+    saveHabitsToStorage(editingHabit !== null ? "☁️ Nimbus: Habit saved!" : "☁️ Nimbus: Habit added!");
     renderHabits();
     closeHabitModal();
 }
@@ -142,7 +144,7 @@ function completeHabit(index) {
     } else {
         habits[index].streak = Math.max(0, habits[index].streak - 1);
     }
-    saveHabitsToStorage();
+    saveHabitsToStorage(habits[index].completed ? "☁️ Nimbus: Habit checked off!" : null);
     renderHabits();
 }
 
@@ -229,3 +231,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (saveBtn) saveBtn.addEventListener("click", submitHabit);
     if (cancelBtn) cancelBtn.addEventListener("click", closeHabitModal);
 });
+
+
+function loadHabitsFromFirebase(nextHabits) {
+    habits = Array.isArray(nextHabits) ? nextHabits : [];
+    renderHabits();
+}
+
+function getHabitsData() {
+    return habits;
+}
+
+window.loadHabitsFromFirebase = loadHabitsFromFirebase;
+window.getHabitsData = getHabitsData;

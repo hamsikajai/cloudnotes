@@ -2,7 +2,7 @@
 // CLOUD NOTES GOALS
 // ===============================
 
-let goals = JSON.parse(localStorage.getItem("goals")) || [];
+let goals = [];
 
 let editingGoal = null;
 
@@ -93,10 +93,7 @@ function saveGoal() {
 
     }
 
-    localStorage.setItem(
-        "goals",
-        JSON.stringify(goals)
-    );
+    saveGoalsToFirebase(editingGoal === null ? "☁️ Nimbus: Goal created!" : "☁️ Nimbus: Goal saved!");
 
     closeGoalModal();
 
@@ -262,10 +259,7 @@ ${m.text}
     document.getElementById("goalCompleted").textContent=completed;
     document.getElementById("goalOverdue").textContent=overdue;
 
-    localStorage.setItem(
-        "goals",
-        JSON.stringify(goals)
-    );
+    saveGoalsToFirebase();
 
 }
 // ===============================
@@ -277,10 +271,7 @@ function toggleMilestone(goalIndex, milestoneIndex) {
     goals[goalIndex].milestones[milestoneIndex].complete =
         !goals[goalIndex].milestones[milestoneIndex].complete;
 
-    localStorage.setItem(
-        "goals",
-        JSON.stringify(goals)
-    );
+    saveGoalsToFirebase();
 
     renderGoals();
 
@@ -292,10 +283,7 @@ function deleteGoal(index) {
 
     goals.splice(index, 1);
 
-    localStorage.setItem(
-        "goals",
-        JSON.stringify(goals)
-    );
+    saveGoalsToFirebase();
 
     renderGoals();
 
@@ -349,3 +337,22 @@ window.toggleMilestone = toggleMilestone;
 window.deleteGoal = deleteGoal;
 window.editGoal = editGoal;
 window.filterGoals = filterGoals;
+
+
+function saveGoalsToFirebase(message = null) {
+    if (window.cloudNotesSave) {
+        window.cloudNotesSave("goals", goals, message);
+    }
+}
+
+function loadGoalsFromFirebase(nextGoals) {
+    goals = Array.isArray(nextGoals) ? nextGoals : [];
+    renderGoals();
+}
+
+function getGoalsData() {
+    return goals;
+}
+
+window.loadGoalsFromFirebase = loadGoalsFromFirebase;
+window.getGoalsData = getGoalsData;
