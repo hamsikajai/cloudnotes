@@ -2838,3 +2838,129 @@ background:#ffe3e3;
 #notesSidebarToggle::after{content:" Library"; font-size:13px; margin-left:4px;}
 #notes .notes-sidebar-close{width:36px; height:36px; font-size:24px;}
 @media(max-width:760px){#notesSidebarToggle,.notes-menu-btn{min-width:44px; height:40px; font-size:18px;} #notesSidebarToggle::after{content:"";}}
+
+/* Requirement fixes: Nimbus is the single AI entry point, mobile drawers stay usable */
+#cloudBuddy{
+  cursor:pointer;
+  z-index:1850;
+}
+#cloudBuddy:focus-visible{
+  outline:3px solid #BFE8FF;
+  outline-offset:6px;
+  border-radius:28px;
+}
+.task-input select,
+.task-input input[type="date"],
+.task-input input[type="time"]{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  outline:none;
+  background:#FFF8FC;
+  color:#55536A;
+  min-width:0;
+}
+.calendar-edit{
+  border:0;
+  border-radius:999px;
+  padding:6px 10px;
+  background:#E4D7FF;
+  color:#55536A;
+  font-weight:800;
+  cursor:pointer;
+}
+
+@media(max-width:900px){
+  .app{
+    min-height:100dvh;
+    height:auto;
+  }
+  .sidebar{
+    position:sticky;
+    top:0;
+    z-index:1200;
+    width:100%;
+    min-height:auto;
+    padding:12px max(12px, env(safe-area-inset-right)) 12px max(12px, env(safe-area-inset-left));
+    flex-direction:row;
+    align-items:center;
+    overflow-x:auto;
+    overflow-y:hidden;
+    gap:8px;
+    box-shadow:0 8px 22px rgba(170,150,190,.14);
+  }
+  .sidebar .logo{
+    flex:0 0 auto;
+    margin:0 8px 0 0;
+    font-size:20px;
+    white-space:nowrap;
+  }
+  .sidebar .bottom{
+    display:flex;
+    flex:0 0 auto;
+    margin:0;
+  }
+  .nav-btn{
+    flex:0 0 auto;
+    min-height:44px;
+    white-space:nowrap;
+  }
+  .main{
+    padding:18px max(14px, env(safe-area-inset-right)) 24px max(14px, env(safe-area-inset-left));
+    overflow-x:hidden;
+  }
+  .task-input{
+    flex-wrap:wrap;
+  }
+  .task-input input,
+  .task-input select{
+    min-height:44px;
+  }
+}
+
+@media(max-width:760px){
+  #cloudBuddy{
+    right:12px;
+    bottom:12px;
+  }
+  .nimbus-chat-panel{
+    z-index:2100;
+    right:8px;
+    left:8px;
+    bottom:calc(72px + env(safe-area-inset-bottom));
+    max-height:calc(100dvh - 92px - env(safe-area-inset-bottom));
+    border-radius:22px;
+  }
+  .nimbus-chat-messages{
+    min-height:180px;
+  }
+  .nimbus-chat-form input,
+  .nimbus-chat-form button{
+    min-height:44px;
+  }
+  #notes .notes-overlay{
+    z-index:1950;
+  }
+  #notes .notes-sidebar{
+    top:calc(env(safe-area-inset-top));
+    left:max(8px, env(safe-area-inset-left));
+    width:min(360px, calc(100vw - 16px));
+    height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);
+    margin-top:8px;
+    border-radius:24px;
+    padding:18px 16px 84px;
+    z-index:2000;
+    overflow:hidden;
+  }
+  #notes #notesList,
+  #notes .notes-list{
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  #notes .note-card,
+  #notes #noteSearch,
+  #notes .notes-sidebar-close,
+  #notes #newNoteBtn{
+    min-height:44px;
+  }
+}

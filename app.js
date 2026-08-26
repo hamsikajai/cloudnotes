@@ -21,7 +21,6 @@ import {
 
 const USER_DATA_DEFAULTS = {
     tasks: [],
-    reminders: [],
     notes: [],
     streak: { count: 0, lastCompletedDate: null },
     calendarEvents: {}
@@ -62,15 +61,22 @@ function saveUserData(path, value, successMessage = null) {
         });
 }
 
+function convertLegacyReminders(legacyReminders = []) {
+    if (!Array.isArray(legacyReminders) || !legacyReminders.length) return {};
+    const todayKey = calendarKeyFromDate(new Date());
+    return {
+        [todayKey]: legacyReminders.map((text) => makeCalendarEvent(String(text), "personal", "", "home"))
+    };
+}
+
 function applyUserData(data = {}) {
     isLoadingUserData = true;
     tasks = Array.isArray(data.tasks) ? data.tasks : [];
-    reminders = Array.isArray(data.reminders) ? data.reminders : [];
     notes = Array.isArray(data.notes) ? data.notes : [];
     const streakData = data.streak || {};
     streak = Number(streakData.count || 0);
     lastCompleted = streakData.lastCompletedDate || null;
-    calendarTasks = data.calendarEvents || {};
+    calendarTasks = data.calendarEvents || convertLegacyReminders(data.reminders);
 
     if (window.loadHabitsFromFirebase) window.loadHabitsFromFirebase(Array.isArray(data.habits) ? data.habits : []);
     if (window.loadGoalsFromFirebase) window.loadGoalsFromFirebase(Array.isArray(data.goals) ? data.goals : []);
@@ -93,18 +99,20 @@ async function migrateLocalStorageIfNeeded(user) {
 
     const payload = {
         tasks: parseStoredJSON("tasks", []),
-        reminders: parseStoredJSON("reminders", []),
         notes: parseStoredJSON("cloudNotes", []),
         habits: parseStoredJSON("cloudHabits", []),
         goals: parseStoredJSON("goals", []),
-        calendarEvents: parseStoredJSON("calendarTasks", {}),
+        calendarEvents: {
+            ...convertLegacyReminders(parseStoredJSON("reminders", [])),
+            ...parseStoredJSON("calendarTasks", {})
+        },
         streak: {
             count: Number(localStorage.getItem("streak")) || 0,
             lastCompletedDate: localStorage.getItem("lastCompletedDate") || null
         }
     };
 
-    const hasLocalData = payload.tasks.length || payload.reminders.length || payload.notes.length ||
+    const hasLocalData = payload.tasks.length || payload.notes.length ||
         payload.habits.length || payload.goals.length || Object.keys(payload.calendarEvents).length ||
         payload.streak.count || payload.streak.lastCompletedDate;
 
@@ -114,7 +122,6 @@ async function migrateLocalStorageIfNeeded(user) {
         await set(ref(database, `users/${user.uid}`), {
             ...existing,
             tasks: existing.tasks || payload.tasks,
-            reminders: existing.reminders || payload.reminders,
             notes: existing.notes || payload.notes,
             habits: existing.habits || payload.habits,
             goals: existing.goals || payload.goals,
@@ -128,7 +135,7 @@ async function migrateLocalStorageIfNeeded(user) {
 }
 
 window.cloudNotesSave = saveUserData;
-window.getCloudNotesContext = () => ({ tasks, reminders, notes, habits: window.getHabitsData?.() || [], goals: window.getGoalsData?.() || [], calendarEvents: calendarTasks });
+window.getCloudNotesContext = () => ({ tasks, reminders: getReminderItems(), notes, habits: window.getHabitsData?.() || [], goals: window.getGoalsData?.() || [], calendarEvents: calendarTasks });
 // ===========================
 // TASKS & BOARD LOGIC
 // ===========================
@@ -155,7 +162,7 @@ function addTask() {
     });
 
     inputEl.value = "";
-    saveTasks("☁️ Nimbus: Task added!");
+    saveTasks("☁️ Nimbus: Task created!");
     renderTasks();
 }
 
@@ -166,7 +173,7 @@ function toggleTask(index) {
     if (tasks[index].done) {
         completeToday();
     }
-    saveTasks(tasks[index]?.done ? "☁️ Nimbus: Nice! Task completed." : null);
+    saveTasks(tasks[index]?.done ? "☁️ Nimbus: Task completed!" : null);
     renderTasks();
 }
 
@@ -180,7 +187,7 @@ function deleteTask(index) {
 
     setTimeout(() => {
         tasks.splice(index, 1);
-        saveTasks();
+        saveTasks("☁️ Nimbus: Task deleted!");
         renderTasks();
     }, 200);
 }
@@ -342,28 +349,62 @@ function showPage(pageId) {
 
 let reminders = [];
 
-function saveReminders() {
-    saveUserData("reminders", reminders);
+function calendarKeyFromDate(date) {
+    return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+}
+
+function makeCalendarEvent(text, category = "personal", time = "", source = "calendar") {
+    return { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, text, category, time, source };
+}
+
+function getReminderItems() {
+    return Object.entries(calendarTasks).flatMap(([dateKey, events]) =>
+        (Array.isArray(events) ? events : []).map((event, index) => ({
+            ...(typeof event === "object" ? event : { text: event, category: "work" }),
+            dateKey,
+            index
+        }))
+    ).sort((a, b) => `${a.dateKey} ${a.time || ""}`.localeCompare(`${b.dateKey} ${b.time || ""}`));
 }
 
 function addReminder() {
     const input = document.getElementById("reminderInput");
     if (!input) return;
     const value = input.value.trim();
-
     if (!value) return;
 
-    reminders.push(value);
-    input.value = "";
+    const dateInput = document.getElementById("reminderDate");
+    const timeInput = document.getElementById("reminderTime");
+    const categoryInput = document.getElementById("reminderCategory");
+    const date = dateInput?.value ? new Date(`${dateInput.value}T00:00:00`) : new Date();
+    const key = calendarKeyFromDate(date);
 
-    saveReminders();
+    if (!calendarTasks[key]) calendarTasks[key] = [];
+    calendarTasks[key].push(makeCalendarEvent(value, categoryInput?.value || "personal", timeInput?.value || "", "home"));
+
+    input.value = "";
+    if (timeInput) timeInput.value = "";
+
+    saveUserData("calendarEvents", calendarTasks, "☁️ Nimbus: Reminder created!");
     renderReminders();
+    renderCalendar();
 }
 
 function deleteReminder(index) {
-    reminders.splice(index, 1);
-    saveReminders();
+    const reminder = getReminderItems()[index];
+    if (!reminder || !calendarTasks[reminder.dateKey]) return;
+    calendarTasks[reminder.dateKey].splice(reminder.index, 1);
+    if (calendarTasks[reminder.dateKey].length === 0) delete calendarTasks[reminder.dateKey];
+    saveUserData("calendarEvents", calendarTasks, "☁️ Nimbus: Reminder deleted!");
     renderReminders();
+    renderCalendar();
+    renderCalendarTasks();
+}
+
+function formatReminderDate(key, time = "") {
+    const [year, month, day] = key.split("-").map(Number);
+    const date = new Date(year, month, day);
+    return `${date.toLocaleDateString([], { month: "short", day: "numeric" })}${time ? ` at ${time}` : ""}`;
 }
 
 function renderReminders() {
@@ -371,22 +412,18 @@ function renderReminders() {
     if (!list) return;
 
     list.innerHTML = "";
+    reminders = getReminderItems();
 
     reminders.forEach((reminder, index) => {
         const li = document.createElement("li");
-
         const text = document.createElement("span");
-        text.textContent = reminder;
-
+        text.textContent = `${reminder.text} — ${formatReminderDate(reminder.dateKey, reminder.time)}`;
         const btn = document.createElement("button");
         btn.textContent = "✕";
         btn.className = "rem-delete";
-
         btn.onclick = () => deleteReminder(index);
-
         li.appendChild(text);
         li.appendChild(btn);
-
         list.appendChild(li);
     });
 }
@@ -521,7 +558,7 @@ function createNote() {
     });
 
     currentNote = 0;
-    saveNotes("☁️ Nimbus: New note ready!");
+    saveNotes("☁️ Nimbus: Note created!");
     renderNotes();
     openNote(0);
     focusNotesBox();
@@ -624,7 +661,7 @@ function deleteCurrentNote() {
     if (!confirm("Delete this note?")) return;
 
     notes.splice(currentNote, 1);
-    saveNotes("☁️ Nimbus: Note deleted.");
+    saveNotes("☁️ Nimbus: Note deleted!");
     currentNote = -1;
 
     const titleEl = document.getElementById("noteTitle");
@@ -698,7 +735,7 @@ onAuthStateChanged(auth, (user) => {
 
     if (user) {
         currentUid = user.uid;
-        notifyNimbus("☁️ Nimbus: Loading your Cloud Notes…");
+        showNimbusLoading();
         if (emailElement) emailElement.textContent = user.email || "No email provided";
         if (nameElement) {
             const displayName = user.displayName || (user.email ? user.email.split("@")[0] : "Cloud Notes user");
@@ -714,8 +751,10 @@ onAuthStateChanged(auth, (user) => {
         const unsubscribeValue = onValue(userRef, (snapshot) => {
             firebaseReady = true;
             applyUserData(snapshot.val() || USER_DATA_DEFAULTS);
+            hideNimbusLoading();
         }, (error) => {
             console.error("Firebase load failed", error);
+            hideNimbusLoading();
             notifyNimbus("☁️ Nimbus: I couldn't load your Cloud Notes. Please try again.", "error");
         });
         firebaseUnsubscribe = unsubscribeValue;
@@ -909,6 +948,7 @@ const cloudMessages = [
 ];
 
 const cloud = document.getElementById("cloudFace");
+const cloudBuddy = document.getElementById("cloudBuddy");
 const speech = document.getElementById("cloudSpeech");
 
 function notifyNimbus(message, type = "info") {
@@ -935,8 +975,27 @@ function randomCloudMessage() {
     speech.textContent = cloudMessages[random];
 }
 
-if (cloud) {
-    cloud.addEventListener("click", randomCloudMessage);
+let nimbusLoadingTimer = null;
+function showNimbusLoading() {
+    if (speech) speech.textContent = "☁️ Nimbus is loading your Cloud Notes";
+    clearTimeout(nimbusLoadingTimer);
+    nimbusLoadingTimer = setTimeout(hideNimbusLoading, 3500);
+}
+function hideNimbusLoading() {
+    clearTimeout(nimbusLoadingTimer);
+    if (speech && speech.textContent.includes("loading your Cloud Notes")) {
+        speech.textContent = "Nimbus is keeping your notes cozy ☁️";
+    }
+}
+
+if (cloudBuddy) {
+    cloudBuddy.addEventListener("click", () => toggleNimbusChat(true));
+    cloudBuddy.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggleNimbusChat(true);
+        }
+    });
 }
 
 function celebrateWithNimbus() {
@@ -1097,7 +1156,8 @@ function renderCalendarTasks() {
         const categoryClass = typeof task === "object" ? (task.category || "work") : "work";
 
         li.innerHTML = `
-            <span class="calendar-event-text"><span class="calendar-label-dot ${categoryClass}"></span>${taskText}</span>
+            <span class="calendar-event-text"><span class="calendar-label-dot ${categoryClass}"></span>${task.time ? `${task.time} · ` : ""}${taskText}</span>
+            <button class="calendar-edit" onclick="editCalendarTask(${index})">Edit</button>
             <button class="calendar-delete" onclick="deleteCalendarTask(${index})">✕</button>
         `;
         list.appendChild(li);
@@ -1116,7 +1176,7 @@ function nextMonth() {
 
 function addCalendarTask() {
     if (!selectedCalendarDate) {
-        alert("Select a date first!");
+        notifyNimbus("☁️ Nimbus: Select a date first.");
         return;
     }
 
@@ -1132,12 +1192,9 @@ function addCalendarTask() {
         calendarTasks[selectedCalendarDate] = [];
     }
 
-    calendarTasks[selectedCalendarDate].push({
-        text: value,
-        category: category ? category.value : "work"
-    });
+    calendarTasks[selectedCalendarDate].push(makeCalendarEvent(value, category ? category.value : "work"));
 
-    saveUserData("calendarEvents", calendarTasks, "☁️ Nimbus: Calendar event saved!");
+    saveUserData("calendarEvents", calendarTasks, "☁️ Nimbus: Calendar event created!");
 
     input.value = "";
     renderCalendar();
@@ -1153,10 +1210,27 @@ function deleteCalendarTask(index) {
         delete calendarTasks[selectedCalendarDate];
     }
 
-    saveUserData("calendarEvents", calendarTasks);
+    saveUserData("calendarEvents", calendarTasks, "☁️ Nimbus: Calendar event deleted!");
 
     renderCalendar();
     renderCalendarTasks();
+    renderReminders();
+}
+
+function editCalendarTask(index) {
+    if (!selectedCalendarDate || !calendarTasks[selectedCalendarDate]?.[index]) return;
+    const current = calendarTasks[selectedCalendarDate][index];
+    const currentText = typeof current === "object" ? current.text : current;
+    const nextText = prompt("Update this calendar event:", currentText);
+    if (nextText === null || !nextText.trim()) return;
+    calendarTasks[selectedCalendarDate][index] = {
+        ...(typeof current === "object" ? current : makeCalendarEvent(currentText)),
+        text: nextText.trim()
+    };
+    saveUserData("calendarEvents", calendarTasks, "☁️ Nimbus: Calendar event updated!");
+    renderCalendar();
+    renderCalendarTasks();
+    renderReminders();
 }
 
 function goToToday() {
@@ -1248,6 +1322,7 @@ window.closeNotesSidebar = closeNotesSidebar;
 window.goToToday = goToToday;
 window.toggleNimbusChat = toggleNimbusChat;
 window.sendNimbusChat = sendNimbusChat;
+window.editCalendarTask = editCalendarTask;
 window.createNote = createNote;
 window.openNote = openNote;
 window.autoSaveNote = autoSaveNote;
