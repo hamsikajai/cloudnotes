@@ -12,8 +12,8 @@
 </head>
 <body>
 
-  <div id="cloudBuddy">
-    <div id="cloudSpeech">Nimbus is keeping your notes cozy ☁️</div>
+  <div id="cloudBuddy" role="button" tabindex="0" aria-label="Open Nimbus AI assistant">
+    <div id="cloudSpeech">☁️ Nimbus is loading your Cloud Notes</div>
     <div id="cloudFace">
       <div class="eye left"></div>
       <div class="eye right"></div>
@@ -23,7 +23,6 @@
     </div>
   </div>
 
-  <button id="nimbusChatButton" class="nimbus-chat-button" type="button" onclick="toggleNimbusChat(true)" aria-label="Open Nimbus chat">☁️</button>
   <section id="nimbusChatPanel" class="nimbus-chat-panel" hidden aria-label="Nimbus AI assistant chat">
     <div class="nimbus-chat-header">
       <div><strong>☁️ Nimbus</strong><span>Productivity assistant</span></div>
@@ -97,6 +96,14 @@
             <h3>⏰ Reminders</h3>
             <div class="task-input">
               <input id="reminderInput" placeholder="Add a reminder..." />
+              <input id="reminderDate" type="date" aria-label="Reminder date" />
+              <input id="reminderTime" type="time" aria-label="Reminder time" />
+              <select id="reminderCategory" aria-label="Reminder category">
+                <option value="personal">🌸 Personal</option>
+                <option value="school">📚 School</option>
+                <option value="birthday">🎂 Birthday</option>
+                <option value="work">💼 Work</option>
+              </select>
               <button onclick="addReminder()">Add</button>
             </div>
             <ul id="reminderList"></ul>
