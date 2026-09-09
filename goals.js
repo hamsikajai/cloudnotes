@@ -34,7 +34,9 @@ function closeGoalModal() {
 
 }
 
-function saveGoal() {
+function saveGoal(event) {
+
+    event?.preventDefault();
 
     const title =
         document.getElementById("goalTitle").value.trim();
@@ -259,8 +261,6 @@ ${m.text}
     document.getElementById("goalCompleted").textContent=completed;
     document.getElementById("goalOverdue").textContent=overdue;
 
-    saveGoalsToFirebase();
-
 }
 // ===============================
 // GOAL ACTIONS
@@ -340,6 +340,7 @@ window.filterGoals = filterGoals;
 
 
 function saveGoalsToFirebase(message = null) {
+    localStorage.setItem("goals", JSON.stringify(goals));
     if (window.cloudNotesSave) {
         window.cloudNotesSave("goals", goals, message);
     }

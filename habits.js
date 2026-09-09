@@ -116,17 +116,21 @@ function renderHabits() {
         }
 
         card.innerHTML = `
-            <div class="habit-info">
-                <span class="habit-emoji">${habit.emoji}</span>
-                <div>
+            <div class="habit-main">
+                <div class="habit-info">
+                    <span class="habit-emoji" aria-hidden="true">${habit.emoji}</span>
+                    <div>
                     <h4>${habit.name}</h4>
                     <span class="habit-streak">🔥 ${habit.streak} day streak</span>
+                    </div>
+                </div>
+                <div class="habit-actions">
+                    ${actionHTML}
                 </div>
             </div>
-            <div class="habit-actions">
-                ${actionHTML}
-                <button onclick="editHabit(${index})" class="icon-btn">✏️</button>
-                <button onclick="deleteHabit(${index})" class="icon-btn">🗑️</button>
+            <div class="habit-management" aria-label="Manage ${habit.name}">
+                <button type="button" onclick="editHabit(${index})" class="icon-btn" aria-label="Edit ${habit.name}" title="Edit habit">✏️</button>
+                <button type="button" onclick="deleteHabit(${index})" class="icon-btn danger" aria-label="Delete ${habit.name}" title="Delete habit">🗑️</button>
             </div>
         `;
 
